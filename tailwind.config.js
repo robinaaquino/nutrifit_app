@@ -12,6 +12,10 @@ module.exports = {
       nf_dark_blue: '#326273',
       nf_light_blue: '#5C9EAD'
     },
+    fontFamily: {
+      inter: ['Inter', 'sans-serif'],
+      bitter: ['Bitter', 'serif'],
+    },
     extend: {},
   },
   plugins: [],
