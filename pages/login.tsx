@@ -27,22 +27,26 @@ export default function Login() {
       console.log('login')
     }, []);
     return (
-      <div className="m-auto my-24 w-1/3 h-1/3 divide-y-4 space-y-1">
-      <div className="space-y-1">
-        <input
-          type="email"
-          onChange={(e) => setEmail(e.target.value)}
-          className="border border-current	"
-        />
-        <br />
-        <input
-          type="password"
-          onChange={(e) => setPassword(e.target.value)}
-          className="border border-current	"
-        />
-        <br />
-        <button onClick={() => handleForm()}>Login</button>
-      </div>
+      <div className="m-auto my-24 w-1/3 h-1/3 divide-y-4 space-y-1 bg-white
+      ">
+        <div className="space-y-1">
+          <h1>Login</h1>
+          <label htmlFor="email">Email </label>
+          <input
+            name="email"
+            type="email"
+            onChange={(e) => setEmail(e.target.value)}
+            className="border border-current"
+          />
+          <br />
+          <input
+            type="password"
+            onChange={(e) => setPassword(e.target.value)}
+            className="border border-current	"
+          />
+          <br />
+          <button onClick={() => handleForm()}>Login</button>
+        </div>
       </div>
     );
 }

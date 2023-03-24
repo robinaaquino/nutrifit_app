@@ -26,21 +26,32 @@ export default function Signup() {
     }
     return (
       <>
-      <div className="m-auto my-24 w-1/3 h-1/3 divide-y-4 space-y-1">
-        <div className="space-y-1">
-          <input
-            type="email"
-            onChange={(e) => setEmail(e.target.value)}
-            className="border border-current	"
-          />
-          <br />
-          <input
-            type="password"
-            onChange={(e) => setPassword(e.target.value)}
-            className="border border-current	"
-          />
-          <br />
-          <button onClick={() => handleForm()}>Signup</button>
+      <div className="m-auto">
+        <div className="flex flex-col items-center justify-center">
+          <h1 className="font-bitter text-6xl text-bold">Create an Account</h1>
+          <div className="py-8">
+            <label htmlFor="email" className="block">Email </label>
+            <input
+              name="email"
+              type="email"
+              onChange={(e) => setEmail(e.target.value)}
+              className="rounded-lg bg-lime-300 text-black"
+            />
+            <label htmlFor="password" className="block">Password </label>
+            <input
+              name="password"
+              type="password"
+              onChange={(e) => setPassword(e.target.value)}
+              className="rounded-lg bg-lime-300 text-black"
+            />
+          </div>
+
+          <button
+          onClick={() => handleForm()}
+          className="bg-lime-300 rounded-lg text-black border"
+          >
+            Create account
+          </button>
         </div>
       </div>
       </>
