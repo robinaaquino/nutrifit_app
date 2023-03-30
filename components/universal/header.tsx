@@ -1,55 +1,102 @@
-import React from 'react';
-import SearchBar from './search_bar';
-import { logout, useAuthContext } from '@/context/AuthContext';
+import React from "react";
+import SearchBar from "./search_bar";
+import { logout, useAuthContext } from "@/context/AuthContext";
 
-export default function Header(){
-  const {user, loading} = useAuthContext();
+export default function Header() {
+  const { user, loading } = useAuthContext();
 
-  return(
+  return (
     <>
       <div>
-        <nav className="bg-nf_green px-2 sm:px-3 py-8 w-full flex items-center justify-between">
-            <div>
-              <a href="#" className="flex items-end">
-                <img></img>
-                <span className="font-inter text-4xl text-nf_yellow font-bold ml-3">Nutrifit</span>
-                <span className="text-2xl font-bold font-inter ml-3">Wellness Hub</span>
-              </a>
+        <div className="border py-3 px-6 bg-nf_green flex justify-between items-center w-full">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6 text-red-500"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+            />
+          </svg>
+          <div className="ml-6 flex flex-1 gap-x-3">
+            <a href="#" className="flex items-end">
+              <img></img>
+              <span className="font-inter text-4xl text-nf_yellow font-bold ml-3">
+                Nutrifit
+              </span>
+              <span className="text-2xl font-bold font-inter ml-3">
+                Wellness Hub
+              </span>
+            </a>
+          </div>
+
+          <div className="flex flex-1 gap-x-3">
+            <input
+              type="text"
+              className="w-full rounded-md border border-[#DDE2E4] px-3 py-2 text-sm max-w-lg"
+              value="Search..."
+            />
+          </div>
+
+          <div className="ml-2 flex">
+            <div className="flex cursor-pointer items-center gap-x-1 rounded-md py-2 px-4 hover:bg-gray-100">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 text-nf_yellow"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z" />
+                <path
+                  fill-rule="evenodd"
+                  d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              <span className="text-xl font-inter text-white">Products</span>
             </div>
 
-            <div>
-              <SearchBar/>
+            <div className="flex cursor-pointer items-center gap-x-1 rounded-md py-2 px-4 hover:bg-gray-100">
+              <div className="relative">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 text-nf_yellow"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+                </svg>
+                <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 p-2 text-xs text-white">
+                  3
+                </span>
+              </div>
+              <span className="text-xl font-inter text-white">Cart</span>
             </div>
 
-            <div>
-              <ul className="flex">
-                <li>
-                  <a href="" className="block m-2 text-2xl font-bold font-inter">Products</a>
-                </li>
-                <li>
-                  <a href="" className="block m-2 text-2xl font-bold font-inter">Cart</a>
-                </li>
-                <li>
-                  <button id="profileDropdown" data-dropdown-toggle="dropdown" className="block m-2 text-2xl font-bold font-inter">Profile</button>
-                    <div>
-                      <ul aria-labelledby="profileDropdown">
-                        <li>
-                          {
-                            user ? (
-                              <>
-                                <button onClick={logout}> Signout</button>
-                              </>
-                            ) : null
-                          }
-
-                        </li>
-                      </ul>
-                    </div>
-                </li>
-              </ul>
+            <div className="flex cursor-pointer items-center gap-x-1 rounded-md py-2 px-4 hover:bg-gray-100">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 16 16"
+                className="h-6 w-6 text-nf_yellow"
+              >
+                {" "}
+                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />{" "}
+                <path
+                  fill-rule="evenodd"
+                  d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"
+                />{" "}
+              </svg>
+              <span className="text-xl font-inter text-white">Profile</span>
             </div>
-        </nav>
+          </div>
+        </div>
       </div>
     </>
-  )
+  );
 }

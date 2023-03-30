@@ -47,6 +47,13 @@ export default function Login() {
           <br />
           <button onClick={() => handleForm()}>Login</button>
         </div>
+        <button
+  type="button"
+  data-te-ripple-init
+  data-te-ripple-color="light"
+  className="rounded px-6 pt-2.5 pb-2 text-xs font-medium uppercase leading-normal text-primary transition duration-150 ease-in-out hover:bg-neutral-100 hover:text-primary-600 focus:text-primary-600 focus:outline-none focus:ring-0 active:text-primary-700 dark:hover:bg-neutral-700">
+  Link
+</button>
       </div>
     );
 }
