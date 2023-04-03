@@ -1,21 +1,23 @@
-import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import { getAllUsers } from '../firebase/services/users_services'
-import React, { useEffect } from 'react';
+import Head from "next/head";
+import Image from "next/image";
+import { Inter } from "next/font/google";
+import { getAllUsers } from "../firebase/services/users_services";
+import React, { useEffect } from "react";
+import { redirect, useRouter } from "next/navigation";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
-  useEffect(() => {
-    getAllUsers().then(
-      result => {
-        console.log(result)
-      }
-    )
+  const router = useRouter();
 
-    if(process.env.TEST_KEY === `uwu`) {
-      console.log('This is a test')
+  useEffect(() => {
+    router.replace("/maintenance");
+    getAllUsers().then((result) => {
+      console.log(result);
+    });
+
+    if (process.env.TEST_KEY === `uwu`) {
+      console.log("This is a test");
     }
   }, []);
 
@@ -26,5 +28,5 @@ export default function Home() {
         Hello world!
       </h1> */}
     </>
-  )
+  );
 }

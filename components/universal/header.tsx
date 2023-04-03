@@ -1,6 +1,7 @@
 import React from "react";
 import SearchBar from "./search_bar";
 import { logout, useAuthContext } from "@/context/AuthContext";
+import Link from "next/link";
 
 export default function Header() {
   const { user, loading } = useAuthContext();
@@ -15,30 +16,30 @@ export default function Header() {
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
-            stroke-width="2"
+            strokeWidth="2"
           >
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
             />
           </svg>
           <div className="ml-6 flex flex-1 gap-x-3">
-            <a href="#" className="flex items-end">
+            <Link href="/" className="flex items-end">
               <img></img>
               <span className="font-inter text-4xl text-nf_yellow font-bold ml-3">
                 Nutrifit
               </span>
-              <span className="text-2xl font-bold font-inter ml-3">
+              <span className="text-2xl font-bold font-inter ml-3 text-black">
                 Wellness Hub
               </span>
-            </a>
+            </Link>
           </div>
 
           <div className="flex flex-1 gap-x-3">
             <input
               type="text"
-              className="w-full rounded-md border border-[#DDE2E4] px-3 py-2 text-sm max-w-lg"
+              className="w-full rounded-md border border-nf_yellow px-3 py-2 text-sm max-w-lg bg-white"
               value="Search..."
             />
           </div>
@@ -53,12 +54,14 @@ export default function Header() {
               >
                 <path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4z" />
                 <path
-                  fill-rule="evenodd"
+                  fillRule="evenodd"
                   d="M3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8zm5 3a1 1 0 011-1h2a1 1 0 110 2H9a1 1 0 01-1-1z"
-                  clip-rule="evenodd"
+                  clipRule="evenodd"
                 />
               </svg>
-              <span className="text-xl font-inter text-white">Products</span>
+              <Link href="/products" className="text-xl font-inter text-white">
+                Products
+              </Link>
             </div>
 
             <div className="flex cursor-pointer items-center gap-x-1 rounded-md py-2 px-4 hover:bg-gray-100">
@@ -78,21 +81,37 @@ export default function Header() {
               <span className="text-xl font-inter text-white">Cart</span>
             </div>
 
-            <div className="flex cursor-pointer items-center gap-x-1 rounded-md py-2 px-4 hover:bg-gray-100">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 16 16"
-                className="h-6 w-6 text-nf_yellow"
+            <div className="dropdown">
+              <div
+                tabIndex={0}
+                className="flex cursor-pointer items-center gap-x-1 rounded-md py-2 px-4 hover:bg-gray-100 "
               >
-                {" "}
-                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />{" "}
-                <path
-                  fill-rule="evenodd"
-                  d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"
-                />{" "}
-              </svg>
-              <span className="text-xl font-inter text-white">Profile</span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 16 16"
+                  className="h-6 w-6 text-nf_yellow"
+                >
+                  {" "}
+                  <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z" />{" "}
+                  <path
+                    fillRule="evenodd"
+                    d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"
+                  />{" "}
+                </svg>
+                <span className="text-xl font-inter text-white">Profile</span>
+              </div>
+              <ul
+                tabIndex={0}
+                className="dropdown-content menu p-2 shadow bg-nf_green rounded-box "
+              >
+                <li className="text-white text-xl hover:bg-white rounded-lg hover:text-black">
+                  <Link href="/login">Login</Link>
+                </li>
+                <li className="text-white text-xl hover:bg-white rounded-lg hover:text-black">
+                  <Link href="/signup">Sign up</Link>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
