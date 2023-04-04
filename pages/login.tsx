@@ -46,6 +46,8 @@ export default function Login() {
               className="shadow appearance-none border rounded w-full py-2 px-3 text-white bg-nf_green leading-tight"
               id="email"
               type="text"
+              required
+              maxLength={255}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
@@ -60,16 +62,16 @@ export default function Login() {
               className="shadow appearance-none border rounded w-full py-2 px-3 text-white bg-nf_green mb-3 leading-tight"
               id="password"
               type="password"
+              required
+              minLength={6}
+              maxLength={255}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <p className="text-red-500 text-xs italic">
-              Please choose a password.
-            </p>
           </div>
           <div className="flex items-center justify-between">
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white bg-nf_green font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              type="button"
+              type="submit"
               onClick={() => handleForm()}
             >
               Sign In
