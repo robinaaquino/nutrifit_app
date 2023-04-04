@@ -2,7 +2,6 @@
 import React from "react";
 import signUp from "@/firebase/auth/signup";
 import { useRouter } from "next/navigation";
-import Alert from "@/components/universal/alert";
 
 export default function Signup() {
   const [email, setEmail] = React.useState("");
