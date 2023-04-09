@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function Custom404() {
   return (
     <>
-      <div className="flex items-center justify-center h-screen bg-purple-600 text-black">
+      <div className="flex absolute items-center justify-center h-screen w-screen bg-purple-600 text-black">
         <div className="flex flex-col items-center justify-center max-w-2xl">
           <div>
             <svg
