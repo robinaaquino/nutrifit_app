@@ -1,16 +1,41 @@
-import app from '../config'
-import { signInWithEmailAndPassword, getAuth } from "firebase/auth";
+import app from "../config";
+import { auth } from "./auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { functionResult } from "@/constants/constants";
 
-const auth = getAuth(app);
+//TODO: turn alert and redirects in the function
+export default async function logInWithEmailAndPassword(
+  email: string,
+  password: string
+) {
+  let result: functionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
 
-export default async function login(email: string, password: string) {
-  let result = null,
-    error = null;
-  try {
-    result = await signInWithEmailAndPassword(auth, email, password);
-  } catch (e) {
-    error = e;
-  }
+  await signInWithEmailAndPassword(auth, email, password)
+    .then((result: any) => {
+      const user = result.user;
 
-  return { result, error };
+      result = {
+        result: user,
+        isSuccess: true,
+        resultText: "Successful in logging in via email",
+        errorMessage: "",
+      };
+    })
+    .catch((error: any) => {
+      const errorMessage = error.message;
+
+      result = {
+        result: "",
+        isSuccess: false,
+        resultText: "Failed in logging in via email",
+        errorMessage: errorMessage,
+      };
+    });
+
+  return result;
 }
