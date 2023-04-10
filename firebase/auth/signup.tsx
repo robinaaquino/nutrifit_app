@@ -4,7 +4,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { functionResult } from "@/constants/constants";
 
 export default async function signUp(email: string, password: string) {
-  let result: functionResult = {
+  let resultObject: functionResult = {
     result: "",
     isSuccess: false,
     resultText: "",
@@ -14,7 +14,7 @@ export default async function signUp(email: string, password: string) {
     .then((result: any) => {
       const user = result.user;
 
-      result = {
+      resultObject = {
         result: user,
         isSuccess: true,
         resultText: "Successful in signing up in via email",
@@ -24,7 +24,7 @@ export default async function signUp(email: string, password: string) {
     .catch((error: any) => {
       const errorMessage = error.message;
 
-      result = {
+      resultObject = {
         result: "",
         isSuccess: false,
         resultText: "Failed in signing up via email",
@@ -32,5 +32,5 @@ export default async function signUp(email: string, password: string) {
       };
     });
 
-  return result;
+  return resultObject;
 }

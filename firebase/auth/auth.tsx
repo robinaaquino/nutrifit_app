@@ -7,7 +7,7 @@ export const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
 export async function signInWithGoogle(): Promise<any> {
-  let result: functionResult = {
+  let resultObject: functionResult = {
     result: "",
     isSuccess: false,
     resultText: "",
@@ -20,7 +20,7 @@ export async function signInWithGoogle(): Promise<any> {
       const token = credential.accessToken;
       const user = result.user;
 
-      result = {
+      resultObject = {
         result: user,
         isSuccess: true,
         resultText: "Successful in logging in via Google",
@@ -33,7 +33,7 @@ export async function signInWithGoogle(): Promise<any> {
       const email = error.customData.email;
       const credential = GoogleAuthProvider.credentialFromError(error);
 
-      result = {
+      resultObject = {
         result: "",
         isSuccess: false,
         resultText: "Failed in logging in via Google",
@@ -41,5 +41,5 @@ export async function signInWithGoogle(): Promise<any> {
       };
     });
 
-  return result;
+  return resultObject;
 }

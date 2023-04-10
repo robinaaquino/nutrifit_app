@@ -8,7 +8,7 @@ export default async function logInWithEmailAndPassword(
   email: string,
   password: string
 ) {
-  let result: functionResult = {
+  let resultObject: functionResult = {
     result: "",
     isSuccess: false,
     resultText: "",
@@ -19,7 +19,7 @@ export default async function logInWithEmailAndPassword(
     .then((result: any) => {
       const user = result.user;
 
-      result = {
+      resultObject = {
         result: user,
         isSuccess: true,
         resultText: "Successful in logging in via email",
@@ -29,7 +29,7 @@ export default async function logInWithEmailAndPassword(
     .catch((error: any) => {
       const errorMessage = error.message;
 
-      result = {
+      resultObject = {
         result: "",
         isSuccess: false,
         resultText: "Failed in logging in via email",
@@ -37,5 +37,5 @@ export default async function logInWithEmailAndPassword(
       };
     });
 
-  return result;
+  return resultObject;
 }

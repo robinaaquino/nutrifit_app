@@ -6,6 +6,6 @@ export const NOTIFICATION_STATES = {
 export interface functionResult {
   result: any;
   isSuccess: Boolean;
-  resultText: String;
-  errorMessage: String;
+  resultText: string;
+  errorMessage: string;
 }
