@@ -1,7 +1,7 @@
 export default function maintenance() {
   return (
     <>
-      <div className="flex items-center justify-center h-screen bg-purple-600 text-black">
+      <div className="absolute flex items-center justify-center h-screen w-screen bg-purple-600 text-black">
         <div className="flex flex-col items-center justify-center max-w-2xl">
           <div>
             <svg

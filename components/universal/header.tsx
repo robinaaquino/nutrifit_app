@@ -9,7 +9,7 @@ export default function Header() {
   return (
     <>
       <div>
-        <div className="border py-3 px-6 bg-nf_green flex justify-between items-center w-full">
+        <div className="py-3 px-6 bg-nf_green flex justify-between items-center w-full">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 text-red-500"
@@ -26,7 +26,6 @@ export default function Header() {
           </svg>
           <div className="ml-6 flex flex-1 gap-x-3">
             <Link href="/" className="flex items-end">
-              <img></img>
               <span className="font-inter text-4xl text-nf_yellow font-bold ml-3">
                 Nutrifit
               </span>
@@ -45,7 +44,7 @@ export default function Header() {
           </div>
 
           <div className="ml-2 flex">
-            <div className="flex cursor-pointer items-center gap-x-1 rounded-md py-2 px-4 hover:bg-gray-100">
+            <div className="flex cursor-pointer items-center gap-x-1 rounded-md py-2 px-4 hover:bg-nf_dark_green">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-6 w-6 text-nf_yellow"
@@ -64,7 +63,7 @@ export default function Header() {
               </Link>
             </div>
 
-            <div className="flex cursor-pointer items-center gap-x-1 rounded-md py-2 px-4 hover:bg-gray-100">
+            <div className="flex cursor-pointer items-center gap-x-1 rounded-md py-2 px-4 hover:bg-nf_dark_green">
               <div className="relative">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -84,7 +83,7 @@ export default function Header() {
             <div className="dropdown">
               <div
                 tabIndex={0}
-                className="flex cursor-pointer items-center gap-x-1 rounded-md py-2 px-4 hover:bg-gray-100 "
+                className="flex cursor-pointer items-center gap-x-1 rounded-md py-2 px-4 hover:bg-nf_dark_green "
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -105,10 +104,10 @@ export default function Header() {
                 tabIndex={0}
                 className="dropdown-content menu p-2 shadow bg-nf_green rounded-box "
               >
-                <li className="text-white text-xl hover:bg-white rounded-lg hover:text-black">
+                <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
                   <Link href="/login">Login</Link>
                 </li>
-                <li className="text-white text-xl hover:bg-white rounded-lg hover:text-black">
+                <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
                   <Link href="/signup">Sign up</Link>
                 </li>
               </ul>
