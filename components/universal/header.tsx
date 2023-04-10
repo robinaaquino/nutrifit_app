@@ -9,7 +9,7 @@ export default function Header() {
   return (
     <>
       <div>
-        <div className="border py-3 px-6 bg-nf_green flex justify-between items-center w-full">
+        <div className="py-3 px-6 bg-nf_green flex justify-between items-center w-full">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 text-red-500"
@@ -26,7 +26,6 @@ export default function Header() {
           </svg>
           <div className="ml-6 flex flex-1 gap-x-3">
             <Link href="/" className="flex items-end">
-              <img></img>
               <span className="font-inter text-4xl text-nf_yellow font-bold ml-3">
                 Nutrifit
               </span>
