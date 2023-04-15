@@ -13,7 +13,7 @@ enum Role {
   ADMIN = "admin",
 }
 
-export interface functionResult {
+export interface FunctionResult {
   result: any;
   isSuccess: Boolean;
   resultText: string;
