@@ -1,6 +1,6 @@
 import app from "../config";
 import { getAuth, GoogleAuthProvider, signInWithRedirect } from "firebase/auth";
-import { functionResult } from "@/constants/constants";
+import { functionResult } from "@/firebase/constants";
 
 export const auth = getAuth(app);
 

@@ -1,7 +1,7 @@
 import app from "../config";
 import { auth } from "./auth";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { functionResult } from "@/constants/constants";
+import { functionResult } from "@/firebase/constants";
 
 //TODO: turn alert and redirects in the function
 export default async function logInWithEmailAndPassword(
