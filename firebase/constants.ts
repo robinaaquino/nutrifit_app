@@ -29,12 +29,12 @@ export interface ShippingDetailsType {
 }
 
 export interface UsersDatabaseType {
-  contact_number: string;
-  created_at: string;
+  contact_number?: string;
+  created_at?: string;
   email: string;
   role: Role;
-  shipping_details: ShippingDetailsType;
-  updated_at: string;
+  shipping_details?: ShippingDetailsType;
+  updated_at?: string;
 }
 
 enum PaymentMethodEnum {
@@ -64,25 +64,25 @@ enum OrderStatusEnum {
 }
 
 export interface OrdersDatabaseType {
-  created_at: string;
-  date_cleared: string;
+  created_at?: string;
+  date_cleared?: string;
   payment: PaymentType;
   products: ProductsInOrderType[];
   status: OrderStatusEnum;
   total_price: number;
-  updated_at: string;
+  updated_at?: string;
   user_id: string;
 }
 
 export interface ProductsDatabaseType {
   category: string;
-  created_at: string;
+  created_at?: string;
   description: string;
   price: number;
   quantity_left: number;
-  quantity_in_carts: number;
-  quantity_sold: number;
-  updated_at: string;
+  quantity_in_carts?: number;
+  quantity_sold?: number;
+  updated_at?: string;
 }
 
 export interface ProductsInCartsType {
@@ -95,9 +95,9 @@ export interface ProductsInCartsType {
 }
 
 export interface CartsDatabaseType {
-  created_at: string;
+  created_at?: string;
   products: ProductsInCartsType[];
   subtotal_price: number;
-  updated_at: string;
+  updated_at?: string;
   user_id: string;
 }
