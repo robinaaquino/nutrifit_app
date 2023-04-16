@@ -1,3 +1,6 @@
+import ProductCard from "@/components/product/ProductCard";
+import no_image from "../../public/no_image.png";
+
 export default function Catalog() {
   return (
     <>
@@ -81,6 +84,12 @@ export default function Catalog() {
         </div>
         <div className="grid 2xl:grid-cols-5 xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-x-6 gap-y-12 w-full mt-6">
           {/* Product Tile Start */}
+          <ProductCard
+            productImage="./public/sample.jpg"
+            productName="omo"
+            productPrice={123}
+            productId="ohohoh"
+          ></ProductCard>
           <div>
             <a
               href="#"
