@@ -1,13 +1,13 @@
 import app from "../config";
 import { getAuth, GoogleAuthProvider, signInWithRedirect } from "firebase/auth";
-import { functionResult } from "@/constants/constants";
+import { FunctionResult } from "@/firebase/constants";
 
 export const auth = getAuth(app);
 
 const provider = new GoogleAuthProvider();
 
 export async function signInWithGoogle(): Promise<any> {
-  let resultObject: functionResult = {
+  let resultObject: FunctionResult = {
     result: "",
     isSuccess: false,
     resultText: "",
