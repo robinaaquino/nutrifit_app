@@ -58,7 +58,7 @@ export default function Header() {
                   clipRule="evenodd"
                 />
               </svg>
-              <Link href="/products" className="text-xl font-inter text-white">
+              <Link href="/product" className="text-xl font-inter text-white">
                 Products
               </Link>
             </div>
