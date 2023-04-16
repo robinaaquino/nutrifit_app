@@ -63,6 +63,7 @@ export default function AdminAddProduct() {
                   type="text"
                   placeholder="Type your name..."
                   onChange={(e) => setProductName(e.target.value)}
+                  required
                 />
                 <p className="text-red-500 text-xs italic">
                   Please fill out this field.
@@ -96,6 +97,7 @@ export default function AdminAddProduct() {
                     className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                     id="grid-category"
                     onChange={(e) => setCategory(e.target.value)}
+                    required
                   >
                     {PRODUCT_CATEGORIES_ARRAY.map((category) => {
                       return (
@@ -131,6 +133,7 @@ export default function AdminAddProduct() {
                   type="number"
                   placeholder="Type your price..."
                   onChange={(e) => setPrice(parseInt(e.target.value))}
+                  required
                 />
                 <p className="text-red-500 text-xs italic">
                   Please fill out this field.
@@ -151,6 +154,7 @@ export default function AdminAddProduct() {
                   type="number"
                   placeholder="Type your quantity..."
                   onChange={(e) => setQuantity(parseInt(e.target.value))}
+                  required
                 />
                 <p className="text-red-500 text-xs italic">
                   Please fill out this field.
@@ -171,6 +175,7 @@ export default function AdminAddProduct() {
                   rows={3}
                   placeholder="Type your product description..."
                   onChange={(e) => setProductDescription(e.target.value)}
+                  required
                 />
 
                 <p className="text-red-500 text-xs italic">
