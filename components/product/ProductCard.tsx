@@ -1,5 +1,5 @@
 import Image from "next/image";
-import no_image_2 from "../../public/no_image_2.png";
+import no_image from "../../public/no_image.png";
 import { useRouter } from "next/router";
 
 export default function ProductCard({
@@ -27,7 +27,7 @@ export default function ProductCard({
         >
           <Image
             className="m-auto"
-            src={no_image_2}
+            src={no_image}
             alt="Sunset in the mountains"
             width="256"
             height="256"
