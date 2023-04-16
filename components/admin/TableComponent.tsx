@@ -1,29 +1,80 @@
 import TableRowText from "./TableRowText";
 import TableRowHeader from "./TableRowHeader";
+import { useContext, useState, useEffect } from "react";
+import { returnKeyByValue } from "../../firebase/helpers";
 
-export default function TableComponent() {
-  //   {
-  //   tableHeaders,
-  //   tableContents,
-  //   tableName,
-  // }: {
-  //   tableHeaders: string;
-  //   tableContents: Array<object>;
-  //   tableName: string;
-  // }
+export default function TableComponent({
+  headers,
+  contentKeys,
+  content,
+}: {
+  headers: string[];
+  contentKeys: string[];
+  content: any[];
+}) {
+  const [productList, setProductList] = useState<any[]>(content);
+  var [currentProductList, setCurrentProductList] = useState<any[]>(
+    content.slice(0, 25)
+  );
+  var [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 25;
+  const maxPage =
+    Math.ceil(productList.length / pageSize) == 0
+      ? 1
+      : Math.ceil(productList.length / pageSize);
+
+  const onPageChange = (page: number) => {
+    var prevIndex = 0;
+    var nextIndex = pageSize;
+    if (page <= 1) {
+      setCurrentPage(1);
+    } else if (productList.length <= pageSize * page) {
+      console.log("elseif");
+      setCurrentPage(maxPage);
+      prevIndex = (maxPage - 1) * pageSize;
+      nextIndex = pageSize * maxPage;
+    } else {
+      setCurrentPage(page);
+      prevIndex = (page - 1) * pageSize;
+      nextIndex = pageSize * page;
+    }
+    setCurrentProductList(productList.slice(prevIndex, nextIndex));
+  };
+
+  //not working sort function
+  const sortBy = (text: string) => {
+    const key = returnKeyByValue(text) || "name";
+    console.log("sorting by: " + text + " to " + key);
+    console.log(productList[0][key]);
+    const newList = productList.sort((a, b) =>
+      a[key] > b[key] ? 1 : b[key] > a[key] ? -1 : 0
+    );
+  };
+  useEffect(() => {
+    // console.log("Current:", currentPage, " ", maxPage);
+  });
+
   return (
     <>
       <div className="flex flex-col mt-6">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
             <div className="overflow-hidden border bg-nf_dark_blue ">
-              <table className="min-w-full divide-y divide-nf_dark_blue">
+              <table className="min-w-full divide-y divide-nf_dark_blue table-auto">
                 <thead className="bg-nf_green">
-                  <tr>
-                    <TableRowHeader text="Company" />
-                    <TableRowHeader text="Status" />
-                    <TableRowHeader text="About" />
-                    <TableRowHeader text="Users" />
+                  <tr className="w-full">
+                    {headers.map((e) => {
+                      return (
+                        <>
+                          <TableRowHeader
+                            text={e}
+                            handleClick={() => {
+                              sortBy(e);
+                            }}
+                          />
+                        </>
+                      );
+                    })}
 
                     {/* <th
                       scope="col"
@@ -32,14 +83,30 @@ export default function TableComponent() {
                       License use
                     </th> */}
 
-                    <th scope="col" className="relative py-3.5 px-4">
+                    {/* <th scope="col" className="relative py-3.5 px-4">
                       <span className="sr-only">Edit</span>
-                    </th>
+                    </th> */}
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-nf_dark_blue ">
+                  {currentProductList.map((currentElement) => {
+                    return (
+                      <>
+                        <tr className="">
+                          {contentKeys.map((key) => {
+                            const currentText = currentElement[key];
+                            return (
+                              <>
+                                <TableRowText text={currentElement[key]} />
+                              </>
+                            );
+                          })}
+                        </tr>
+                      </>
+                    );
+                  })}
+
                   <tr>
-                    <TableRowText text="Catalog" />
                     {/* <td className="px-12 py-4 text-sm font-medium whitespace-nowrap">
                         <div className="inline px-3 py-1 text-sm font-normal rounded-full text-emerald-500 gap-x-2 bg-emerald-100/60 dark:bg-gray-800">
                           Customer
@@ -115,13 +182,19 @@ export default function TableComponent() {
 
       <div className="mt-6 sm:flex sm:items-center sm:justify-between ">
         <div className="text-sm text-black ">
-          Page <span className="font-medium text-black">1 of 10</span>
+          Page{" "}
+          <span className="font-medium text-black">
+            {currentPage} of {maxPage}
+          </span>
         </div>
 
         <div className="flex items-center mt-4 gap-x-4 sm:mt-0">
-          <a
-            href="#"
-            className="flex items-center justify-center w-1/2 px-5 py-2 text-sm text-white capitalize transition-colors duration-200 bg-nf_green border rounded-md sm:w-auto gap-x-2 "
+          <button
+            onClick={() => {
+              onPageChange(currentPage - 1);
+            }}
+            disabled={currentPage == 1}
+            className="flex items-center justify-center w-1/2 px-5 py-2 text-sm text-white capitalize transition-colors duration-200 bg-nf_green border rounded-md sm:w-auto gap-x-2 disabled:bg-gray-500"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -139,11 +212,14 @@ export default function TableComponent() {
             </svg>
 
             <span>previous</span>
-          </a>
+          </button>
 
-          <a
-            href="#"
-            className="flex items-center justify-center w-1/2 px-5 py-2 text-sm text-white capitalize transition-colors duration-200 bg-nf_green border rounded-md sm:w-auto gap-x-2 "
+          <button
+            onClick={() => {
+              onPageChange(currentPage + 1);
+            }}
+            disabled={currentPage == maxPage}
+            className="flex items-center justify-center w-1/2 px-5 py-2 text-sm text-white capitalize transition-colors duration-200 bg-nf_green border rounded-md sm:w-auto gap-x-2 disabled:bg-gray-500"
           >
             <span>Next</span>
 
@@ -161,7 +237,7 @@ export default function TableComponent() {
                 d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
               />
             </svg>
-          </a>
+          </button>
         </div>
       </div>
     </>

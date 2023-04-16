@@ -119,6 +119,7 @@ export interface OrdersDatabaseType {
 }
 
 export interface ProductsDatabaseType {
+  name: string;
   category: string;
   created_at?: string;
   description: string;

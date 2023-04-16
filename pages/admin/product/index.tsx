@@ -1,15 +1,60 @@
 import TableComponent from "@/components/admin/TableComponent";
+import { useEffect, useState, useContext } from "react";
+import { getAllProductsFunction } from "@/firebase/firebase_functions/products_function";
+import { ProductsDatabaseType } from "@/firebase/constants";
+import { AuthContext } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 export default function AdminProduct() {
+  const [products, setProducts] = useState<ProductsDatabaseType[]>([]);
+  const authContextObject = useContext(AuthContext);
+  const router = useRouter();
+
+  const tableHeaders: string[] = [
+    "Name",
+    "Category",
+    "Quantity Sold",
+    "Quantity Left",
+    "Price",
+    "Description",
+    "Created at",
+    "Last updated",
+  ];
+  const tableContentKeys: string[] = [
+    "name",
+    "category",
+    "quantity_sold",
+    "quantity_left",
+    "price",
+    "description",
+    "created_at",
+    "updated_at",
+  ];
+
+  async function fetchAllProducts() {
+    console.log("getting all products");
+    const result = await getAllProductsFunction();
+
+    if (!result.isSuccess) {
+      authContextObject.error(result.resultText);
+    } else {
+      setProducts(result.result);
+    }
+    console.log(result);
+  }
+
   const handleForm = async (e: any) => {
     console.log("uwu");
   };
 
   const a = ["asd", "asda", "Asda"];
+
+  useEffect(() => {
+    fetchAllProducts();
+  }, []);
+
   return (
     <>
-      {a.length > 0 ? a.map((e) => <p key={e}>{e}</p>) : <p>null</p>}
-
       <div className="container px-4 mx-auto">
         <div className="sm:flex sm:items-center sm:justify-between">
           <div>
@@ -17,7 +62,8 @@ export default function AdminProduct() {
               <h2 className="text-lg font-medium text-black ">Products</h2>
 
               <span className="px-3 py-1 text-xs text-white bg-nf_green rounded-full">
-                240 vendors
+                {products.length}{" "}
+                {products.length == 1 ? "product" : "products"}
               </span>
             </div>
 
@@ -54,7 +100,12 @@ export default function AdminProduct() {
               <span>Import</span>
             </button> */}
 
-            <button className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue">
+            <button
+              className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue"
+              onClick={() => {
+                router.replace("/admin/product/add");
+              }}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -75,7 +126,11 @@ export default function AdminProduct() {
           </div>
         </div>
 
-        <TableComponent />
+        <TableComponent
+          headers={tableHeaders}
+          contentKeys={tableContentKeys}
+          content={products}
+        />
 
         {/* <div className="mt-6 md:flex md:items-center md:justify-between">
           <div className="inline-flex overflow-hidden bg-white border divide-x rounded-lg dark:bg-gray-900 rtl:flex-row-reverse dark:border-gray-700 dark:divide-gray-700">

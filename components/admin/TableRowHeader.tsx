@@ -1,11 +1,20 @@
-export default function TableRowHeader({ text }: { text: string }) {
+export default function TableRowHeader({
+  text,
+  handleClick,
+}: {
+  text: string;
+  handleClick: any;
+}) {
   return (
     <>
       <th
         scope="col"
         className="px-12 py-3.5 text-sm font-normal text-left rtl:text-right text-white "
       >
-        <button className="flex items-center gap-x-3 focus:outline-none">
+        <button
+          className="flex items-center gap-x-3 focus:outline-none"
+          onClick={() => handleClick()}
+        >
           <span>{text}</span>
 
           <svg

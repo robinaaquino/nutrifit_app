@@ -8,3 +8,23 @@ export function parseError(e: unknown) {
 
   return errorMessage;
 }
+
+export function returnKeyByValue(text: string) {
+  if (text == "Name") {
+    return "name";
+  } else if (text == "Category") {
+    return "category";
+  } else if (text == "Quantity Sold") {
+    return "quantity_sold";
+  } else if (text == "Quantity Left") {
+    return "quantity_left";
+  } else if (text == "Price") {
+    return "price";
+  } else if (text == "Description") {
+    return "description";
+  } else if (text == "Created at") {
+    return "created_at";
+  } else if (text == "Last updated") {
+    return "updated_at";
+  }
+}
