@@ -4,6 +4,7 @@ import signUp from "@/firebase/auth/signup";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 import { addUserFunction } from "@/firebase/firebase_functions/users_function";
+import Link from "next/link";
 
 export default function Signup() {
   const [email, setEmail] = React.useState("");
@@ -68,12 +69,12 @@ export default function Signup() {
               </form>
               <p className="text-base text-[#adadad]">
                 Already have an account?
-                <a
-                  href="javascript:void(0)"
+                <Link
+                  href="/login"
                   className="text-primary hover:underline ml-1"
                 >
                   Login
-                </a>
+                </Link>
               </p>
             </div>
           </div>

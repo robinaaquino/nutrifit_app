@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { signInWithGoogle } from "@/firebase/auth/auth";
 import Image from "next/image";
 import { AuthContext } from "@/context/AuthContext";
+import Link from "next/link";
 
 export default function Login() {
   const [email, setEmail] = React.useState("");
@@ -133,12 +134,9 @@ export default function Login() {
               </a>
               <p className="text-base text-[#adadad]">
                 Not a member yet?
-                <a
-                  href="javascript:void(0)"
-                  className="text-primary hover:underline"
-                >
+                <Link href="/signup" className="text-primary hover:underline">
                   Sign Up
-                </a>
+                </Link>
               </p>
             </div>
           </div>
