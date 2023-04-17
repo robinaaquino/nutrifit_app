@@ -73,6 +73,7 @@ export interface ShippingDetailsType {
 }
 
 export interface UsersDatabaseType {
+  id?: string;
   contact_number?: string;
   created_at?: string;
   email: string;
@@ -108,6 +109,7 @@ enum OrderStatusEnum {
 }
 
 export interface OrdersDatabaseType {
+  id?: string;
   created_at?: string;
   date_cleared?: string;
   payment: PaymentType;
@@ -119,6 +121,7 @@ export interface OrdersDatabaseType {
 }
 
 export interface ProductsDatabaseType {
+  id?: string;
   name: string;
   category: string;
   created_at?: string;
@@ -128,6 +131,7 @@ export interface ProductsDatabaseType {
   quantity_in_carts?: number;
   quantity_sold?: number;
   updated_at?: string;
+  image?: string[];
 }
 
 export interface ProductsInCartsType {
@@ -140,6 +144,7 @@ export interface ProductsInCartsType {
 }
 
 export interface CartsDatabaseType {
+  id?: string;
   created_at?: string;
   products: ProductsInCartsType[];
   subtotal_price: number;
