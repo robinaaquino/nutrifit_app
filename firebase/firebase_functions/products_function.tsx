@@ -59,10 +59,10 @@ export const addProductFunction = async (
     resultText: "",
     errorMessage: "",
   };
-  let datas: any[] = [];
+  let data: string = "";
 
   try {
-    await addDoc(collection(db, "products"), {
+    const documentRef = await addDoc(collection(db, "products"), {
       quantity_in_carts: 0,
       quantity_sold: 0,
       updated_at: new Date().toString(),
@@ -71,14 +71,14 @@ export const addProductFunction = async (
     });
 
     resultObject = {
-      result: datas,
+      result: documentRef.id,
       isSuccess: true,
       resultText: "Successful in adding product",
       errorMessage: "",
     };
   } catch (e: unknown) {
     resultObject = {
-      result: datas,
+      result: "",
       isSuccess: true,
       resultText: "Failed in adding product",
       errorMessage: parseError(e),
