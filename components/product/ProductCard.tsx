@@ -22,7 +22,7 @@ export default function ProductCard({
           className="block h-64 rounded-lg shadow-lg bg-white cursor-pointer hover:opacity-70"
           onClick={() => {
             console.log("click");
-            router.replace(`/product/${productId}`);
+            router.push(`/product/${productId}`);
           }}
         >
           <Image
