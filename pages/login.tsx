@@ -20,7 +20,7 @@ export default function Login() {
 
       if (result.isSuccess) {
         authContextObject.success(result.resultText);
-        router.replace("/");
+        router.push("/");
       } else {
         authContextObject.error(result.resultText);
       }

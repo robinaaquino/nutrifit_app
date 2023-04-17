@@ -18,7 +18,7 @@ export default function Signup() {
 
       if (result.isSuccess) {
         authContextObject.success(result.resultText);
-        router.replace("/login");
+        router.push("/login");
       } else {
         authContextObject.error(result.resultText);
       }

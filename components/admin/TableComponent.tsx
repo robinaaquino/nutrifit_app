@@ -52,7 +52,9 @@ export default function TableComponent({
   };
   useEffect(() => {
     // console.log("Current:", currentPage, " ", maxPage);
-  });
+    setProductList(content);
+    setCurrentProductList(content.slice(0, 25));
+  }, [content]);
 
   return (
     <>
@@ -160,13 +162,13 @@ export default function TableComponent({
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
                             viewBox="0 0 24 24"
-                            stroke-width="1.5"
+                            strokeWidth="1.5"
                             stroke="currentColor"
                             className="w-6 h-6"
                           >
                             <path
                               stroke-linecap="round"
-                              stroke-linejoin="round"
+                              strokeLinejoin="round"
                               d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
                             />
                           </svg>
@@ -200,13 +202,13 @@ export default function TableComponent({
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
-              stroke-width="1.5"
+              strokeWidth="1.5"
               stroke="currentColor"
               className="w-5 h-5 rtl:-scale-x-100"
             >
               <path
                 stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeLinejoin="round"
                 d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
               />
             </svg>
@@ -227,13 +229,13 @@ export default function TableComponent({
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
-              stroke-width="1.5"
+              strokeWidth="1.5"
               stroke="currentColor"
               className="w-5 h-5 rtl:-scale-x-100"
             >
               <path
                 stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeLinejoin="round"
                 d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
               />
             </svg>

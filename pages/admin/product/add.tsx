@@ -35,7 +35,7 @@ export default function AdminAddProduct() {
 
       if (result.isSuccess) {
         authContextObject.success(result.resultText);
-        router.replace("/product");
+        router.push("/product");
       } else {
         authContextObject.error(result.resultText);
       }
