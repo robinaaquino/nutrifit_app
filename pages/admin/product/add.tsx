@@ -21,7 +21,6 @@ export default function AdminAddProduct() {
     // event: any
     {
       e.preventDefault();
-      console.log("form submit of add be like");
       const productObject: ProductsDatabaseType = {
         category: category,
         description: productDescription,
@@ -29,8 +28,6 @@ export default function AdminAddProduct() {
         quantity_left: quantity,
         name: productName,
       };
-
-      console.log(productObject);
       const result = await addProductFunction(productObject);
 
       if (result.isSuccess) {

@@ -18,7 +18,7 @@ export default function Signup() {
       e.preventDefault();
       const result = await signUp(email, password);
 
-      const addResult = await addUserFunction({ email });
+      const addResult = await addUserFunction({ email, id: result.result.uid });
 
       if (result.isSuccess) {
         if (addResult.isSuccess) {

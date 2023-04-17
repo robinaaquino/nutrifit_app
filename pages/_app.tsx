@@ -17,18 +17,19 @@ export default function App({ Component, pageProps }: AppProps) {
   const authContextObject = useContext(AuthContext);
 
   useEffect(() => {
-    setAppUser(user);
+    // setAppUser(user);
+    console.log(authContextObject);
   }, [user]);
 
-  if (pageProps.protected && pageProps.isAuthorized != isAuthorized) {
-    console.log("what");
-    authContextObject.error("Unauthorized access");
-    return (
-      <Layout>
-        <Custom404 />
-      </Layout>
-    );
-  }
+  // if (pageProps.protected && pageProps.isAuthorized != isAuthorized) {
+  //   console.log(authContextObject);
+  //   authContextObject.error("Unauthorized access");
+  //   return (
+  //     <Layout>
+  //       <Custom404 />
+  //     </Layout>
+  //   );
+  // }
 
   return (
     <>

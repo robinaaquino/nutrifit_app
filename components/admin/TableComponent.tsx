@@ -29,7 +29,6 @@ export default function TableComponent({
     if (page <= 1) {
       setCurrentPage(1);
     } else if (productList.length <= pageSize * page) {
-      console.log("elseif");
       setCurrentPage(maxPage);
       prevIndex = (maxPage - 1) * pageSize;
       nextIndex = pageSize * maxPage;
@@ -44,14 +43,11 @@ export default function TableComponent({
   //not working sort function
   const sortBy = (text: string) => {
     const key = returnKeyByValue(text) || "name";
-    console.log("sorting by: " + text + " to " + key);
-    console.log(productList[0][key]);
     const newList = productList.sort((a, b) =>
       a[key] > b[key] ? 1 : b[key] > a[key] ? -1 : 0
     );
   };
   useEffect(() => {
-    // console.log("Current:", currentPage, " ", maxPage);
     setProductList(content);
     setCurrentProductList(content.slice(0, 25));
   }, [content]);

@@ -16,6 +16,9 @@ export const AuthContext = createContext({
   success: (text: string) => {},
   error: (text: string) => {},
   clear: () => {},
+  reset: () => {},
+  isAuthorizedTrue: () => {},
+  isAuthorizedFalse: () => {},
 });
 
 export const useAuthContext = () => useContext(AuthContext);
@@ -44,14 +47,27 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
     setNotification("");
   };
 
+  const reset = () => {
+    setUser(null);
+    setAuthorized(false);
+    setLoading(false);
+    setNotificationText("");
+    setNotification("");
+  };
+
+  const isAuthorizedTrue = () => {
+    setAuthorized(true);
+  };
+
+  const isAuthorizedFalse = () => {
+    setAuthorized(true);
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (userInput) => {
       if (userInput) {
-        console.log(userInput);
-        console.log("user there is");
         setUser(userInput);
       } else {
-        console.log("user there is not");
         setUser(null);
       }
       setLoading(false);
@@ -71,6 +87,9 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         clear,
         notification,
         notificationText,
+        reset,
+        isAuthorizedTrue,
+        isAuthorizedFalse,
       }}
     >
       {loading ? <div>Loading...</div> : children}

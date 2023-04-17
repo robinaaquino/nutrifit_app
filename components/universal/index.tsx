@@ -3,9 +3,7 @@ import Header from "./header";
 import Footer from "./footer";
 
 export default function Layout({ children }: { children: ReactNode }) {
-  useEffect(() => {
-    // console.log('layout')
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <>

@@ -24,7 +24,6 @@ export default function Catalog() {
     if (page <= 1) {
       setCurrentPage(1);
     } else if (productList.length <= pageSize * page) {
-      console.log("elseif");
       setCurrentPage(maxPage);
       prevIndex = (maxPage - 1) * pageSize;
       nextIndex = pageSize * maxPage;
@@ -37,8 +36,8 @@ export default function Catalog() {
   };
 
   useEffect(() => {
+    console.log(authContextObject);
     async function fetchAllProducts() {
-      console.log("getting all productList");
       const result = await getAllProductsFunction();
 
       if (!result.isSuccess) {
@@ -47,7 +46,6 @@ export default function Catalog() {
         setProductList(result.result);
         setCurrentProductList(result.result.slice(0, pageSize));
       }
-      console.log(result);
     }
 
     fetchAllProducts();
