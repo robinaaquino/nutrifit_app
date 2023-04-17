@@ -6,7 +6,7 @@ import {
 } from "../../../firebase/constants";
 import { addProductFunction } from "@/firebase/firebase_functions/products_function";
 import { useRouter } from "next/navigation";
-import { AuthContext } from "@/context/AuthContext";
+import { useAuthContext, AuthContext } from "@/context/AuthContext";
 
 export default function AdminAddProduct() {
   const [productName, setProductName] = useState("");
@@ -275,4 +275,13 @@ export default function AdminAddProduct() {
       </form>
     </>
   );
+}
+
+export async function getStaticProps(context: any) {
+  return {
+    props: {
+      protected: true,
+      isAuthorized: true,
+    },
+  };
 }

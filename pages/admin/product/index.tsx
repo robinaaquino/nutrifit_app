@@ -176,3 +176,12 @@ export default function AdminProduct() {
     </>
   );
 }
+
+export async function getStaticProps(context: any) {
+  return {
+    props: {
+      protected: true,
+      isAuthorized: true,
+    },
+  };
+}
