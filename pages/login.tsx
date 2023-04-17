@@ -5,12 +5,16 @@ import { useRouter } from "next/navigation";
 import { signInWithGoogle } from "@/firebase/auth/auth";
 import Image from "next/image";
 import { AuthContext } from "@/context/AuthContext";
+import Link from "next/link";
+import { getAuth } from "firebase/auth";
+import { getUserFunction } from "@/firebase/firebase_functions/users_function";
 
 export default function Login() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const router = useRouter();
   const authContextObject = useContext(AuthContext);
+  const auth = getAuth();
 
   const handleForm = async (e: any) =>
     // event: any
@@ -19,16 +23,19 @@ export default function Login() {
       const result = await logInWithEmailAndPassword(email, password);
 
       if (result.isSuccess) {
-        authContextObject.success(result.resultText);
-        router.push("/");
+        const getUserResult = await getUserFunction(result.result.uid);
+
+        if (getUserResult.isSuccess) {
+          authContextObject.success(result.resultText);
+          authContextObject.isAuthorizedTrue();
+          router.push("/");
+        }
       } else {
         authContextObject.error(result.resultText);
       }
     };
 
-  useEffect(() => {
-    console.log("login");
-  }, []);
+  useEffect(() => {}, []);
   return (
     <>
       <div className="container mx-auto bg-[#F4F7FF] py-20 lg:py-[120px] p-10">
@@ -133,12 +140,9 @@ export default function Login() {
               </a>
               <p className="text-base text-[#adadad]">
                 Not a member yet?
-                <a
-                  href="javascript:void(0)"
-                  className="text-primary hover:underline"
-                >
+                <Link href="/signup" className="text-primary hover:underline">
                   Sign Up
-                </a>
+                </Link>
               </p>
             </div>
           </div>

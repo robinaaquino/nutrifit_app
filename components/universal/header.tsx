@@ -2,9 +2,11 @@ import React from "react";
 import SearchBar from "./search_bar";
 import { logout, useAuthContext } from "@/context/AuthContext";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
-  const { user, loading } = useAuthContext();
+  const { user, loading, isAuthorized, reset } = useAuthContext();
+  const router = useRouter();
 
   return (
     <>
@@ -39,7 +41,7 @@ export default function Header() {
             <input
               type="text"
               className="w-full rounded-md border border-nf_yellow px-3 py-2 text-sm max-w-lg bg-white"
-              value="Search..."
+              placeholder="Search..."
             />
           </div>
 
@@ -58,9 +60,12 @@ export default function Header() {
                   clipRule="evenodd"
                 />
               </svg>
-              <Link href="/product" className="text-xl font-inter text-white">
+              <button
+                onClick={() => router.push("/product")}
+                className="text-xl font-inter text-white"
+              >
                 Products
-              </Link>
+              </button>
             </div>
 
             <div className="flex cursor-pointer items-center gap-x-1 rounded-md py-2 px-4 hover:bg-nf_dark_green">
@@ -100,17 +105,56 @@ export default function Header() {
                 </svg>
                 <span className="text-xl font-inter text-white">Profile</span>
               </div>
-              <ul
-                tabIndex={0}
-                className="dropdown-content menu p-2 shadow bg-nf_green rounded-box "
-              >
-                <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
-                  <Link href="/login">Login</Link>
-                </li>
-                <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
-                  <Link href="/signup">Sign up</Link>
-                </li>
-              </ul>
+              {!user ? (
+                <ul
+                  tabIndex={0}
+                  className="dropdown-content menu p-2 shadow bg-nf_green rounded-box "
+                >
+                  <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
+                    <Link href="/login">Login</Link>
+                  </li>
+                  <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
+                    <Link href="/signup">Sign up</Link>
+                  </li>
+                </ul>
+              ) : !isAuthorized ? (
+                <ul
+                  tabIndex={0}
+                  className="dropdown-content menu p-2 shadow bg-nf_green rounded-box "
+                >
+                  <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
+                    <Link href="/profile">Edit profile</Link>
+                  </li>
+                  <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
+                    <button onClick={() => logout()}>Logout</button>
+                  </li>
+                </ul>
+              ) : (
+                <ul
+                  tabIndex={0}
+                  className="dropdown-content menu p-2 shadow bg-nf_green rounded-box "
+                >
+                  <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
+                    <button
+                      onClick={() => {
+                        router.push("/admin/product");
+                      }}
+                    >
+                      Products
+                    </button>
+                  </li>
+                  <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
+                    <button
+                      onClick={() => {
+                        logout();
+                        reset();
+                      }}
+                    >
+                      Logout
+                    </button>
+                  </li>
+                </ul>
+              )}
             </div>
           </div>
         </div>

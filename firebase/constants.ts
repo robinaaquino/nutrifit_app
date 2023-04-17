@@ -77,7 +77,7 @@ export interface UsersDatabaseType {
   contact_number?: string;
   created_at?: string;
   email: string;
-  role: Role;
+  role?: Role;
   shipping_details?: ShippingDetailsType;
   updated_at?: string;
 }

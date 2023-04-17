@@ -32,7 +32,6 @@ export default function AdminProduct() {
   ];
 
   async function fetchAllProducts() {
-    console.log("getting all products");
     const result = await getAllProductsFunction();
 
     if (!result.isSuccess) {
@@ -40,12 +39,9 @@ export default function AdminProduct() {
     } else {
       setProducts(result.result);
     }
-    console.log(result);
   }
 
-  const handleForm = async (e: any) => {
-    console.log("uwu");
-  };
+  const handleForm = async (e: any) => {};
 
   const a = ["asd", "asda", "Asda"];
 
@@ -175,4 +171,13 @@ export default function AdminProduct() {
       </div>
     </>
   );
+}
+
+export async function getStaticProps(context: any) {
+  return {
+    props: {
+      protected: true,
+      isAuthorized: true,
+    },
+  };
 }

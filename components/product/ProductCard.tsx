@@ -21,7 +21,6 @@ export default function ProductCard({
         <div
           className="block h-64 rounded-lg shadow-lg bg-white cursor-pointer hover:opacity-70"
           onClick={() => {
-            console.log("click");
             router.push(`/product/${productId}`);
           }}
         >
