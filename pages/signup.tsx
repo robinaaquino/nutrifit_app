@@ -3,6 +3,7 @@ import React, { useContext } from "react";
 import signUp from "@/firebase/auth/signup";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
+import { addUserFunction } from "@/firebase/firebase_functions/users_function";
 
 export default function Signup() {
   const [email, setEmail] = React.useState("");
@@ -16,9 +17,15 @@ export default function Signup() {
       e.preventDefault();
       const result = await signUp(email, password);
 
+      const addResult = await addUserFunction({ email });
+
       if (result.isSuccess) {
-        authContextObject.success(result.resultText);
-        router.push("/login");
+        if (addResult.isSuccess) {
+          authContextObject.success(result.resultText);
+          router.push("/login");
+        } else {
+          authContextObject.error(addResult.resultText);
+        }
       } else {
         authContextObject.error(result.resultText);
       }
