@@ -131,7 +131,7 @@ export interface ProductsDatabaseType {
   quantity_in_carts?: number;
   quantity_sold?: number;
   updated_at?: string;
-  image?: string[];
+  images: any[];
 }
 
 export interface ProductsInCartsType {
