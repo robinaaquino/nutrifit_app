@@ -1,15 +1,17 @@
-import { db } from "../config";
+import { db, storage } from "../config";
 import {
   collection,
   getDocs,
-  addDoc,
   doc,
   updateDoc,
   deleteDoc,
+  setDoc,
 } from "firebase/firestore";
 import * as Constants from "../constants";
 import { FunctionResult } from "@/firebase/constants";
 import { parseError } from "../helpers";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { v4 } from "uuid";
 
 export const getAllProductsFunction = async () => {
   let resultObject: FunctionResult = {
@@ -62,16 +64,36 @@ export const addProductFunction = async (
   let data: string = "";
 
   try {
-    const documentRef = await addDoc(collection(db, "products"), {
+    let productToBeAdded: Constants.ProductsDatabaseType = {
       quantity_in_carts: 0,
       quantity_sold: 0,
       updated_at: new Date().toString(),
       created_at: new Date().toString(),
       ...product,
+      images: [],
+    };
+
+    const productId = v4();
+    let promises: any[] = [];
+
+    for (let i = 0; i < product.images.length; i++) {
+      const storageRef = ref(storage, `/products/${productId}/${i}`);
+      const upload = await uploadBytes(storageRef, product.images[0]).then(
+        async (snapshot) => {
+          await getDownloadURL(snapshot.ref).then((url: any) => {
+            productToBeAdded.images.push(url);
+          });
+        }
+      );
+      promises.push(upload);
+    }
+
+    await Promise.all(promises).then(async (e) => {
+      await setDoc(doc(db, "products", productId), productToBeAdded);
     });
 
     resultObject = {
-      result: documentRef.id,
+      result: productId,
       isSuccess: true,
       resultText: "Successful in adding product",
       errorMessage: "",
