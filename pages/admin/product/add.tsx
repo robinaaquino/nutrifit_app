@@ -1,5 +1,8 @@
 import { useForm } from "react-hook-form";
 import { useContext, useState } from "react";
+import Image from "next/image";
+// import no_image from "../../public/no_image.png";
+import no_image from "public/no_image.png";
 import {
   PRODUCT_CATEGORIES_ARRAY,
   ProductsDatabaseType,
@@ -14,6 +17,10 @@ export default function AdminAddProduct() {
   const [price, setPrice] = useState(0);
   const [quantity, setQuantity] = useState(0);
   const [productDescription, setProductDescription] = useState("");
+  const [files, setFile] = useState<any>([]);
+  const [message, setMessage] = useState("");
+  const productImagesArray = [0, 1, 2, 3];
+
   const router = useRouter();
   const authContextObject = useContext(AuthContext);
 
@@ -27,6 +34,7 @@ export default function AdminAddProduct() {
         price: price,
         quantity_left: quantity,
         name: productName,
+        images: files,
       };
       const result = await addProductFunction(productObject);
 
@@ -37,6 +45,43 @@ export default function AdminAddProduct() {
         authContextObject.error(result.resultText);
       }
     };
+
+  const handleFile = (e: any) => {
+    setMessage("");
+    let file = e.target.files;
+
+    for (let i = 0; i < file.length; i++) {
+      const fileType = file[i]["type"];
+      const validImageTypes = ["image/gif", "image/jpeg", "image/png"];
+      if (validImageTypes.includes(fileType)) {
+        setFile([...files, file[i]]);
+      } else {
+        setMessage("only images accepted");
+      }
+    }
+  };
+  // const handleIndividualFile = (e: any, place: number) => {
+  //   setMessage("");
+
+  //   let file = e.target.file;
+
+  //   const fileType = file["type"];
+  //   const validImageTypes = ["image/gif", "image/jpeg", "image/png"];
+
+  //   if (validImageTypes.includes(fileType)) {
+  //     let previousArray = [...files];
+  //     let item = previousArray[place];
+  //     item = file;
+  //     previousArray[place] = item;
+  //     setFile(previousArray);
+  //   } else {
+  //     setMessage("only images accepted");
+  //   }
+  // };
+
+  const removeImage = (i: any) => {
+    setFile(files.filter((x: any) => x.name !== i));
+  };
 
   return (
     <>
@@ -182,7 +227,79 @@ export default function AdminAddProduct() {
             </div>
           </div>
           <div>
-            <div className="h-full">Product Images</div>
+            <div className="h-full">
+              <div>Product Images</div>
+              {/* {productImagesArray.map((key: any) => {
+                console.log(files[key]);
+                return (
+                  <>
+                    <input
+                      type="file"
+                      onChange={(e: any) => handleIndividualFile(e, key)}
+                      className="h-full w-full bg-nf_green opacity-0 z-10 absolute"
+                      multiple
+                      name="file[]"
+                    >
+                      ( files[key] ?
+                      <img
+                        className="h-20 w-20 rounded-md"
+                        src={URL.createObjectURL(files[key])}
+                      />
+                      {files[key]}
+                      :
+                      <Image
+                        className="m-auto"
+                        src={no_image}
+                        alt="no image"
+                        width="256"
+                        height="256"
+                      />
+                      )
+                    </input>
+                  </>
+                );
+              })} */}
+              <div className="h-screen flex justify-center items-center bg-gray-300 px-2">
+                <div className="p-3 md:w-1/2 w-[360px] bg-white rounded-md">
+                  <span className="flex justify-center items-center text-[12px] mb-1 text-red-500">
+                    {message}
+                  </span>
+                  <div className="h-32 w-full relative border-2 items-center rounded-md cursor-pointer bg-gray-300 border-gray-400 border-dotted">
+                    <input
+                      type="file"
+                      onChange={handleFile}
+                      className="h-full w-full bg-green-200 opacity-0 z-10 absolute"
+                      multiple
+                      name="files[]"
+                    />
+                    <div className="h-full w-full bg-gray-200 absolute z-1 flex justify-center items-center top-0">
+                      <div className="flex flex-col">
+                        <i className="mdi mdi-folder-open text-[30px] text-gray-400 text-center"></i>
+                        <span className="text-[12px]">{`Drag and Drop a file`}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {files.map((file: any, key: any) => {
+                      return (
+                        <div key={key} className="overflow-hidden relative">
+                          <i
+                            onClick={() => {
+                              removeImage(file.name);
+                            }}
+                            className="mdi mdi-close absolute right-1 hover:text-white cursor-pointer"
+                          ></i>
+                          <img
+                            className="h-20 w-20 rounded-md"
+                            src={URL.createObjectURL(file)}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
             <div>
               <input
                 type="submit"
