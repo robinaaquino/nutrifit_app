@@ -56,7 +56,7 @@ export const addUserFunction = async (user: Constants.UsersDatabaseType) => {
     });
 
     resultObject = {
-      result: documentRef.id,
+      result: user.id,
       isSuccess: true,
       resultText: "Successful in adding customer",
       errorMessage: "",
