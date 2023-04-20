@@ -12,10 +12,10 @@ export default async function signUp(email: string, password: string) {
   };
   await createUserWithEmailAndPassword(auth, email, password)
     .then((result: any) => {
-      const user = result.user;
+      const userUid = result.user.uid;
 
       resultObject = {
-        result: user,
+        result: userUid,
         isSuccess: true,
         resultText: "Successful in signing up in via email",
         errorMessage: "",

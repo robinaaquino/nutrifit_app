@@ -17,10 +17,10 @@ export default async function logInWithEmailAndPassword(
 
   await signInWithEmailAndPassword(auth, email, password)
     .then((result: any) => {
-      const user = result.user;
+      const userUid = result.user.uid;
 
       resultObject = {
-        result: user,
+        result: userUid,
         isSuccess: true,
         resultText: "Successful in logging in via email",
         errorMessage: "",

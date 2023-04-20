@@ -23,7 +23,7 @@ export default function Login() {
       const result = await logInWithEmailAndPassword(email, password);
 
       if (result.isSuccess) {
-        const getUserResult = await getUserFunction(result.result.uid);
+        const getUserResult = await getUserFunction(result.result);
 
         if (getUserResult.isSuccess) {
           authContextObject.success(result.resultText);
