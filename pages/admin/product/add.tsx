@@ -10,8 +10,13 @@ import {
 import { addProductFunction } from "@/firebase/firebase_functions/products_function";
 import { useRouter } from "next/navigation";
 import { useAuthContext, AuthContext } from "@/context/AuthContext";
+import nookies from "nookies";
+import admin from "../../../firebase/admin-config";
+import { getUserFunction } from "@/firebase/firebase_functions/users_function";
 
-export default function AdminAddProduct() {
+//clean authcontextobject calls
+//clean getserversideprops calls for all admin routes
+export default function AdminAddProduct(props: any) {
   const [productName, setProductName] = useState("");
   const [category, setCategory] = useState("");
   const [price, setPrice] = useState(0);
@@ -22,6 +27,7 @@ export default function AdminAddProduct() {
   const productImagesArray = [0, 1, 2, 3];
 
   const router = useRouter();
+  const { error } = useAuthContext();
   const authContextObject = useContext(AuthContext);
 
   const handleForm = async (e: any) =>
@@ -82,6 +88,12 @@ export default function AdminAddProduct() {
   const removeImage = (i: any) => {
     setFile(files.filter((x: any) => x.name !== i));
   };
+
+  if (props.isError) {
+    error(props.errorMessage);
+    router.push(props.redirect);
+    return null;
+  }
 
   return (
     <>
@@ -391,11 +403,49 @@ export default function AdminAddProduct() {
   );
 }
 
-export async function getStaticProps(context: any) {
-  return {
-    props: {
-      protected: true,
-      isAuthorized: true,
-    },
-  };
+export async function getServerSideProps(context: any) {
+  try {
+    console.log("server side auth be like");
+    const cookies = nookies.get(context);
+    const token = await admin.auth().verifyIdToken(cookies.token);
+
+    const { uid, email } = token;
+
+    const a = await getUserFunction(uid);
+    const isAdmin = a.result.role == "admin" ? true : false;
+
+    if (!isAdmin) {
+      // context.res.writeHead(302, { Location: "/login" });
+      // context.res.end();
+
+      return {
+        props: {
+          isError: true,
+          errorMessage: "Unauthorized access",
+          redirect: "/",
+        },
+      };
+    }
+
+    return {
+      props: {
+        message: `Your email is ${email} and your UID is ${uid}.`,
+        authorized: isAdmin,
+        isError: false,
+        errorMessage: "",
+        redirect: "",
+      },
+    };
+  } catch (err) {
+    // context.res.writeHead(302, { Location: "/login" });
+    // context.res.end();
+
+    return {
+      props: {
+        isError: true,
+        errorMessage: "Unauthorized access",
+        redirect: "/login",
+      },
+    };
+  }
 }

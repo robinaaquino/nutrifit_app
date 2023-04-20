@@ -4,9 +4,11 @@ import { logout, useAuthContext } from "@/context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+//usecontext not resetting, dropdown of profile still reliant on isAuthorized of useAuthContext
 export default function Header() {
   const { user, loading, isAuthorized, reset } = useAuthContext();
   const router = useRouter();
+  console.log(isAuthorized);
 
   return (
     <>

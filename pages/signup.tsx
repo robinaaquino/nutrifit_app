@@ -1,6 +1,6 @@
 "use client";
 import React, { useContext } from "react";
-import signUp from "@/firebase/auth/signup";
+import { signUp } from "@/firebase/firebase_functions/auth";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
 import { addUserFunction } from "@/firebase/firebase_functions/users_function";
@@ -18,12 +18,12 @@ export default function Signup() {
       e.preventDefault();
       const result = await signUp(email, password);
 
-      const addResult = await addUserFunction({ email, id: result.result.uid });
+      const addResult = await addUserFunction({ email, id: result.result });
 
       if (result.isSuccess) {
         if (addResult.isSuccess) {
           authContextObject.success(result.resultText);
-          router.push("/login");
+          router.push("/");
         } else {
           authContextObject.error(addResult.resultText);
         }

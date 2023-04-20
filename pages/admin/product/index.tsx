@@ -2,13 +2,19 @@ import TableComponent from "@/components/admin/TableComponent";
 import { useEffect, useState, useContext } from "react";
 import { getAllProductsFunction } from "@/firebase/firebase_functions/products_function";
 import { ProductsDatabaseType } from "@/firebase/constants";
-import { AuthContext } from "@/context/AuthContext";
+import { AuthContext, useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import nookies from "nookies";
+import admin from "../../../firebase/admin-config";
+import { getUserFunction } from "@/firebase/firebase_functions/users_function";
 
-export default function AdminProduct() {
+//clean getserversideprops calls for all admin routes
+export default function AdminProduct(props: any) {
   const [products, setProducts] = useState<ProductsDatabaseType[]>([]);
-  const authContextObject = useContext(AuthContext);
+  const { error } = useAuthContext();
+  // const authContextObject = useContext(AuthContext);
   const router = useRouter();
+  console.log(props);
 
   const tableHeaders: string[] = [
     "Name",
@@ -35,7 +41,7 @@ export default function AdminProduct() {
     const result = await getAllProductsFunction();
 
     if (!result.isSuccess) {
-      authContextObject.error(result.resultText);
+      error(result.resultText);
     } else {
       setProducts(result.result);
     }
@@ -48,6 +54,12 @@ export default function AdminProduct() {
   useEffect(() => {
     fetchAllProducts();
   }, []);
+
+  if (props.isError) {
+    error(props.errorMessage);
+    router.push(props.redirect);
+    return null;
+  }
 
   return (
     <>
@@ -173,11 +185,58 @@ export default function AdminProduct() {
   );
 }
 
-export async function getStaticProps(context: any) {
-  return {
-    props: {
-      protected: true,
-      isAuthorized: true,
-    },
-  };
+// export async function getStaticProps(context: any) {
+//   return {
+//     props: {
+//       protected: true,
+//       isAuthorized: true,
+//     },
+//   };
+// }
+
+export async function getServerSideProps(context: any) {
+  try {
+    console.log("server side auth be like");
+    const cookies = nookies.get(context);
+    const token = await admin.auth().verifyIdToken(cookies.token);
+
+    const { uid, email } = token;
+
+    const a = await getUserFunction(uid);
+    const isAdmin = a.result.role == "admin" ? true : false;
+
+    if (!isAdmin) {
+      // context.res.writeHead(302, { Location: "/login" });
+      // context.res.end();
+
+      return {
+        props: {
+          isError: true,
+          errorMessage: "Unauthorized access",
+          redirect: "/",
+        },
+      };
+    }
+
+    return {
+      props: {
+        message: `Your email is ${email} and your UID is ${uid}.`,
+        authorized: isAdmin,
+        isError: false,
+        errorMessage: "",
+        redirect: "",
+      },
+    };
+  } catch (err) {
+    // context.res.writeHead(302, { Location: "/login" });
+    // context.res.end();
+
+    return {
+      props: {
+        isError: true,
+        errorMessage: "Unauthorized access",
+        redirect: "/login",
+      },
+    };
+  }
 }

@@ -1,9 +1,17 @@
 import React, { ReactNode, createContext, useContext, useEffect } from "react";
-import { onAuthStateChanged, getAuth, signOut } from "firebase/auth";
+import {
+  onAuthStateChanged,
+  getAuth,
+  signOut,
+  onIdTokenChanged,
+  getIdToken,
+} from "firebase/auth";
 import app from "@/firebase/config";
 import * as Constants from "../firebase/constants";
+import nookies from "nookies";
 
 import { useState } from "react";
+import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_function";
 
 const auth = getAuth(app);
 
@@ -17,8 +25,7 @@ export const AuthContext = createContext({
   error: (text: string) => {},
   clear: () => {},
   reset: () => {},
-  isAuthorizedTrue: () => {},
-  isAuthorizedFalse: () => {},
+  setUserAndAuthorization: (id: string, authorized: boolean) => {},
 });
 
 export const useAuthContext = () => useContext(AuthContext);
@@ -55,26 +62,41 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
     setNotification("");
   };
 
-  const isAuthorizedTrue = () => {
-    setAuthorized(true);
-  };
-
-  const isAuthorizedFalse = () => {
-    setAuthorized(true);
+  const setUserAndAuthorization = (id: string, authorized: boolean) => {
+    setUser(id);
+    setAuthorized(authorized);
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (userInput) => {
-      if (userInput) {
-        setUser(userInput);
+    const unsubscribe = onIdTokenChanged(auth, async (user) => {
+      console.log("Entered on ID Token Change");
+      if (!user) {
+        setUser("");
+        setAuthorized(false);
+        nookies.set(undefined, "token", "", { path: "/" });
       } else {
-        setUser(null);
+        const token = await user.getIdToken();
+        setUser(user.uid);
+        nookies.set(undefined, "token", token, { path: "/" });
+        const authorization = await isUserAuthorizedFunction(user.uid);
+        setAuthorized(authorization.result);
       }
       setLoading(false);
     });
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const handle = setInterval(async () => {
+      const user = auth.currentUser;
+      if (user) {
+        await user.getIdToken(true);
+      }
+    }, 10 * 60 * 1000);
+
+    return () => clearInterval(handle);
+  });
 
   return (
     <AuthContext.Provider
@@ -88,8 +110,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         notification,
         notificationText,
         reset,
-        isAuthorizedTrue,
-        isAuthorizedFalse,
+        setUserAndAuthorization,
       }}
     >
       {loading ? <div>Loading...</div> : children}

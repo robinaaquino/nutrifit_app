@@ -7,6 +7,7 @@ import {
   updateDoc,
   deleteDoc,
   getDoc,
+  setDoc,
 } from "firebase/firestore";
 import * as Constants from "../constants";
 import { FunctionResult } from "@/firebase/constants";
@@ -38,7 +39,7 @@ export const addUserFunction = async (user: Constants.UsersDatabaseType) => {
   let data: string = "";
 
   try {
-    const documentRef = await addDoc(collection(db, "users"), {
+    const documentRef = await setDoc(doc(db, "users", user.id), {
       email: user.email,
       id: user.id,
       contact_number: "",
@@ -55,7 +56,7 @@ export const addUserFunction = async (user: Constants.UsersDatabaseType) => {
     });
 
     resultObject = {
-      result: documentRef.id,
+      result: user.id,
       isSuccess: true,
       resultText: "Successful in adding customer",
       errorMessage: "",
@@ -82,7 +83,7 @@ export const getUserFunction = async (id: string) => {
   let data: string = "";
 
   try {
-    const userReference = doc(db, "products", id);
+    const userReference = doc(db, "users", id);
 
     const userSnapshot = await getDoc(userReference);
 
@@ -104,6 +105,46 @@ export const getUserFunction = async (id: string) => {
   } catch (e: unknown) {
     resultObject = {
       result: data,
+      isSuccess: true,
+      resultText: "Failed in getting user information",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
+};
+
+export const isUserAuthorizedFunction = async (id: string) => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+
+  try {
+    const userReference = doc(db, "users", id);
+
+    const userSnapshot = await getDoc(userReference);
+
+    if (userSnapshot.exists()) {
+      resultObject = {
+        result: userSnapshot.data().role == "admin" ? true : false,
+        isSuccess: true,
+        resultText: "Successful in getting user authorization status",
+        errorMessage: "",
+      };
+    } else {
+      resultObject = {
+        result: false,
+        isSuccess: true,
+        resultText: "User does not exist",
+        errorMessage: "",
+      };
+    }
+  } catch (e: unknown) {
+    resultObject = {
+      result: false,
       isSuccess: true,
       resultText: "Failed in getting user information",
       errorMessage: parseError(e),

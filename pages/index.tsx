@@ -13,8 +13,7 @@ export default function Home() {
   const authContextObject = useContext(AuthContext);
 
   useEffect(() => {
-    console.log(authContextObject);
-
+    console.log("in index ", authContextObject);
     if (process.env.TEST_KEY === `uwu`) {
       console.log("This is a test");
     }
@@ -23,9 +22,6 @@ export default function Home() {
   return (
     <>
       <main></main>
-      {/* <h1 className="text-3xl font-bold underline ">
-        Hello world!
-      </h1> */}
     </>
   );
 }

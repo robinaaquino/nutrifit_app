@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useContext } from "react";
-import logInWithEmailAndPassword from "@/firebase/auth/login";
+import { logInWithEmailAndPassword } from "@/firebase/firebase_functions/auth";
 import { useRouter } from "next/navigation";
-import { signInWithGoogle } from "@/firebase/auth/auth";
+import { signInWithGoogle } from "@/firebase/firebase_functions/auth";
 import Image from "next/image";
 import { AuthContext } from "@/context/AuthContext";
 import Link from "next/link";
@@ -23,11 +23,14 @@ export default function Login() {
       const result = await logInWithEmailAndPassword(email, password);
 
       if (result.isSuccess) {
-        const getUserResult = await getUserFunction(result.result.uid);
+        const getUserResult = await getUserFunction(result.result);
 
         if (getUserResult.isSuccess) {
           authContextObject.success(result.resultText);
-          authContextObject.isAuthorizedTrue();
+          // authContextObject.setUserAndAuthorization(
+          //   result.result,
+          //   getUserResult.result.role == "admin" ? true : false
+          // );
           router.push("/");
         }
       } else {

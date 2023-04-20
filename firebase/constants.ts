@@ -73,7 +73,7 @@ export interface ShippingDetailsType {
 }
 
 export interface UsersDatabaseType {
-  id?: string;
+  id: string;
   contact_number?: string;
   created_at?: string;
   email: string;

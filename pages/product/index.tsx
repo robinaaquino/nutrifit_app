@@ -36,7 +36,6 @@ export default function Catalog() {
   };
 
   useEffect(() => {
-    console.log(authContextObject);
     async function fetchAllProducts() {
       const result = await getAllProductsFunction();
 
