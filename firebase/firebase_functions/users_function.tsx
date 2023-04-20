@@ -113,3 +113,43 @@ export const getUserFunction = async (id: string) => {
 
   return resultObject;
 };
+
+export const isUserAuthorizedFunction = async (id: string) => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+
+  try {
+    const userReference = doc(db, "users", id);
+
+    const userSnapshot = await getDoc(userReference);
+
+    if (userSnapshot.exists()) {
+      resultObject = {
+        result: userSnapshot.data().role == "admin" ? true : false,
+        isSuccess: true,
+        resultText: "Successful in getting user authorization status",
+        errorMessage: "",
+      };
+    } else {
+      resultObject = {
+        result: false,
+        isSuccess: true,
+        resultText: "User does not exist",
+        errorMessage: "",
+      };
+    }
+  } catch (e: unknown) {
+    resultObject = {
+      result: false,
+      isSuccess: true,
+      resultText: "Failed in getting user information",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
+};
