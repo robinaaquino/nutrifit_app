@@ -7,6 +7,7 @@ import {
   updateDoc,
   deleteDoc,
   getDoc,
+  setDoc,
 } from "firebase/firestore";
 import * as Constants from "../constants";
 import { FunctionResult } from "@/firebase/constants";
@@ -38,7 +39,7 @@ export const addUserFunction = async (user: Constants.UsersDatabaseType) => {
   let data: string = "";
 
   try {
-    const documentRef = await addDoc(collection(db, "users"), {
+    const documentRef = await setDoc(doc(db, "users", user.id), {
       email: user.email,
       id: user.id,
       contact_number: "",
