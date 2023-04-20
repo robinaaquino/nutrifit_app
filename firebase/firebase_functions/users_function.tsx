@@ -83,7 +83,7 @@ export const getUserFunction = async (id: string) => {
   let data: string = "";
 
   try {
-    const userReference = doc(db, "products", id);
+    const userReference = doc(db, "users", id);
 
     const userSnapshot = await getDoc(userReference);
 
