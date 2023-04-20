@@ -1,8 +1,8 @@
 "use client";
 import React, { useEffect, useContext } from "react";
-import logInWithEmailAndPassword from "@/firebase/auth/login";
+import { logInWithEmailAndPassword } from "@/firebase/firebase_functions/auth";
 import { useRouter } from "next/navigation";
-import { signInWithGoogle } from "@/firebase/auth/auth";
+import { signInWithGoogle } from "@/firebase/firebase_functions/auth";
 import Image from "next/image";
 import { AuthContext } from "@/context/AuthContext";
 import Link from "next/link";
