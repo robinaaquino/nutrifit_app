@@ -27,7 +27,10 @@ export default function Login() {
 
         if (getUserResult.isSuccess) {
           authContextObject.success(result.resultText);
-          authContextObject.isAuthorizedTrue();
+          // authContextObject.setUserAndAuthorization(
+          //   result.result,
+          //   getUserResult.result.role == "admin" ? true : false
+          // );
           router.push("/");
         }
       } else {

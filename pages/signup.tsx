@@ -23,7 +23,7 @@ export default function Signup() {
       if (result.isSuccess) {
         if (addResult.isSuccess) {
           authContextObject.success(result.resultText);
-          router.push("/login");
+          router.push("/");
         } else {
           authContextObject.error(addResult.resultText);
         }
