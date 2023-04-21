@@ -19,18 +19,28 @@ export default function ProductCard({
       <div>
         {/* <a href="#" className="block h-64 rounded-lg shadow-lg bg-white"></a> */}
         <div
-          className="block h-64 rounded-lg shadow-lg bg-white cursor-pointer hover:opacity-70"
+          className="block h-64  rounded-lg shadow-lg bg-white cursor-pointer hover:opacity-70  overflow-hidden "
           onClick={() => {
             router.push(`/product/${productId}`);
           }}
         >
-          <Image
-            className="m-auto"
-            src={no_image}
-            alt="Sunset in the mountains"
-            width="256"
-            height="256"
-          />
+          {productImage ? (
+            <Image
+              className="m-auto object-cover"
+              src={productImage}
+              alt="Sunset in the mountains"
+              width="1024"
+              height="1024"
+            />
+          ) : (
+            <Image
+              className="m-auto"
+              src={no_image}
+              alt="Sunset in the mountains"
+              width="256"
+              height="256"
+            />
+          )}
         </div>
 
         <div className="flex items-center justify-between mt-3">
