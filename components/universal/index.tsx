@@ -9,9 +9,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     <>
       <div className="flex flex-col min-h-screen">
         <Header></Header>
-        <main className="flex flex-col h-screen w-full bg-white">
-          {children}
-        </main>
+        <main className="flex flex-col w-full bg-white">{children}</main>
         <Footer></Footer>
       </div>
     </>
