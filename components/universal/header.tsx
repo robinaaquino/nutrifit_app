@@ -128,7 +128,14 @@ export default function Header() {
                     <Link href="/profile">Edit profile</Link>
                   </li>
                   <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
-                    <button onClick={() => logout()}>Logout</button>
+                    <button
+                      onClick={() => {
+                        router.push("/");
+                        logout();
+                      }}
+                    >
+                      Logout
+                    </button>
                   </li>
                 </ul>
               ) : (
@@ -148,6 +155,7 @@ export default function Header() {
                   <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
                     <button
                       onClick={() => {
+                        router.push("/");
                         logout();
                         reset();
                       }}
