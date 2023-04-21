@@ -13,7 +13,8 @@ export default function Alert() {
         <>
           {authContextObject.notification == "success" ? (
             <>
-              <div className="rounded-md bg-[#C4F9E2] sticky inset-x-0 top-0 translate-y-2 p-4 w-1/2 mx-auto">
+              {/* <div className="rounded-md bg-[#C4F9E2] sticky inset-x-0 top-0 translate-y-2 p-4 w-1/2 mx-auto z-50"> */}
+              <div className="rounded-md bg-[#C4F9E2] absolute inset-x-0 top-20 translate-y-2 p-4 w-1/2 mx-auto z-50">
                 <div className="flex items-center text-sm font-medium text-[#004434]">
                   <span className="pr-3">
                     <svg
@@ -73,7 +74,7 @@ export default function Alert() {
             </>
           ) : (
             <>
-              <div className="rounded-md bg-[#FFF0F0] sticky inset-x-0 top-0 translate-y-2 p-4 w-1/2 mx-auto">
+              <div className="rounded-md bg-[#FFF0F0] absolute inset-x-0 top-0 translate-y-2 p-4 w-1/2 mx-auto ">
                 <div className="flex items-center text-sm font-medium text-[#004434]">
                   <span className="pr-3">
                     <svg
