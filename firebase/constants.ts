@@ -52,6 +52,28 @@ export const PRODUCT_CATEGORIES_ARRAY = [
   PRODUCT_CATEGORIES.WEIGHT_LOSS_MARATHON_PACK,
   PRODUCT_CATEGORIES.SHAKES,
 ];
+
+export const PRODUCT_CATEGORIES_PUBLIC_NAME: any = {
+  "Outer Nutrition - Vitamin Mask": "Vitamin Mask",
+  "Outer Nutrition - Herbalife Nutrition Skin": "Herbalife Nutrition Skin",
+  "Herbalife Nutrition Member Pack": "Member Pack",
+  "Herbalife Nutrition Foundation Donation": "Foundation",
+  "Art of Promotion": "Promotional Materials",
+  "Standard Service Fees": "Fees",
+  "Prints and Literature": "Standard Prints",
+  "Inner Nutrition - Weight Management - Core Products": "Weight Management",
+  "Inner Nutrition - Enhancers": "Enhancers",
+  "Inner Nutrition - Heart Health": "Heart Health",
+  "Inner Nutrition - Digestive Health": "Digestive Health",
+  "Inner Nutrition - Women's Health": "Women's Health",
+  "Inner Nutrition - Eye Health": " Eye Health",
+  "Herbalife - Sports Nutrition": "Sports Nutrition",
+  "Product Packs": "Product Packs",
+  "Seasonal Product Pack": "Seasonal Product Pack",
+  "Weight Loss Marathon Pack": "Weight Loss Marathon Pack",
+  Shakes: "Shakes",
+};
+
 enum Role {
   CUSTOMER = "customer",
   ADMIN = "admin",
