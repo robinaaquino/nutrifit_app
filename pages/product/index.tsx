@@ -166,8 +166,8 @@ export default function Catalog() {
               <>
                 <ProductCard
                   productImage={
-                    product.image && product.image.length > 0
-                      ? product.image[0]
+                    product.images && product.images.length > 0
+                      ? product.images[0]
                       : ""
                   }
                   productName={product.name}
