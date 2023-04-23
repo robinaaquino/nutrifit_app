@@ -77,14 +77,6 @@ export const getAllProductsWithFilterFunction = async (filter: any) => {
       productQuery.push(where("price", "<", filter.maxPrice));
     }
 
-    // if (filter.inStock == true || filter.inStock == false) {
-    //   if (filter.inStock) {
-    //     productQuery.push(where("quantity_left", ">", 0));
-    //   } else {
-    //     productQuery.push(where("quantity_left", "<=", 0));
-    //   }
-    // }
-
     const productReference = query(collection(db, "products"), ...productQuery);
 
     const docs = await getDocs(productReference);
@@ -121,6 +113,66 @@ export const getAllProductsWithFilterFunction = async (filter: any) => {
       result: datas,
       isSuccess: true,
       resultText: "Failed in getting all products with filter",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
+};
+
+export const getAllProductsWithSearchFunction = async (searchString: any) => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+  let datas: any[] = [];
+
+  try {
+    const result = await getAllProductsFunction();
+
+    if (!result.isSuccess) {
+      resultObject = {
+        result: datas,
+        isSuccess: false,
+        resultText: "Failed in getting all products with search string",
+        errorMessage: result.errorMessage,
+      };
+    }
+
+    const products = result.result;
+
+    const individualStrings = searchString.toLowerCase().split(" ");
+    for (let i = 0; i < products.length; i++) {
+      let matchedString = false;
+      for (let j = 0; j < individualStrings.length; j++) {
+        let regexExpression = `^.*` + individualStrings[j] + `.*$`;
+        if (
+          products[i].name.toLowerCase().match(regexExpression) ||
+          products[i].description.toLowerCase().match(regexExpression) ||
+          products[i].category.toLowerCase().match(regexExpression)
+        ) {
+          matchedString = true;
+          break;
+        }
+      }
+      if (matchedString) {
+        datas.push(products[i]);
+      }
+    }
+
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Successful in getting all products with search string",
+      errorMessage: "",
+    };
+  } catch (e: unknown) {
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Failed in getting all products with search string",
       errorMessage: parseError(e),
     };
   }
