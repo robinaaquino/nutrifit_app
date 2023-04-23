@@ -15,6 +15,7 @@ export default function TableComponent({
   const [productList, setProductList] = useState<any[]>(content);
   var [currentProductList, setCurrentProductList] = useState<any[]>(
     content.slice(0, 25)
+    // content
   );
   var [currentPage, setCurrentPage] = useState(1);
   const pageSize = 25;
@@ -48,8 +49,14 @@ export default function TableComponent({
     );
   };
   useEffect(() => {
-    setProductList(content);
-    setCurrentProductList(content.slice(0, 25));
+    if (content) {
+      setProductList(content);
+      if (content.length < pageSize) {
+        setCurrentProductList(content);
+      } else {
+        setCurrentProductList(content.slice(0, 25));
+      }
+    }
   }, [content]);
 
   return (
@@ -57,55 +64,45 @@ export default function TableComponent({
       <div className="flex flex-col mt-6">
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-            <div className="overflow-hidden border bg-nf_dark_blue ">
-              <table className="min-w-full divide-y divide-nf_dark_blue table-auto">
-                <thead className="bg-nf_green">
-                  <tr className="w-full">
-                    {headers.map((e) => {
+            {currentProductList.length > 0 ? (
+              <div className="overflow-hidden border bg-nf_dark_blue ">
+                <table className="min-w-full divide-y divide-nf_dark_blue table-auto">
+                  <thead className="bg-nf_green">
+                    <tr className="w-full">
+                      {headers.map((e) => {
+                        return (
+                          <>
+                            <TableRowHeader
+                              text={e}
+                              handleClick={() => {
+                                sortBy(e);
+                              }}
+                            />
+                          </>
+                        );
+                      })}
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-nf_dark_blue ">
+                    {currentProductList.map((currentElement) => {
                       return (
                         <>
-                          <TableRowHeader
-                            text={e}
-                            handleClick={() => {
-                              sortBy(e);
-                            }}
-                          />
+                          <tr className="">
+                            {contentKeys.map((key) => {
+                              const currentText = currentElement[key];
+                              return (
+                                <>
+                                  <TableRowText text={currentElement[key]} />
+                                </>
+                              );
+                            })}
+                          </tr>
                         </>
                       );
                     })}
 
-                    {/* <th
-                      scope="col"
-                      className="px-4 py-3.5 text-sm font-normal text-left rtl:text-right text-white "
-                    >
-                      License use
-                    </th> */}
-
-                    {/* <th scope="col" className="relative py-3.5 px-4">
-                      <span className="sr-only">Edit</span>
-                    </th> */}
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-nf_dark_blue ">
-                  {currentProductList.map((currentElement) => {
-                    return (
-                      <>
-                        <tr className="">
-                          {contentKeys.map((key) => {
-                            const currentText = currentElement[key];
-                            return (
-                              <>
-                                <TableRowText text={currentElement[key]} />
-                              </>
-                            );
-                          })}
-                        </tr>
-                      </>
-                    );
-                  })}
-
-                  <tr>
-                    {/* <td className="px-12 py-4 text-sm font-medium whitespace-nowrap">
+                    <tr>
+                      {/* <td className="px-12 py-4 text-sm font-medium whitespace-nowrap">
                         <div className="inline px-3 py-1 text-sm font-normal rounded-full text-emerald-500 gap-x-2 bg-emerald-100/60 dark:bg-gray-800">
                           Customer
                         </div>
@@ -152,7 +149,7 @@ export default function TableComponent({
                         </div>
                       </td> */}
 
-                    {/* <td className="px-4 py-4 text-sm whitespace-nowrap">
+                      {/* <td className="px-4 py-4 text-sm whitespace-nowrap">
                         <button className="px-1 py-1 text-white transition-colors duration-200 rounded-lg dark:text-gray-300 hover:bg-gray-100">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -170,10 +167,15 @@ export default function TableComponent({
                           </svg>
                         </button>
                       </td> */}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center text-lg font-bold text-black bg-white">
+                No products{" "}
+              </div>
+            )}
           </div>
         </div>
       </div>
