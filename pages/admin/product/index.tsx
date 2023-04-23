@@ -1,20 +1,23 @@
 import TableComponent from "@/components/admin/TableComponent";
 import { useEffect, useState, useContext } from "react";
-import { getAllProductsFunction } from "@/firebase/firebase_functions/products_function";
+import {
+  getAllProductsFunction,
+  getAllProductsWithFilterFunction,
+} from "@/firebase/firebase_functions/products_function";
 import { ProductsDatabaseType } from "@/firebase/constants";
 import { AuthContext, useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import nookies from "nookies";
 import admin from "../../../firebase/admin-config";
 import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import Filter from "@/components/universal/filter";
 
 //clean getserversideprops calls for all admin routes
 export default function AdminProduct(props: any) {
   const [products, setProducts] = useState<ProductsDatabaseType[]>([]);
-  const { error } = useAuthContext();
+  const { error, loading } = useAuthContext();
   // const authContextObject = useContext(AuthContext);
   const router = useRouter();
-  console.log(props);
 
   const tableHeaders: string[] = [
     "Name",
@@ -47,6 +50,62 @@ export default function AdminProduct(props: any) {
     }
   }
 
+  async function handleFilters(filter: any) {
+    // console.log("loading: ", loading);
+    // console.log("Filter: ", filter);
+    // setIsLoadingTrue();
+    // setIsLoading(true);
+    // const result = await getAllProductsWithFilterFunction(filter).then((e) => {
+    //   console.log("loading: ", loading);
+    //   console.log("Running filterz: ", e);
+    //   console.log(e.errorMessage);
+    //   if (!e.isSuccess) {
+    //     error(e.resultText);
+    //   } else {
+    //     setProducts(e.result);
+    //   }
+    //   // console.log("fokme");
+    //   // setIsLoadingFalse();
+    //   // console.log("loading: ", loading);
+    //   setIsLoading(false);
+    // });
+
+    // setCategory(filter.category);
+    // setMinPrice(filter.minPrice);
+    // setMaxPrice(filter.maxPrice);
+    // setInStock(filter.inStock);
+    // updateProductsViaFilter(filter);
+    const result = await getAllProductsWithFilterFunction(filter);
+
+    if (!result.isSuccess) {
+      error(result.resultText);
+    } else {
+      setProducts(result.result);
+    }
+  }
+
+  function viewProducts() {
+    console.log(products);
+  }
+
+  // const updateProductsViaFilter = async (filter: any) => {
+  //   console.log("Updating products via filters: ", filter);
+  //   // viewFilters();
+  //   console.log("Viewing filters...");
+  //   console.log("in stock: ", filter.inStock);
+  //   console.log("cat: ", filter.category);
+  //   console.log("min: ", filter.minPrice);
+  //   console.log("max: ", filter.maxPrice);
+  // };
+
+  // function viewFilters() {
+  //   console.log("Viewing filters...");
+  //   console.log("in stock: ", inStock);
+  //   console.log("cat: ", category);
+  //   console.log("min: ", minPrice);
+  //   console.log("max: ", maxPrice);
+  // }
+
   const handleForm = async (e: any) => {};
 
   const a = ["asd", "asda", "Asda"];
@@ -67,6 +126,8 @@ export default function AdminProduct(props: any) {
         <div className="sm:flex sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-x-3">
+              {/* <button onClick={() => viewFilters()}>VIEW</button> */}
+              {/* <button onClick={() => viewProducts()}>View Products</button> */}
               <h2 className="text-lg font-medium text-black ">Products</h2>
 
               <span className="px-3 py-1 text-xs text-white bg-nf_green rounded-full">
@@ -107,6 +168,14 @@ export default function AdminProduct(props: any) {
 
               <span>Import</span>
             </button> */}
+
+            <Filter
+              handleFilters={handleFilters}
+              isProductFilter={true}
+              resetFilter={fetchAllProducts}
+              // isOrderFilter={true}
+              // isCustomerFilter={true}
+            ></Filter>
 
             <button
               className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue"
