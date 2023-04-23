@@ -95,6 +95,27 @@ export const PRODUCT_CATEGORIES_PUBLIC_NAME: any = {
   Shakes: "Shakes",
 };
 
+export const PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY = [
+  "Vitamin Mask",
+  "Herbalife Nutrition Skin",
+  "Member Pack",
+  "Foundation",
+  "Promotional Materials",
+  "Fees",
+  "Standard Prints",
+  "Weight Management",
+  "Enhancers",
+  "Heart Health",
+  "Digestive Health",
+  "Women's Health",
+  "Eye Health",
+  "Sports Nutrition",
+  "Product Packs",
+  "Seasonal Product Pack",
+  "Weight Loss Marathon Pack",
+  "Shakes",
+];
+
 export enum RoleEnum {
   CUSTOMER = "customer",
   ADMIN = "admin",
