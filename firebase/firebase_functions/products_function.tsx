@@ -8,6 +8,7 @@ import {
   setDoc,
   query,
   where,
+  getDoc,
 } from "firebase/firestore";
 import * as Constants from "../constants";
 import { FunctionResult } from "@/firebase/constants";
@@ -173,6 +174,47 @@ export const getAllProductsWithSearchFunction = async (searchString: any) => {
       result: datas,
       isSuccess: true,
       resultText: "Failed in getting all products with search string",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
+};
+
+export const getProductViaIdFunction = async (id: string) => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+  let data: string = "";
+
+  try {
+    const productReference = doc(db, "products", id);
+
+    const productSnapshot = await getDoc(productReference);
+
+    if (productSnapshot.exists()) {
+      resultObject = {
+        result: { id: productSnapshot.id, ...productSnapshot.data() },
+        isSuccess: true,
+        resultText: "Successful in getting product information",
+        errorMessage: "",
+      };
+    } else {
+      resultObject = {
+        result: data,
+        isSuccess: true,
+        resultText: "Product does not exist",
+        errorMessage: "",
+      };
+    }
+  } catch (e: unknown) {
+    resultObject = {
+      result: data,
+      isSuccess: true,
+      resultText: "Failed in getting product information",
       errorMessage: parseError(e),
     };
   }
