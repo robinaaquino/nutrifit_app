@@ -8,6 +8,27 @@ export const ROLE_STATES = {
   ADMIN: "admin",
 };
 
+export enum ProductCategoryEnum {
+  OUTER_NUTRITION_VITAMIN_MASK = "Vitamin Mask",
+  OUTER_NUTRITION_HERBALIFE_NUTRITION_SKIN = "Herbalife Nutrition Skin",
+  HERBALIFE_NUTRITION_MEMBER_PACK = "Member Pack",
+  HERBALIFE_NUTRITION_FOUNDATION_DONATION = "Foundation",
+  ART_OF_PROMOTION = "Promotional Materials",
+  STANDARD_SERVICE_FEES = "Fees",
+  PRINTS_AND_LITERATURE = "Standard Prints",
+  INNER_NUTRITION_WEIGHT_MANAGEMENT_CORE_PRODUCTS = "Weight Management",
+  INNER_NUTRITION_ENHANCERS = "Enhancers",
+  INNER_NUTRITION_HEART_HEALTH = "Heart Health",
+  INNER_NUTRITION_DIGESTIVE_HEALTH = "Digestive Health",
+  INNER_NUTRITION_WOMENS_HEALTH = "Women's Health",
+  INNER_NUTRITION_EYE_HEALTH = "Eye Health",
+  HERBALIFE_SPORTS_NUTRITION = "Sports Nutrition",
+  PRODUCT_PACKS = "Product Packs",
+  SEASONAL_PRODUCT_PACK = "Seasonal Product Pack",
+  WEIGHT_LOSS_MARATHON_PACK = "Weight Loss Marathon Pack",
+  SHAKES = "Shakes",
+}
+
 export const PRODUCT_CATEGORIES = {
   OUTER_NUTRITION_VITAMIN_MASK: "Outer Nutrition - Vitamin Mask",
   OUTER_NUTRITION_HERBALIFE_NUTRITION_SKIN:
@@ -66,7 +87,7 @@ export const PRODUCT_CATEGORIES_PUBLIC_NAME: any = {
   "Inner Nutrition - Heart Health": "Heart Health",
   "Inner Nutrition - Digestive Health": "Digestive Health",
   "Inner Nutrition - Women's Health": "Women's Health",
-  "Inner Nutrition - Eye Health": " Eye Health",
+  "Inner Nutrition - Eye Health": "Eye Health",
   "Herbalife - Sports Nutrition": "Sports Nutrition",
   "Product Packs": "Product Packs",
   "Seasonal Product Pack": "Seasonal Product Pack",
@@ -74,7 +95,28 @@ export const PRODUCT_CATEGORIES_PUBLIC_NAME: any = {
   Shakes: "Shakes",
 };
 
-enum Role {
+export const PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY = [
+  "Vitamin Mask",
+  "Herbalife Nutrition Skin",
+  "Member Pack",
+  "Foundation",
+  "Promotional Materials",
+  "Fees",
+  "Standard Prints",
+  "Weight Management",
+  "Enhancers",
+  "Heart Health",
+  "Digestive Health",
+  "Women's Health",
+  "Eye Health",
+  "Sports Nutrition",
+  "Product Packs",
+  "Seasonal Product Pack",
+  "Weight Loss Marathon Pack",
+  "Shakes",
+];
+
+export enum RoleEnum {
   CUSTOMER = "customer",
   ADMIN = "admin",
 }
@@ -99,12 +141,12 @@ export interface UsersDatabaseType {
   contact_number?: string;
   created_at?: string;
   email: string;
-  role?: Role;
+  role?: RoleEnum;
   shipping_details?: ShippingDetailsType;
   updated_at?: string;
 }
 
-enum PaymentMethodEnum {
+export enum PaymentMethodEnum {
   GCASH = "gcash",
   BANK_TRANSFER = "bank_transfer",
   PAYMAYA = "paymaya",
@@ -124,7 +166,7 @@ export interface ProductsInOrderType {
   quantity: number;
 }
 
-enum OrderStatusEnum {
+export enum OrderStatusEnum {
   PENDING = "pending",
   DELIVERED = "delivered",
   CANCELLED = "cancelled",

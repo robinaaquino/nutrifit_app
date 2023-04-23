@@ -6,6 +6,8 @@ import {
   updateDoc,
   deleteDoc,
   setDoc,
+  query,
+  where,
 } from "firebase/firestore";
 import * as Constants from "../constants";
 import { FunctionResult } from "@/firebase/constants";
@@ -45,6 +47,80 @@ export const getAllProductsFunction = async () => {
       result: datas,
       isSuccess: true,
       resultText: "Failed in getting all products",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
+};
+
+export const getAllProductsWithFilterFunction = async (filter: any) => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+  let datas: any[] = [];
+  let productQuery: any[] = [];
+
+  try {
+    if (filter.category != "") {
+      productQuery.push(where("category", "==", filter.category));
+    }
+
+    if (filter.minPrice != 0) {
+      productQuery.push(where("price", ">", filter.minPrice));
+    }
+
+    if (filter.maxPrice != 0) {
+      productQuery.push(where("price", "<", filter.maxPrice));
+    }
+
+    // if (filter.inStock == true || filter.inStock == false) {
+    //   if (filter.inStock) {
+    //     productQuery.push(where("quantity_left", ">", 0));
+    //   } else {
+    //     productQuery.push(where("quantity_left", "<=", 0));
+    //   }
+    // }
+
+    const productReference = query(collection(db, "products"), ...productQuery);
+
+    const docs = await getDocs(productReference);
+    docs.forEach((doc) => {
+      const id = doc.id;
+      const data = doc.data();
+      if (filter.inStock == true || filter.inStock == false) {
+        if (filter.inStock) {
+          if (data.quantity_left > 0) {
+            datas.push({
+              id,
+              ...data,
+            });
+          }
+        } else {
+          if (data.quantity_left <= 0) {
+            datas.push({
+              id,
+              ...data,
+            });
+          }
+        }
+      }
+    });
+
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Successful in getting all products with filter",
+      errorMessage: "",
+    };
+  } catch (e: unknown) {
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Failed in getting all products with filter",
       errorMessage: parseError(e),
     };
   }
