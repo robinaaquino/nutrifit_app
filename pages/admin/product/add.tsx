@@ -5,6 +5,7 @@ import Image from "next/image";
 import no_image from "public/no_image.png";
 import {
   PRODUCT_CATEGORIES_ARRAY,
+  PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY,
   ProductsDatabaseType,
 } from "../../../firebase/constants";
 import { addProductFunction } from "@/firebase/firebase_functions/products_function";
@@ -153,7 +154,7 @@ export default function AdminAddProduct(props: any) {
                     onChange={(e) => setCategory(e.target.value)}
                     required
                   >
-                    {PRODUCT_CATEGORIES_ARRAY.map((category) => {
+                    {PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.map((category) => {
                       return (
                         <option value={category} key={category}>
                           {category}
