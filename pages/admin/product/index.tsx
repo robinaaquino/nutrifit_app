@@ -3,6 +3,7 @@ import { useEffect, useState, useContext } from "react";
 import {
   getAllProductsFunction,
   getAllProductsWithFilterFunction,
+  getAllProductsWithSearchFunction,
 } from "@/firebase/firebase_functions/products_function";
 import { ProductsDatabaseType } from "@/firebase/constants";
 import { AuthContext, useAuthContext } from "@/context/AuthContext";
@@ -11,6 +12,7 @@ import nookies from "nookies";
 import admin from "../../../firebase/admin-config";
 import { getUserFunction } from "@/firebase/firebase_functions/users_function";
 import Filter from "@/components/universal/filter";
+import SearchBar from "@/components/universal/search_bar";
 
 //clean getserversideprops calls for all admin routes
 export default function AdminProduct(props: any) {
@@ -42,6 +44,16 @@ export default function AdminProduct(props: any) {
 
   async function fetchAllProducts() {
     const result = await getAllProductsFunction();
+
+    if (!result.isSuccess) {
+      error(result.resultText);
+    } else {
+      setProducts(result.result);
+    }
+  }
+
+  async function handleSearch(searchString: any) {
+    const result = await getAllProductsWithSearchFunction(searchString);
 
     if (!result.isSuccess) {
       error(result.resultText);
@@ -168,14 +180,14 @@ export default function AdminProduct(props: any) {
 
               <span>Import</span>
             </button> */}
-
+            <SearchBar handleSearch={handleSearch} />
             <Filter
               handleFilters={handleFilters}
               isProductFilter={true}
               resetFilter={fetchAllProducts}
               // isOrderFilter={true}
               // isCustomerFilter={true}
-            ></Filter>
+            />
 
             <button
               className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue"
