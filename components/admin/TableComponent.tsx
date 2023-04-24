@@ -4,15 +4,19 @@ import { useContext, useState, useEffect } from "react";
 import { returnKeyByValue } from "../../firebase/helpers";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { useAuthContext, AuthContext } from "@/context/AuthContext";
+import { deleteProductFunction } from "@/firebase/firebase_functions/products_function";
 
 export default function TableComponent({
   headers,
   contentKeys,
   content,
+  type,
 }: {
   headers: string[];
   contentKeys: string[];
   content: any[];
+  type: string;
 }) {
   const [productList, setProductList] = useState<any[]>(content);
   var [currentProductList, setCurrentProductList] = useState<any[]>(
@@ -26,6 +30,7 @@ export default function TableComponent({
       ? 1
       : Math.ceil(productList.length / pageSize);
   const router = useRouter();
+  const authContextObject = useContext(AuthContext);
 
   const onPageChange = (page: number) => {
     var prevIndex = 0;
@@ -51,6 +56,28 @@ export default function TableComponent({
       a[key] > b[key] ? 1 : b[key] > a[key] ? -1 : 0
     );
   };
+
+  const deleteProduct = async (product: any) => {
+    const result = await deleteProductFunction(product);
+
+    if (result.isSuccess) {
+      authContextObject.success(result.resultText);
+      let previousProductList = productList;
+
+      for (let i = 0; i < productList.length; i++) {
+        if (product.id == productList[i].id) {
+          previousProductList.splice(i, 1);
+          setProductList(previousProductList);
+          break;
+        }
+      }
+
+      onPageChange(currentPage);
+    } else {
+      authContextObject.error(result.resultText);
+    }
+  };
+
   useEffect(() => {
     if (content) {
       setProductList(content);
@@ -100,16 +127,28 @@ export default function TableComponent({
                                 </>
                               );
                             })}
-                            <td>
+                            <td className="flex">
                               <button
                                 className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue"
                                 onClick={() => {
-                                  router.push(
-                                    `/admin/product/${currentElement.id}`
-                                  );
+                                  if (type == "product") {
+                                    router.push(
+                                      `/admin/product/${currentElement.id}`
+                                    );
+                                  }
                                 }}
                               >
                                 Edit
+                              </button>
+                              <button
+                                className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue ml-2"
+                                onClick={() => {
+                                  if (type == "product") {
+                                    deleteProduct(currentElement);
+                                  }
+                                }}
+                              >
+                                Delete
                               </button>
                             </td>
                           </tr>
@@ -176,7 +215,7 @@ export default function TableComponent({
                             className="w-6 h-6"
                           >
                             <path
-                              stroke-linecap="round"
+                              strokeLinecap="round"
                               strokeLinejoin="round"
                               d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
                             />
@@ -221,7 +260,7 @@ export default function TableComponent({
               className="w-5 h-5 rtl:-scale-x-100"
             >
               <path
-                stroke-linecap="round"
+                strokeLinecap="round"
                 strokeLinejoin="round"
                 d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"
               />
@@ -248,7 +287,7 @@ export default function TableComponent({
               className="w-5 h-5 rtl:-scale-x-100"
             >
               <path
-                stroke-linecap="round"
+                strokeLinecap="round"
                 strokeLinejoin="round"
                 d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3"
               />
