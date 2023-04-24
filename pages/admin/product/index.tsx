@@ -315,7 +315,7 @@ export async function getServerSideProps(context: any) {
     return {
       props: {
         isError: true,
-        errorMessage: "Unauthorized access",
+        errorMessage: "Unauthenticated access",
         redirect: "/login",
       },
     };
