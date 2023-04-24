@@ -13,7 +13,12 @@ import {
 import * as Constants from "../constants";
 import { FunctionResult } from "@/firebase/constants";
 import { parseError } from "../helpers";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
 import { v4 } from "uuid";
 
 export const getAllProductsFunction = async () => {
@@ -349,7 +354,9 @@ export const updateProductFunction = async (
   return resultObject;
 };
 
-export const deleteProductFunction = async (id: string) => {
+export const deleteProductFunction = async (
+  product: Constants.ProductsDatabaseType
+) => {
   let resultObject: FunctionResult = {
     result: "",
     isSuccess: false,
@@ -359,9 +366,27 @@ export const deleteProductFunction = async (id: string) => {
   let datas: any[] = [];
 
   try {
-    const productReference = doc(db, "products", id);
+    const productId = product.id || "";
+    const productReference = doc(db, "products", productId);
 
-    await deleteDoc(productReference);
+    let promises: any[] = [];
+
+    if (product.images) {
+      for (let i = 0; i < 4; i++) {
+        if (product.images[i]) {
+          if (product.images[i].name) {
+            const storageRef = ref(storage, `/products/${productId}/${i}`);
+
+            const deletion = await deleteObject(storageRef);
+            promises.push(deletion);
+          }
+        }
+      }
+    }
+
+    await Promise.all(promises).then(async (e) => {
+      await deleteDoc(productReference);
+    });
 
     resultObject = {
       result: datas,
@@ -372,7 +397,7 @@ export const deleteProductFunction = async (id: string) => {
   } catch (e: unknown) {
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in deleting product",
       errorMessage: parseError(e),
     };
