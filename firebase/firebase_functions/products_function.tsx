@@ -248,7 +248,7 @@ export const addProductFunction = async (
 
     for (let i = 0; i < product.images.length; i++) {
       const storageRef = ref(storage, `/products/${productId}/${i}`);
-      const upload = await uploadBytes(storageRef, product.images[0], {
+      const upload = await uploadBytes(storageRef, product.images[i], {
         contentType: product.images[i]["type"],
       }).then(async (snapshot) => {
           await getDownloadURL(snapshot.ref).then((url: any) => {
