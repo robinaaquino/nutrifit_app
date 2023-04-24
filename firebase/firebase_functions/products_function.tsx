@@ -8,6 +8,7 @@ import {
   setDoc,
   query,
   where,
+  getDoc,
 } from "firebase/firestore";
 import * as Constants from "../constants";
 import { FunctionResult } from "@/firebase/constants";
@@ -180,6 +181,47 @@ export const getAllProductsWithSearchFunction = async (searchString: any) => {
   return resultObject;
 };
 
+export const getProductViaIdFunction = async (id: string) => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+  let data: string = "";
+
+  try {
+    const productReference = doc(db, "products", id);
+
+    const productSnapshot = await getDoc(productReference);
+
+    if (productSnapshot.exists()) {
+      resultObject = {
+        result: { id: productSnapshot.id, ...productSnapshot.data() },
+        isSuccess: true,
+        resultText: "Successful in getting product information",
+        errorMessage: "",
+      };
+    } else {
+      resultObject = {
+        result: data,
+        isSuccess: true,
+        resultText: "Product does not exist",
+        errorMessage: "",
+      };
+    }
+  } catch (e: unknown) {
+    resultObject = {
+      result: data,
+      isSuccess: true,
+      resultText: "Failed in getting product information",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
+};
+
 export const addProductFunction = async (
   product: Constants.ProductsDatabaseType
 ) => {
@@ -206,13 +248,13 @@ export const addProductFunction = async (
 
     for (let i = 0; i < product.images.length; i++) {
       const storageRef = ref(storage, `/products/${productId}/${i}`);
-      const upload = await uploadBytes(storageRef, product.images[0]).then(
-        async (snapshot) => {
-          await getDownloadURL(snapshot.ref).then((url: any) => {
-            productToBeAdded.images.push(url);
-          });
-        }
-      );
+      const upload = await uploadBytes(storageRef, product.images[i], {
+        contentType: product.images[i]["type"],
+      }).then(async (snapshot) => {
+        await getDownloadURL(snapshot.ref).then((url: any) => {
+          productToBeAdded.images.push(url);
+        });
+      });
       promises.push(upload);
     }
 
@@ -241,7 +283,7 @@ export const addProductFunction = async (
 //Ensure that to update a product, unchanged info is passed as well to prevent changes
 export const updateProductFunction = async (
   product: Constants.ProductsDatabaseType,
-  id: string
+  productId: string
 ) => {
   let resultObject: FunctionResult = {
     result: "",
@@ -252,11 +294,41 @@ export const updateProductFunction = async (
   let datas: any[] = [];
 
   try {
-    const productReference = doc(db, "products", id);
-
-    await updateDoc(productReference, {
-      ...product,
+    let productToBeAdded: Constants.ProductsDatabaseType = {
+      quantity_in_carts: product.quantity_in_carts,
+      quantity_sold: product.quantity_sold,
       updated_at: new Date().toString(),
+      created_at: product.created_at,
+      category: product.category,
+      description: product.description,
+      price: product.price,
+      quantity_left: product.quantity_left,
+      name: product.name,
+      images: product.images,
+    };
+    let promises: any[] = [];
+
+    for (let i = 0; i < 4; i++) {
+      if (product.images[i]) {
+        if (product.images[i].name) {
+          const storageRef = ref(storage, `/products/${productId}/${i}`);
+
+          const upload = await uploadBytes(storageRef, product.images[i], {
+            contentType: product.images[i]["type"],
+          }).then(async (snapshot) => {
+            await getDownloadURL(snapshot.ref).then((url: any) => {
+              productToBeAdded.images[i] = url;
+            });
+          });
+          promises.push(upload);
+        } else {
+          productToBeAdded.images[i] = product.images[i];
+        }
+      }
+    }
+
+    await Promise.all(promises).then(async (e) => {
+      await setDoc(doc(db, "products", productId), productToBeAdded);
     });
 
     resultObject = {
@@ -268,7 +340,7 @@ export const updateProductFunction = async (
   } catch (e: unknown) {
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in updating product",
       errorMessage: parseError(e),
     };

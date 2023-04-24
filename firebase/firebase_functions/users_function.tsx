@@ -89,7 +89,7 @@ export const getUserFunction = async (id: string) => {
 
     if (userSnapshot.exists()) {
       resultObject = {
-        result: userSnapshot.data(),
+        result: { id: userSnapshot.id, ...userSnapshot.data() },
         isSuccess: true,
         resultText: "Successful in getting user information",
         errorMessage: "",

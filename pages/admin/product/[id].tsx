@@ -1,60 +1,87 @@
-import { useForm } from "react-hook-form";
-import { useContext, useState } from "react";
-import Image from "next/image";
-import no_image from "../../../public/no_image.png";
+import { useRouter } from "next/router";
+import React, { useEffect, useState, useContext } from "react";
+import { useAuthContext, AuthContext } from "@/context/AuthContext";
 import {
   PRODUCT_CATEGORIES_ARRAY,
   PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY,
   ProductsDatabaseType,
 } from "../../../firebase/constants";
-import { addProductFunction } from "@/firebase/firebase_functions/products_function";
-import { useRouter } from "next/navigation";
-import { useAuthContext, AuthContext } from "@/context/AuthContext";
+import {
+  addProductFunction,
+  getProductViaIdFunction,
+  updateProductFunction,
+} from "@/firebase/firebase_functions/products_function";
+import Image from "next/image";
+import no_image from "../../../public/no_image.png";
+import { getUserFunction } from "@/firebase/firebase_functions/users_function";
 import nookies from "nookies";
 import admin from "../../../firebase/admin-config";
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
 
-//clean authcontextobject calls
-//clean getserversideprops calls for all admin routes
-export default function AdminAddProduct(props: any) {
+export default function AdminProductShow(props: any) {
+  const router = useRouter();
+  const { id } = router.query;
+  const [product, setProduct] = useState<ProductsDatabaseType>({
+    id: "",
+    name: "",
+    category: "",
+    created_at: "",
+    description: "",
+    price: 0,
+    quantity_left: 0,
+    quantity_in_carts: 0,
+    quantity_sold: 0,
+    updated_at: "",
+    images: [],
+  });
   const [productName, setProductName] = useState("");
-  const [category, setCategory] = useState("");
+  const [productCategory, setProductCategory] = useState("");
   const [price, setPrice] = useState(0);
-  const [quantity, setQuantity] = useState(0);
+  const [quantityLeft, setQuantityLeft] = useState(0);
+  const [quantityInCarts, setQuantityInCarts] = useState(0);
+  const [quantitySold, setQuantitySold] = useState(0);
   const [productDescription, setProductDescription] = useState("");
   const [files, setFiles] = useState<any>([]);
   const [message, setMessage] = useState("");
   const productImagesArray = [0, 1, 2, 3];
-
-  const router = useRouter();
   const { error } = useAuthContext();
   const authContextObject = useContext(AuthContext);
 
-  const handleForm = async (e: any) =>
-    // event: any
-    {
-      e.preventDefault();
-      const productObject: ProductsDatabaseType = {
-        category: category,
-        description: productDescription,
-        price: price,
-        quantity_left: quantity,
-        name: productName,
-        images: files,
-      };
-      const result = await addProductFunction(productObject);
-
-      if (result.isSuccess) {
-        authContextObject.success(result.resultText);
-        router.push("/product");
-      } else {
-        authContextObject.error(result.resultText);
+  async function fetchProduct() {
+    var idInput = "";
+    if (id) {
+      if (id[0]) {
+        idInput = id.toString();
+      } else if (typeof id == "string") {
+        idInput = id;
       }
-    };
+    }
+    const result = await getProductViaIdFunction(idInput);
+
+    if (!result.isSuccess) {
+      error(result.resultText);
+    } else {
+      setProduct(result.result);
+
+      setProductName(result.result.name);
+      setProductDescription(result.result.description);
+      setProductCategory(result.result.category);
+      setPrice(result.result.price);
+      setQuantityLeft(result.result.quantity_left);
+      setQuantityInCarts(result.result.quantity_in_carts);
+      setQuantitySold(result.result.quantity_sold);
+      setFiles(result.result.images);
+    }
+  }
+
+  useEffect(() => {
+    // router.replace("/maintenance");
+    fetchProduct();
+  }, []);
 
   const handleIndividualFile = (e: any, index: any) => {
     setMessage("");
     let file = e.target.files;
+
     let previousFiles = [...files];
 
     if (file[0].name) {
@@ -68,6 +95,7 @@ export default function AdminAddProduct(props: any) {
     } else {
       previousFiles[index] = file[0];
     }
+
     setFiles(previousFiles);
   };
 
@@ -76,6 +104,39 @@ export default function AdminAddProduct(props: any) {
     previousFiles[i] = "";
     setFiles(previousFiles);
   };
+
+  const handleForm = async (e: any) =>
+    // event: any
+    {
+      e.preventDefault();
+      var idInput = "";
+      if (id) {
+        if (id[0]) {
+          idInput = id.toString();
+        } else if (typeof id == "string") {
+          idInput = id;
+        }
+      }
+      const productObject: ProductsDatabaseType = {
+        category: productCategory,
+        description: productDescription,
+        price: price,
+        quantity_left: quantityLeft,
+        name: productName,
+        images: files,
+        quantity_in_carts: quantityInCarts,
+        quantity_sold: quantitySold,
+        created_at: product.created_at,
+      };
+      const result = await updateProductFunction(productObject, idInput);
+
+      if (result.isSuccess) {
+        authContextObject.success(result.resultText);
+        router.push("/admin/product");
+      } else {
+        authContextObject.error(result.resultText);
+      }
+    };
 
   if (props.isError) {
     error(props.errorMessage);
@@ -103,6 +164,7 @@ export default function AdminAddProduct(props: any) {
                   className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
                   id="grid-product-name"
                   type="text"
+                  value={productName}
                   placeholder="Type your name..."
                   onChange={(e) => setProductName(e.target.value)}
                   required
@@ -138,12 +200,16 @@ export default function AdminAddProduct(props: any) {
                   <select
                     className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                     id="grid-category"
-                    onChange={(e) => setCategory(e.target.value)}
+                    onChange={(e) => setProductCategory(e.target.value)}
                     required
                   >
                     {PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.map((category) => {
                       return (
-                        <option value={category} key={category}>
+                        <option
+                          value={category}
+                          key={category}
+                          selected={productCategory == category ? true : false}
+                        >
                           {category}
                         </option>
                       );
@@ -173,6 +239,7 @@ export default function AdminAddProduct(props: any) {
                   className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
                   id="grid-price"
                   type="number"
+                  value={price}
                   placeholder="Type your price..."
                   onChange={(e) => setPrice(parseInt(e.target.value))}
                   required
@@ -186,21 +253,62 @@ export default function AdminAddProduct(props: any) {
               <div className="w-full px-3 mb-6">
                 <label
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                  htmlFor="grid-quantity"
+                  htmlFor="grid-quantity-left"
                 >
-                  Quantity
+                  Quantity Left
                 </label>
                 <input
                   className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-                  id="grid-quantity"
+                  id="grid-quantity-left"
                   type="number"
+                  value={quantityLeft}
                   placeholder="Type your quantity..."
-                  onChange={(e) => setQuantity(parseInt(e.target.value))}
+                  onChange={(e) => setQuantityLeft(parseInt(e.target.value))}
                   required
                 />
                 <p className="text-red-500 text-xs italic">
                   Please fill out this field.
                 </p>
+              </div>
+            </div>
+            <div className="flex flex-wrap -mx-3 mb-6">
+              <div className="w-full px-3 mb-6">
+                <label
+                  className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                  htmlFor="grid-quantity-sold"
+                >
+                  Quantity Sold
+                </label>
+                <input
+                  className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white "
+                  id="grid-quantity-left"
+                  type="number"
+                  value={quantitySold}
+                  placeholder="Type your quantity..."
+                  onChange={(e) => setQuantitySold(parseInt(e.target.value))}
+                  required
+                  disabled
+                />
+              </div>
+            </div>
+            <div className="flex flex-wrap -mx-3 mb-6">
+              <div className="w-full px-3 mb-6">
+                <label
+                  className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                  htmlFor="grid-quantity-in-cart"
+                >
+                  Quantity In Cart
+                </label>
+                <input
+                  className="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white "
+                  id="grid-quantity-in-cart"
+                  type="number"
+                  value={quantityInCarts}
+                  placeholder="Type your quantity..."
+                  onChange={(e) => setQuantityInCarts(parseInt(e.target.value))}
+                  required
+                  disabled
+                />
               </div>
             </div>
             <div className="flex flex-wrap -mx-3 mb-6">
@@ -216,6 +324,7 @@ export default function AdminAddProduct(props: any) {
                   id="grid-product-description"
                   rows={3}
                   placeholder="Type your product description..."
+                  value={productDescription}
                   onChange={(e) => setProductDescription(e.target.value)}
                   required
                 />
@@ -248,7 +357,7 @@ export default function AdminAddProduct(props: any) {
                               className="overflow-hidden relative bg-gray-500"
                             >
                               {files[e] === undefined || files[e] === "" ? (
-                                <div className="h-96 w-96  border-2 items-center rounded-md  bg-gray-300 border-gray-400 border-dotted ">
+                                <div className="h-96 w-96 border-2 items-center rounded-md  bg-gray-300 border-gray-400 border-dotted ">
                                   <input
                                     type="file"
                                     onChange={(event) =>
@@ -270,7 +379,6 @@ export default function AdminAddProduct(props: any) {
                                       />
                                     </div>
                                   </div>
-                                  <p>where the fuck</p>
                                 </div>
                               ) : (
                                 <div className="justify-center items-center">
@@ -318,12 +426,89 @@ export default function AdminAddProduct(props: any) {
             <div>
               <input
                 type="submit"
-                value="Add Product"
+                value="Edit Product"
                 className=" w-full cursor-pointer rounded-md border bg-nf_green py-3 px-5 text-base text-white transition hover:bg-nf_dark_green"
               />
             </div>
           </div>
         </div>
+
+        {/* <div className="flex flex-wrap -mx-3 mb-6">
+          <div className="w-full px-3">
+            <label
+              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              htmlFor="grid-password"
+            >
+              Password
+            </label>
+            <input
+              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+              id="grid-password"
+              type="password"
+              placeholder="******************"
+            />
+            <p className="text-gray-600 text-xs italic">
+              Make it as long and as crazy as you'd like
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-wrap -mx-3 mb-2">
+          <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+            <label
+              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              htmlFor="grid-city"
+            >
+              City
+            </label>
+            <input
+              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+              id="grid-city"
+              type="text"
+              placeholder="Albuquerque"
+            />
+          </div>
+          <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+            <label
+              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              htmlFor="grid-state"
+            >
+              State
+            </label>
+            <div className="relative">
+              <select
+                className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                id="grid-state"
+              >
+                <option>New Mexico</option>
+                <option>Missouri</option>
+                <option>Texas</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg
+                  className="fill-current h-4 w-4"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
+            <label
+              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+              htmlFor="grid-zip"
+            >
+              Zip
+            </label>
+            <input
+              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+              id="grid-zip"
+              type="text"
+              placeholder="90210"
+            />
+          </div>
+        </div> */}
       </form>
     </>
   );
@@ -331,6 +516,7 @@ export default function AdminAddProduct(props: any) {
 
 export async function getServerSideProps(context: any) {
   try {
+    console.log("server side auth be like");
     const cookies = nookies.get(context);
     const token = await admin.auth().verifyIdToken(cookies.token);
 
@@ -368,7 +554,7 @@ export async function getServerSideProps(context: any) {
     return {
       props: {
         isError: true,
-        errorMessage: "Unauthorized access",
+        errorMessage: "Unauthenticated access",
         redirect: "/login",
       },
     };

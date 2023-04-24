@@ -2,6 +2,8 @@ import TableRowText from "./TableRowText";
 import TableRowHeader from "./TableRowHeader";
 import { useContext, useState, useEffect } from "react";
 import { returnKeyByValue } from "../../firebase/helpers";
+import Link from "next/link";
+import { useRouter } from "next/router";
 
 export default function TableComponent({
   headers,
@@ -23,6 +25,7 @@ export default function TableComponent({
     Math.ceil(productList.length / pageSize) == 0
       ? 1
       : Math.ceil(productList.length / pageSize);
+  const router = useRouter();
 
   const onPageChange = (page: number) => {
     var prevIndex = 0;
@@ -81,6 +84,7 @@ export default function TableComponent({
                           </>
                         );
                       })}
+                      <TableRowHeader text="Actions" handleClick={() => {}} />
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-nf_dark_blue ">
@@ -96,6 +100,18 @@ export default function TableComponent({
                                 </>
                               );
                             })}
+                            <td>
+                              <button
+                                className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue"
+                                onClick={() => {
+                                  router.push(
+                                    `/admin/product/${currentElement.id}`
+                                  );
+                                }}
+                              >
+                                Edit
+                              </button>
+                            </td>
                           </tr>
                         </>
                       );
