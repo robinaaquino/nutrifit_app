@@ -248,13 +248,13 @@ export const addProductFunction = async (
 
     for (let i = 0; i < product.images.length; i++) {
       const storageRef = ref(storage, `/products/${productId}/${i}`);
-      const upload = await uploadBytes(storageRef, product.images[0]).then(
-        async (snapshot) => {
+      const upload = await uploadBytes(storageRef, product.images[0], {
+        contentType: product.images[i]["type"],
+      }).then(async (snapshot) => {
           await getDownloadURL(snapshot.ref).then((url: any) => {
             productToBeAdded.images.push(url);
           });
-        }
-      );
+      });
       promises.push(upload);
     }
 
