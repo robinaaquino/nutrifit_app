@@ -1,11 +1,16 @@
 import ProductCard from "@/components/product/ProductCard";
 import { useEffect, useState, useContext } from "react";
-import { getAllProductsFunction } from "@/firebase/firebase_functions/products_function";
+import {
+  getAllProductsFunction,
+  getAllProductsWithFilterFunction,
+  getAllProductsWithSearchFunction,
+} from "@/firebase/firebase_functions/products_function";
 import { ProductsDatabaseType } from "@/firebase/constants";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import nookies from "nookies";
 import admin from "../../firebase/admin-config";
+import Filter from "@/components/universal/filter";
 
 export default function Catalog(props: any) {
   const [productList, setProductList] = useState<ProductsDatabaseType[]>([]);
@@ -20,12 +25,16 @@ export default function Catalog(props: any) {
       ? 1
       : Math.ceil(productList.length / pageSize);
 
-  const onPageChange = (page: number) => {
+  const onPageChange = (page: number, listOfProducts?: any) => {
+    let listToUpdate = productList;
+    if (listOfProducts) {
+      listToUpdate = listOfProducts;
+    }
     var prevIndex = 0;
     var nextIndex = pageSize;
     if (page <= 1) {
       setCurrentPage(1);
-    } else if (productList.length <= pageSize * page) {
+    } else if (listToUpdate.length <= pageSize * page) {
       setCurrentPage(maxPage);
       prevIndex = (maxPage - 1) * pageSize;
       nextIndex = pageSize * maxPage;
@@ -34,8 +43,18 @@ export default function Catalog(props: any) {
       prevIndex = (page - 1) * pageSize;
       nextIndex = pageSize * page;
     }
-    setCurrentProductList(productList.slice(prevIndex, nextIndex));
+    setCurrentProductList(listToUpdate.slice(prevIndex, nextIndex));
   };
+
+  async function handleFilters(filter: any) {
+    const result = await getAllProductsWithFilterFunction(filter);
+    if (!result.isSuccess) {
+      authContextObject.error(result.resultText);
+    } else {
+      setProductList(result.result);
+      onPageChange(currentPage, result.result);
+    }
+  }
 
   async function handleAddToCart(product: any, quantity: any) {
     if (props.user) {
@@ -44,9 +63,17 @@ export default function Catalog(props: any) {
       await authContextObject.addToCart(product, quantity);
     }
   }
+  async function fetchAllProducts() {
+    if (props.searchString) {
+      const result = await getAllProductsWithSearchFunction(props.searchString);
 
-  useEffect(() => {
-    async function fetchAllProducts() {
+      if (!result.isSuccess) {
+        authContextObject.error(result.resultText);
+      } else {
+        setProductList(result.result);
+        setCurrentProductList(result.result.slice(0, pageSize));
+      }
+    } else {
       const result = await getAllProductsFunction();
 
       if (!result.isSuccess) {
@@ -56,9 +83,11 @@ export default function Catalog(props: any) {
         setCurrentProductList(result.result.slice(0, pageSize));
       }
     }
+  }
 
+  useEffect(() => {
     fetchAllProducts();
-  }, [authContextObject]);
+  }, [props]);
 
   useEffect(() => {
     var newPageList = [1, 2, 3];
@@ -168,27 +197,40 @@ export default function Catalog(props: any) {
               </a>
             </div>
           </button>
+          <Filter
+            handleFilters={handleFilters}
+            isProductFilter={true}
+            resetFilter={fetchAllProducts}
+            // isOrderFilter={true}
+            // isCustomerFilter={true}
+          />
         </div>
         <div className="grid 2xl:grid-cols-5 xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-x-6 gap-y-12 w-full mt-6">
           {/* Product Tile Start */}
-          {currentProductList.map((product) => {
-            return (
-              <>
-                <ProductCard
-                  productImage={
-                    product.images && product.images.length > 0
-                      ? product.images[0]
-                      : ""
-                  }
-                  productName={product.name}
-                  productPrice={product.price}
-                  productId={product.id ? product.id : ""}
-                  product={product}
-                  handleAddToCart={handleAddToCart}
-                />
-              </>
-            );
-          })}
+          {currentProductList?.length > 0 ? (
+            currentProductList.map((product) => {
+              return (
+                <>
+                  <ProductCard
+                    productImage={
+                      product.images && product.images.length > 0
+                        ? product.images[0]
+                        : ""
+                    }
+                    productName={product.name}
+                    productPrice={product.price}
+                    productId={product.id ? product.id : ""}
+                    product={product}
+                    handleAddToCart={handleAddToCart}
+                  />
+                </>
+              );
+            })
+          ) : (
+            <div className="text-center text-lg font-bold text-black bg-white">
+              No products matched
+            </div>
+          )}
         </div>
         {/* <div>
           <a href="#" className="block h-64 rounded-lg shadow-lg bg-white"></a>
@@ -445,6 +487,11 @@ export async function getServerSideProps(context: any) {
   try {
     const cookies = nookies.get(context);
 
+    var searchString = "";
+    if (cookies.search) {
+      searchString = cookies.search;
+    }
+
     if (cookies.token) {
       const token = await admin.auth().verifyIdToken(cookies.token);
 
@@ -452,6 +499,7 @@ export async function getServerSideProps(context: any) {
 
       return {
         props: {
+          searchString,
           user: uid,
           isError: false,
           errorMessage: "",
@@ -459,10 +507,10 @@ export async function getServerSideProps(context: any) {
         },
       };
     } else {
-      console.log("ah then here?");
       if (cookies.cart) {
         return {
           props: {
+            searchString,
             cart: JSON.parse(cookies.cart),
             isError: false,
             errorMessage: "",
@@ -470,9 +518,9 @@ export async function getServerSideProps(context: any) {
           },
         };
       } else {
-        console.log("here then");
         return {
           props: {
+            searchString,
             cart: null,
             isError: false,
             errorMessage: "",
@@ -484,10 +532,11 @@ export async function getServerSideProps(context: any) {
   } catch (err) {
     return {
       props: {
+        searchString: "",
         user: null,
         isError: true,
         errorMessage: "Error with getting user info",
-        redirect: "/logn",
+        redirect: "/login",
       },
     };
   }
