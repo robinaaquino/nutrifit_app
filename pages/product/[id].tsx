@@ -453,16 +453,17 @@ export default function ProductShow(props: any) {
                           <button
                             className="w-20 h-full text-gray-600 bg-white border border-black border-r rounded-l outline-none cursor-pointer hover:bg-gray-200"
                             onClick={() => {
-                              if (
-                                document.getElementById("quantityToBuy") !=
-                                  null &&
-                                document.getElementById("quantityToBuy")
-                                  .value != null &&
-                                document.getElementById("quantityToBuy").value >
-                                  1
-                              ) {
-                                document.getElementById("quantityToBuy")
-                                  .value--;
+                              var element: HTMLElement | null =
+                                document.getElementById("quantityToBuy");
+                              var parsedElement: HTMLInputElement =
+                                element as HTMLInputElement;
+                              var value = parseInt(
+                                (element as HTMLInputElement).value
+                              );
+                              if (value > 1) {
+                                parsedElement.value = (
+                                  parseInt(parsedElement.value) - 1
+                                ).toString();
                               }
                             }}
                           >
@@ -480,12 +481,17 @@ export default function ProductShow(props: any) {
                           <button
                             className="w-20 h-full text-gray-600 bg-white border border-black border-l rounded-r outline-none cursor-pointer hover:bg-gray-200"
                             onClick={() => {
-                              if (
-                                document.getElementById("quantityToBuy")
-                                  .value <= product.quantity_left
-                              ) {
-                                document.getElementById("quantityToBuy")
-                                  .value++;
+                              var element: HTMLElement | null =
+                                document.getElementById("quantityToBuy");
+                              var parsedElement: HTMLInputElement =
+                                element as HTMLInputElement;
+                              var value = parseInt(
+                                (element as HTMLInputElement).value
+                              );
+                              if (value < product.quantity_left) {
+                                parsedElement.value = (
+                                  parseInt(parsedElement.value) + 1
+                                ).toString();
                               }
                             }}
                           >
