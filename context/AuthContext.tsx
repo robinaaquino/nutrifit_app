@@ -244,6 +244,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         nookies.set(undefined, "cart", JSON.stringify(addCartResult.result), {
           path: "/",
         });
+        success("Successfully added to cart");
       } else {
         error(addCartResult.errorMessage);
       }
