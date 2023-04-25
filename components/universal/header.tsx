@@ -84,7 +84,12 @@ export default function Header() {
                   3
                 </span>
               </div>
-              <span className="text-xl font-inter text-white">Cart</span>
+              <button
+                className="text-xl font-inter text-white"
+                onClick={() => router.push("/cart")}
+              >
+                Cart
+              </button>
             </div>
 
             <div className="dropdown">

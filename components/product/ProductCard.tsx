@@ -7,11 +7,15 @@ export default function ProductCard({
   productName,
   productPrice,
   productId,
+  handleAddToCart,
+  product,
 }: {
   productImage: string;
   productName: string;
   productPrice: number;
   productId: string;
+  handleAddToCart: any;
+  product: any;
 }) {
   const router = useRouter();
   return (
@@ -56,7 +60,10 @@ export default function ProductCard({
               </span>
             </a>
           </div>
-          <button className="flex items-center h-8  text-white px-2 rounded bg-nf_green hover:bg-nf_dark_blue text-lg">
+          <button
+            className="flex items-center h-8  text-white px-2 rounded bg-nf_green hover:bg-nf_dark_blue text-lg"
+            onClick={() => handleAddToCart(product, 1)}
+          >
             Add to cart
           </button>
           {/* <div className="flex items-center justify-between px-3 py-2">

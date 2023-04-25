@@ -4,8 +4,10 @@ import { getAllProductsFunction } from "@/firebase/firebase_functions/products_f
 import { ProductsDatabaseType } from "@/firebase/constants";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import nookies from "nookies";
+import admin from "../../firebase/admin-config";
 
-export default function Catalog() {
+export default function Catalog(props: any) {
   const [productList, setProductList] = useState<ProductsDatabaseType[]>([]);
   const authContextObject = useContext(AuthContext);
   const router = useRouter();
@@ -34,6 +36,14 @@ export default function Catalog() {
     }
     setCurrentProductList(productList.slice(prevIndex, nextIndex));
   };
+
+  async function handleAddToCart(product: any, quantity: any) {
+    if (props.user) {
+      await authContextObject.addToCart(product, quantity, props.user);
+    } else {
+      await authContextObject.addToCart(product, quantity);
+    }
+  }
 
   useEffect(() => {
     async function fetchAllProducts() {
@@ -96,7 +106,7 @@ export default function Catalog() {
           </div>
         </div>
       </section> */}
-      <body className="flex flex-col w-screen min-h-screen p-10 bg-gray-100 text-gray-800">
+      <div className="flex flex-col w-screen min-h-screen p-10 bg-gray-100 text-gray-800">
         <h1 className="text-3xl">Product Category Page Title</h1>
 
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mt-6">
@@ -119,9 +129,9 @@ export default function Catalog() {
                 fill="currentColor"
               >
                 <path
-                  fill-rule="evenodd"
+                  fillRule="evenodd"
                   d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                  clip-rule="evenodd"
+                  clipRule="evenodd"
                 />
               </svg>
             </div>
@@ -173,6 +183,8 @@ export default function Catalog() {
                   productName={product.name}
                   productPrice={product.price}
                   productId={product.id ? product.id : ""}
+                  product={product}
+                  handleAddToCart={handleAddToCart}
                 />
               </>
             );
@@ -320,9 +332,9 @@ export default function Catalog() {
               fill="currentColor"
             >
               <path
-                fill-rule="evenodd"
+                fillRule="evenodd"
                 d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
-                clip-rule="evenodd"
+                clipRule="evenodd"
               />
             </svg>
           </div>
@@ -393,9 +405,9 @@ export default function Catalog() {
               fill="currentColor"
             >
               <path
-                fill-rule="evenodd"
+                fillRule="evenodd"
                 d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                clip-rule="evenodd"
+                clipRule="evenodd"
               />
             </svg>
           </button> */}
@@ -424,7 +436,59 @@ export default function Catalog() {
             </svg>
           </button>
         </div>
-      </body>
+      </div>
     </>
   );
+}
+
+export async function getServerSideProps(context: any) {
+  try {
+    const cookies = nookies.get(context);
+
+    if (cookies.token) {
+      const token = await admin.auth().verifyIdToken(cookies.token);
+
+      const { uid } = token;
+
+      return {
+        props: {
+          user: uid,
+          isError: false,
+          errorMessage: "",
+          redirect: "/",
+        },
+      };
+    } else {
+      console.log("ah then here?");
+      if (cookies.cart) {
+        return {
+          props: {
+            cart: JSON.parse(cookies.cart),
+            isError: false,
+            errorMessage: "",
+            redirect: "/",
+          },
+        };
+      } else {
+        console.log("here then");
+        return {
+          props: {
+            cart: null,
+            isError: false,
+            errorMessage: "",
+            redirect: "/",
+          },
+        };
+      }
+    }
+  } catch (err) {
+    return {
+      props: {
+        user: null,
+        isError: true,
+        errorMessage: "Error with getting user info",
+        redirect: "/logn",
+      },
+    };
+  }
 }

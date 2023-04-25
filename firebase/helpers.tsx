@@ -1,3 +1,5 @@
+import no_image from "../public/no_image.png";
+
 export function parseError(e: unknown) {
   let errorMessage: string = "Unknown error while adding product";
   if (typeof e === "string") {
@@ -27,4 +29,29 @@ export function returnKeyByValue(text: string) {
   } else if (text == "Last updated") {
     return "updated_at";
   }
+}
+
+export function getImageInProduct(product: any) {
+  if (product.images) {
+    if (product.images.length > 0) {
+      for (let i = 0; i < product.images.length; i++) {
+        if (product.images[0] != null) {
+          return product.images[0];
+        }
+      }
+    }
+  }
+  return no_image;
+}
+
+export function computeSubtotalInCart(cart: any) {
+  let sum = 0;
+  if (cart) {
+    if (cart.products) {
+      for (let i = 0; i < cart.products.length; i++) {
+        sum += cart.products[i].quantity * cart.products[i].price;
+      }
+    }
+  }
+  return sum;
 }
