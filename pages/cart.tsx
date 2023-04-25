@@ -258,9 +258,11 @@ export default function Cart(props: any) {
                                 {e.name}
                               </h2>
                               <p className="text-sm">{e.description}</p>
-                              <span className="text-red-600">
-                                Price
-                              </span> Php {e.price}
+                              <span className="text-black">Price</span>
+                              <span className="ml-2">Php {e.price}</span>
+                              <p></p>
+                              <span className="text-black">Quantity</span>{" "}
+                              <span className="ml-2">{e.quantity}</span>
                             </div>
                             <div>
                               <button
