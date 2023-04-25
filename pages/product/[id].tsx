@@ -79,7 +79,7 @@ export default function ProductShow(props: any) {
 
   async function handleAddToCart(product: any, quantity: any) {
     if (props.user) {
-      await addToCart(product, quantity, user);
+      await addToCart(product, quantity, props.user);
     } else {
       await addToCart(product, quantity);
     }
