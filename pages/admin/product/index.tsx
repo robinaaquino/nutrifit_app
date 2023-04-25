@@ -63,30 +63,6 @@ export default function AdminProduct(props: any) {
   }
 
   async function handleFilters(filter: any) {
-    // console.log("loading: ", loading);
-    // console.log("Filter: ", filter);
-    // setIsLoadingTrue();
-    // setIsLoading(true);
-    // const result = await getAllProductsWithFilterFunction(filter).then((e) => {
-    //   console.log("loading: ", loading);
-    //   console.log("Running filterz: ", e);
-    //   console.log(e.errorMessage);
-    //   if (!e.isSuccess) {
-    //     error(e.resultText);
-    //   } else {
-    //     setProducts(e.result);
-    //   }
-    //   // console.log("fokme");
-    //   // setIsLoadingFalse();
-    //   // console.log("loading: ", loading);
-    //   setIsLoading(false);
-    // });
-
-    // setCategory(filter.category);
-    // setMinPrice(filter.minPrice);
-    // setMaxPrice(filter.maxPrice);
-    // setInStock(filter.inStock);
-    // updateProductsViaFilter(filter);
     const result = await getAllProductsWithFilterFunction(filter);
 
     if (!result.isSuccess) {

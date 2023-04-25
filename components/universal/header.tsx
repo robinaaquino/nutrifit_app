@@ -3,12 +3,23 @@ import SearchBar from "./search_bar";
 import { logout, useAuthContext } from "@/context/AuthContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useRouter as nextRouter } from "next/router";
+import nookies from "nookies";
 
 //usecontext not resetting, dropdown of profile still reliant on isAuthorized of useAuthContext
 export default function Header() {
   const { user, loading, isAuthorized, reset } = useAuthContext();
+  const { pathname } = nextRouter();
   const router = useRouter();
-  console.log(isAuthorized);
+
+  function handleSearch(text: string) {
+    nookies.set(undefined, "search", text, { path: "/" });
+    if (pathname == "/product") {
+      router.replace("/product");
+    } else {
+      router.push("/product");
+    }
+  }
 
   return (
     <>
@@ -40,11 +51,12 @@ export default function Header() {
           </div>
 
           <div className="flex flex-1 gap-x-3">
-            <input
+            {/* <input
               type="text"
               className="w-full rounded-md border border-nf_yellow px-3 py-2 text-sm max-w-lg bg-white"
               placeholder="Search..."
-            />
+            /> */}
+            <SearchBar handleSearch={handleSearch}></SearchBar>
           </div>
 
           <div className="ml-2 flex">
