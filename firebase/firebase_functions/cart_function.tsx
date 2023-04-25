@@ -12,7 +12,11 @@ import {
 } from "firebase/firestore";
 import * as Constants from "../constants";
 import { FunctionResult } from "@/firebase/constants";
-import { parseError } from "../helpers";
+import {
+  parseError,
+  getImageInProduct,
+  computeSubtotalInCart,
+} from "../helpers";
 import {
   ref,
   uploadBytes,
@@ -41,6 +45,7 @@ export const initializeNewCartFunction = async (
         price: product.price,
         category: product.category,
         quantity: quantity,
+        image: getImageInProduct(product),
       };
 
       let newCart: any = {
@@ -112,6 +117,7 @@ export const addToCartFunction = async (
     price: product.price,
     category: product.category,
     quantity: quantity,
+    image: getImageInProduct(product),
   };
 
   try {
@@ -144,17 +150,36 @@ export const addToCartFunction = async (
     } else {
       //get docs
       var cartData = cartSnapshot.data();
-      cartData.product.push(productToBeAddedToCart);
-      cartData.subtotal_price += productToBeAddedToCart.price * quantity;
 
-      await setDoc(cartReference, cartData, { merge: true });
+      //check if product exists in cart already
+      let productAlreadyInCart = false;
+      for (let i = 0; i < cartData.products.length; i++) {
+        if (cartData.products[i].id == productToBeAddedToCart.id) {
+          productAlreadyInCart = true;
+          break;
+        }
+      }
 
-      resultObject = {
-        result: cartData,
-        isSuccess: true,
-        resultText: "Successful in adding product to cart",
-        errorMessage: "",
-      };
+      if (productAlreadyInCart) {
+        resultObject = {
+          result: cartData,
+          isSuccess: false,
+          resultText: "Failed in adding product to cart",
+          errorMessage: "Duplicate product",
+        };
+      } else {
+        cartData.products.push(productToBeAddedToCart);
+        cartData.subtotal_price += productToBeAddedToCart.price * quantity;
+
+        await setDoc(cartReference, cartData, { merge: true });
+
+        resultObject = {
+          result: cartData,
+          isSuccess: true,
+          resultText: "Successful in adding product to cart",
+          errorMessage: "",
+        };
+      }
     }
   } catch (e: unknown) {
     resultObject = {
@@ -168,10 +193,7 @@ export const addToCartFunction = async (
   return resultObject;
 };
 
-export const removeFromCartFunction = async (
-  product: Constants.ProductsDatabaseType,
-  userId: string
-) => {
+export const removeFromCartFunction = async (product: any, userId: string) => {
   let resultObject: FunctionResult = {
     result: "",
     isSuccess: false,
@@ -197,10 +219,10 @@ export const removeFromCartFunction = async (
     var cartData: any = cartSnapshot.data();
     let productFound = false;
     for (let i = 0; i < cartData?.products.length; i++) {
-      if (cartData?.products[i] == product.id) {
+      if (cartData?.products[i].id == product.id) {
         cartData.updated_at = new Date().toString();
-        cartData.subtotal_price -=
-          cartData.products[i].price * cartData.products[i].quantity;
+        cartData.subtotal_price =
+          cartData.subtotal_price - product.quantity * product.price;
         cartData.products.splice(i, 1);
         productFound = true;
         break;
