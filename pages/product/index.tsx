@@ -162,7 +162,7 @@ export default function Catalog(props: any) {
         </div>
       </section> */}
       <div className="flex flex-col w-screen min-h-screen p-10 bg-gray-100 text-gray-800">
-        <h1 className="text-3xl">Product Category Page Title</h1>
+        <h1 className="text-3xl">Product Catalog</h1>
 
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between mt-6">
           {/* {incorrect logic in calculating indices} */}
