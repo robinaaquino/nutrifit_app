@@ -49,12 +49,15 @@ export default function TableComponent({
     setCurrentProductList(productList.slice(prevIndex, nextIndex));
   };
 
-  //not working sort function
   const sortBy = (text: string) => {
     const key = returnKeyByValue(text) || "name";
-    const newList = productList.sort((a, b) =>
+
+    let previousList = productList;
+    let newList = previousList.sort((a, b) =>
       a[key] > b[key] ? 1 : b[key] > a[key] ? -1 : 0
     );
+    setProductList(newList);
+    onPageChange(currentPage);
   };
 
   const deleteProduct = async (product: any) => {
@@ -84,7 +87,7 @@ export default function TableComponent({
       if (content.length < pageSize) {
         setCurrentProductList(content);
       } else {
-        setCurrentProductList(content.slice(0, 25));
+        setCurrentProductList(content.slice(0, pageSize));
       }
     }
   }, [content]);
@@ -107,11 +110,17 @@ export default function TableComponent({
                               handleClick={() => {
                                 sortBy(e);
                               }}
+                              canSort={true}
                             />
                           </>
                         );
                       })}
-                      <TableRowHeader text="Actions" handleClick={() => {}} />
+
+                      <TableRowHeader
+                        canSort={false}
+                        text="Actions"
+                        handleClick={() => {}}
+                      />
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-nf_dark_blue ">
