@@ -4,8 +4,10 @@ import { getAllProductsFunction } from "@/firebase/firebase_functions/products_f
 import { ProductsDatabaseType } from "@/firebase/constants";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import nookies from "nookies";
+import admin from "../../firebase/admin-config";
 
-export default function Catalog() {
+export default function Catalog(props: any) {
   const [productList, setProductList] = useState<ProductsDatabaseType[]>([]);
   const authContextObject = useContext(AuthContext);
   const router = useRouter();
@@ -34,6 +36,14 @@ export default function Catalog() {
     }
     setCurrentProductList(productList.slice(prevIndex, nextIndex));
   };
+
+  async function handleAddToCart(product: any, quantity: any) {
+    if (props.user) {
+      await authContextObject.addToCart(product, quantity, props.user);
+    } else {
+      await authContextObject.addToCart(product, quantity);
+    }
+  }
 
   useEffect(() => {
     async function fetchAllProducts() {
@@ -173,6 +183,8 @@ export default function Catalog() {
                   productName={product.name}
                   productPrice={product.price}
                   productId={product.id ? product.id : ""}
+                  product={product}
+                  handleAddToCart={handleAddToCart}
                 />
               </>
             );
@@ -427,4 +439,56 @@ export default function Catalog() {
       </div>
     </>
   );
+}
+
+export async function getServerSideProps(context: any) {
+  try {
+    const cookies = nookies.get(context);
+
+    if (cookies.token) {
+      const token = await admin.auth().verifyIdToken(cookies.token);
+
+      const { uid } = token;
+
+      return {
+        props: {
+          user: uid,
+          isError: false,
+          errorMessage: "",
+          redirect: "/",
+        },
+      };
+    } else {
+      console.log("ah then here?");
+      if (cookies.cart) {
+        return {
+          props: {
+            cart: JSON.parse(cookies.cart),
+            isError: false,
+            errorMessage: "",
+            redirect: "/",
+          },
+        };
+      } else {
+        console.log("here then");
+        return {
+          props: {
+            cart: null,
+            isError: false,
+            errorMessage: "",
+            redirect: "/",
+          },
+        };
+      }
+    }
+  } catch (err) {
+    return {
+      props: {
+        user: null,
+        isError: true,
+        errorMessage: "Error with getting user info",
+        redirect: "/logn",
+      },
+    };
+  }
 }
