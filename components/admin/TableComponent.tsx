@@ -107,11 +107,17 @@ export default function TableComponent({
                               handleClick={() => {
                                 sortBy(e);
                               }}
+                              canSort={true}
                             />
                           </>
                         );
                       })}
-                      <TableRowHeader text="Actions" handleClick={() => {}} />
+
+                      <TableRowHeader
+                        canSort={false}
+                        text="Actions"
+                        handleClick={() => {}}
+                      />
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-nf_dark_blue ">
