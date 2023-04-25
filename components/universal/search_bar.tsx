@@ -48,6 +48,9 @@ export default function SearchBar({ handleSearch }: { handleSearch: any }) {
           onChange={(e) => {
             setSearchString(e.target.value);
           }}
+          onKeyUp={(event) => {
+            if (event.code === "Enter") handleSearch(searchString);
+          }}
         />
         <button
           type="submit"
