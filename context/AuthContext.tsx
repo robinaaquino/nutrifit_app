@@ -9,6 +9,7 @@ import {
 import app from "@/firebase/config";
 import * as Constants from "../firebase/constants";
 import nookies from "nookies";
+import no_image from "../public/no_image.png";
 
 import { useState } from "react";
 import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_function";
@@ -17,6 +18,7 @@ import {
   addToCartFunction,
   removeFromCartFunction,
 } from "@/firebase/firebase_functions/cart_function";
+import { getImageInProduct } from "@/firebase/helpers";
 
 const auth = getAuth(app);
 
@@ -32,8 +34,9 @@ export const AuthContext = createContext({
   reset: () => {},
   setUserAndAuthorization: (id: string, authorized: boolean) => {},
   cart: [],
-  addToCart: (product: any, quantity: any) => {},
+  addToCart: (product: any, quantity: any, user?: any) => {},
   removeFromCart: (product: any) => {},
+  updateCartContext: () => {},
 });
 
 export const useAuthContext = () => useContext(AuthContext);
@@ -86,8 +89,6 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
   };
 
   const addProductToContextCart = (product: any, quantity: any) => {
-    console.log("Adding product to context cart");
-    console.log("Before: ", cart);
     const productToBeAddedToCart = {
       id: product.id,
       name: product.name,
@@ -95,6 +96,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
       price: product.price,
       category: product.category,
       quantity: quantity,
+      image: product.image,
     };
 
     if (cart == null) {
@@ -103,7 +105,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         products: [productToBeAddedToCart],
         subtotal_price: product.price * quantity,
         updated_at: new Date().toString(),
-        user: user ? user : null,
+        user_id: user ? user : null,
       };
       setCart(cartObject);
     } else {
@@ -117,35 +119,33 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
           cartObject.subtotal_price + product.price * quantity;
         cartObject.updated_at = new Date().toString();
         setCart(cartObject);
-        console.log("After: ", cart);
         return true;
       }
     }
   };
 
   const removeProductFromContextCart = (product: any) => {
-    if (cart.length == 0) {
-      console.log("Removing product from context cart");
-      console.log("Before: ", cart);
+    if (cart) {
+      if (cart.length == 0) {
+        var cartObject = cart;
+        let previousProductsInCart = cartObject.products;
 
-      var cartObject = cart;
-      let previousProductsInCart = cartObject.products;
-
-      for (let i = 0; i < cartObject.products.length; i++) {
-        if (product.id == cartObject.products[i].id) {
-          previousProductsInCart.splice(i, 1);
-          break;
+        for (let i = 0; i < cartObject.products.length; i++) {
+          if (product.id == cartObject.products[i].id) {
+            previousProductsInCart.splice(i, 1);
+            break;
+          }
         }
+        cartObject.products = previousProductsInCart;
+
+        cartObject.subtotal_price =
+          cartObject.subtotal_price - product.price * product.quantity;
+        cartObject.updated_at = new Date().toString();
+
+        setCart(cartObject);
       }
-      cartObject.products = previousProductsInCart;
-
-      cartObject.subtotal_price =
-        cartObject.subtotal_price - product.price * product.quantity;
-      cartObject.updated_at = new Date().toString();
-
-      console.log("After: ", cartObject);
-      setCart(cartObject);
     }
+
     return true;
   };
 
@@ -157,6 +157,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
       price: product.price,
       category: product.category,
       quantity: quantity,
+      image: product.image,
     };
 
     const cookies = nookies.get(undefined);
@@ -232,103 +233,17 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
       price: product.price,
       category: product.category,
       quantity: quantity,
+      image: getImageInProduct(product),
     };
-
-    // if (cart == null) {
-    //   //check cookies, if there's cart in cookies
-    //   const cookies = nookies.get(undefined);
-    //   console.log("cookies:", cookies);
-
-    //   if (cookies.cart != undefined) {
-    //     //if cart in cookies exists, get information and update context and cookies
-    //     var cartObject = JSON.parse(cookies.cart);
-    //     cartObject.products = [...cartObject.products, productToBeAddedToCart];
-    //     cartObject.subtotal_price =
-    //       cartObject.subtotal_price + product.price * quantity;
-    //     cartObject.updated_at = new Date().toString();
-
-    //     setCart(cartObject);
-    //     nookies.set(undefined, "cart", JSON.stringify(cartObject), {
-    //       path: "/",
-    //     });
-    //     success("Success in adding product to cart");
-    //   } else if (user) {
-    //     //get cart from firebase if there's no context cart and cookies cart
-    //     const getCartResult = await getCartViaIdFunction(user);
-
-    //     if (getCartResult.isSuccess) {
-    //       const addCartResult = await addToCartFunction(
-    //         product,
-    //         quantity,
-    //         user
-    //       );
-
-    //       if (addCartResult.isSuccess) {
-    //         setCart(addCartResult.result);
-    //         nookies.set(
-    //           undefined,
-    //           "cart",
-    //           JSON.stringify(addCartResult.result),
-    //           {
-    //             path: "/",
-    //           }
-    //         );
-    //         success("Success in adding product to cart");
-    //       } else {
-    //         error("Error with adding product to cart");
-    //       }
-    //     } else {
-    //       error("Error with getting cart results");
-    //     }
-    //   } else {
-    //     //initialize cart and update context and cookies
-    //     const cartObject = {
-    //       created_at: new Date().toString(),
-    //       products: [productToBeAddedToCart],
-    //       subtotal_price: product.price * quantity,
-    //       updated_at: new Date().toString(),
-    //       user: user ? user : null,
-    //     };
-
-    //     setCart(cartObject);
-    //     nookies.set(undefined, "cart", JSON.stringify(cartObject), {
-    //       path: "/",
-    //     });
-    //     success("Success in adding product to cart");
-    //   }
-    // } else {
-    //   //get cart from context and update cookies
-    //   var cartObject = cart;
-    //   cartObject.products = [...cartObject.products, productToBeAddedToCart];
-    //   cartObject.subtotal_price =
-    //     cartObject.subtotal_price + product.price * quantity;
-    //   cartObject.updated_at = new Date().toString();
-    //   setCart(cartObject);
-    //   nookies.set(undefined, "cart", JSON.stringify(cartObject), {
-    //     path: "/",
-    //   });
-
-    //   success("Success in adding product to cart");
-    // }
 
     if (user) {
       const addCartResult = await addToCartFunction(product, quantity, user);
 
       if (addCartResult.isSuccess) {
-        const contextResult = addProductToContextCart(
-          productToBeAddedToCart,
-          quantity
-        );
-        const cookieResult = addProductToCookiesCart(
-          productToBeAddedToCart,
-          quantity
-        );
-
-        if (contextResult == false || cookieResult == false) {
-          error("Duplicate product in cart");
-        } else {
-          success("Successful in adding product to cart");
-        }
+        setCart(addCartResult.result);
+        nookies.set(undefined, "cart", JSON.stringify(addCartResult.result), {
+          path: "/",
+        });
       } else {
         error(addCartResult.errorMessage);
       }
@@ -365,6 +280,28 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
       removeProductFromContextCart(product);
       removeProductFromCookiesCart(product);
       success("Sucessful in removing product from cart");
+    }
+  };
+
+  const updateCartContext = async () => {
+    if (cart == null) {
+      if (user) {
+        const getCartResult = await getCartViaIdFunction(user);
+
+        if (getCartResult.isSuccess) {
+          setCart(getCartResult.result);
+        } else {
+          error(getCartResult.errorMessage);
+          setCart(null);
+        }
+      } else {
+        const cookies = nookies.get(undefined);
+        if (cookies.cart != undefined) {
+          setCart(JSON.parse(cookies.cart));
+        } else {
+          setCart(null);
+        }
+      }
     }
   };
 
@@ -415,6 +352,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         cart,
         addToCart,
         removeFromCart,
+        updateCartContext,
       }}
     >
       {loading ? <div>Loading...</div> : children}
