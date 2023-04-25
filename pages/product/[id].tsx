@@ -13,8 +13,10 @@ import {
 import { useAuthContext } from "@/context/AuthContext";
 import no_image from "../../public/no_image.png";
 import Image from "next/image";
+import nookies from "nookies";
+import admin from "../../firebase/admin-config";
 
-export default function ProductShow() {
+export default function ProductShow(props: any) {
   const router = useRouter();
   const productImagesArray = [0, 1, 2, 3];
   const [product, setProduct] = useState<ProductsDatabaseType>({
@@ -76,7 +78,11 @@ export default function ProductShow() {
   }
 
   async function handleAddToCart(product: any, quantity: any) {
-    await addToCart(product, quantity);
+    if (props.user) {
+      await addToCart(product, quantity, user);
+    } else {
+      await addToCart(product, quantity);
+    }
   }
 
   const updateDisplayImage = (index: any) => {
@@ -529,4 +535,56 @@ export default function ProductShow() {
       </div>
     </>
   );
+}
+
+export async function getServerSideProps(context: any) {
+  try {
+    const cookies = nookies.get(context);
+
+    if (cookies.token) {
+      const token = await admin.auth().verifyIdToken(cookies.token);
+
+      const { uid } = token;
+
+      return {
+        props: {
+          user: uid,
+          isError: false,
+          errorMessage: "",
+          redirect: "/",
+        },
+      };
+    } else {
+      console.log("ah then here?");
+      if (cookies.cart) {
+        return {
+          props: {
+            cart: JSON.parse(cookies.cart),
+            isError: false,
+            errorMessage: "",
+            redirect: "/",
+          },
+        };
+      } else {
+        console.log("here then");
+        return {
+          props: {
+            cart: null,
+            isError: false,
+            errorMessage: "",
+            redirect: "/",
+          },
+        };
+      }
+    }
+  } catch (err) {
+    return {
+      props: {
+        user: null,
+        isError: true,
+        errorMessage: "Error with getting user info",
+        redirect: "/logn",
+      },
+    };
+  }
 }
