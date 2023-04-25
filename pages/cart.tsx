@@ -1,9 +1,59 @@
-export default function Cart() {
+import { useAuthContext } from "@/context/AuthContext";
+import { useState, useEffect } from "react";
+import nookies from "nookies";
+import admin from "../firebase/admin-config";
+import { getCartViaIdFunction } from "@/firebase/firebase_functions/cart_function";
+import Image from "next/image";
+
+export default function Cart(props: any) {
+  const [cartContents, setCartContents] = useState<any>(null);
+  const { updateCartContext, cart, removeFromCart } = useAuthContext();
+
+  async function fetchCarts() {
+    if (props.cart) {
+      //if cart exists in cookies
+      setCartContents(props.cart);
+    } else {
+      if (cart) {
+        //check cart in context
+        setCartContents(cart);
+      } else {
+        let newCart: any = {
+          created_at: new Date().toString(),
+          products: [],
+          subtotal_price: 0,
+          updated_at: new Date().toString(),
+          user_id: null,
+        };
+
+        setCartContents(newCart);
+      }
+    }
+  }
+
+  function handleRemoveFromCart(product: any) {
+    var previousCart = cartContents;
+    for (let i = 0; i < previousCart.products.length; i++) {
+      if (product.id == previousCart.products[i].id) {
+        previousCart.products.splice(i, 1);
+      }
+    }
+    previousCart.subtotal_price =
+      previousCart.subtotal_price - product.price * product.quantity;
+    previousCart.updated_at = new Date().toString();
+    setCartContents(previousCart);
+    removeFromCart(product);
+  }
+
+  useEffect(() => {
+    fetchCarts();
+  }, []);
+
   return (
     <>
       <div className="container p-12 mx-auto">
         <div className="flex flex-col w-full px-0 mx-auto md:flex-row">
-          <div className="flex flex-col md:w-full">
+          <div className="flex flex-col w-2/5">
             <h2 className="mb-4 font-bold md:text-xl text-heading text-black">
               Shipping Address and Contact Details
             </h2>
@@ -181,12 +231,73 @@ export default function Cart() {
               </div>
             </form>
           </div>
-          <div className="flex flex-col w-full ml-0 lg:ml-12 lg:w-2/5">
+          <div className="flex flex-col w-2/5   ml-12">
             <div className="pt-12 md:pt-0 2xl:ps-4">
               <h2 className="text-xl font-bold text-black">Order Summary</h2>
               <div className="mt-8">
                 <div className="flex flex-col space-y-4">
-                  <div className="flex space-x-4">
+                  {cartContents &&
+                  cartContents.products &&
+                  cartContents.products.length > 0 ? (
+                    cartContents.products.map((e: any) => {
+                      const imageLink = e.image.src ? e.image.src : e.image;
+                      return (
+                        <>
+                          <div className="flex space-x-4">
+                            <div>
+                              <Image
+                                src={imageLink}
+                                alt="image"
+                                className="w-60"
+                                width="1024"
+                                height="1024"
+                              />
+                            </div>
+                            <div className="w-full">
+                              <h2 className="text-xl font-bold text-black">
+                                {e.name}
+                              </h2>
+                              <p className="text-sm">{e.description}</p>
+                              <span className="text-red-600">
+                                Price
+                              </span> Php {e.price}
+                            </div>
+                            <div>
+                              <button
+                                onClick={() => {
+                                  handleRemoveFromCart(e);
+                                }}
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  className="w-6 h-6"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  stroke="currentColor"
+                                >
+                                  <path
+                                    stroke-linecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                  />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })
+                  ) : (
+                    <div className="flex space-x-4">
+                      <div>
+                        <h2 className="text-xl font-bold text-black">
+                          No items in cart
+                        </h2>
+                      </div>
+                    </div>
+                  )}
+                  {/* <div className="flex space-x-4">
                     <div>
                       <img
                         src="https://source.unsplash.com/user/erondu/1600x900"
@@ -209,14 +320,14 @@ export default function Cart() {
                       >
                         <path
                           stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
                           d="M6 18L18 6M6 6l12 12"
                         />
                       </svg>
                     </div>
-                  </div>
-                  <div className="flex space-x-4">
+                  </div> */}
+                  {/* <div className="flex space-x-4">
                     <div>
                       <img
                         src="https://source.unsplash.com/collection/190727/1600x900"
@@ -239,26 +350,43 @@ export default function Cart() {
                       >
                         <path
                           stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
                           d="M6 18L18 6M6 6l12 12"
                         />
                       </svg>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
               <div className="flex p-4 mt-4">
-                <h2 className="text-xl font-bold">ITEMS 2</h2>
+                <h2 className="text-xl font-bold">
+                  ITEMS:{" "}
+                  {cartContents && cartContents.products
+                    ? cartContents.products.length
+                    : 0}
+                </h2>
               </div>
               <div className="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0">
-                Subtotal<span className="ml-2">$40.00</span>
+                Subtotal
+                <span className="ml-2">
+                  Php{" "}
+                  {cartContents?.subtotal_price
+                    ? cartContents?.subtotal_price
+                    : 0}
+                </span>
               </div>
-              <div className="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0">
+              {/* <div className="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0">
                 Shipping Tax<span className="ml-2">$10</span>
-              </div>
+              </div> */}
               <div className="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0">
-                Total<span className="ml-2">$50.00</span>
+                Total
+                <span className="ml-2">
+                  Php{" "}
+                  {cartContents?.subtotal_price
+                    ? cartContents?.subtotal_price
+                    : 0}
+                </span>
               </div>
             </div>
           </div>
@@ -266,4 +394,66 @@ export default function Cart() {
       </div>
     </>
   );
+}
+
+export async function getServerSideProps(context: any) {
+  try {
+    const cookies = nookies.get(context);
+
+    if (cookies.token) {
+      const token = await admin.auth().verifyIdToken(cookies.token);
+
+      const { uid, email } = token;
+
+      const getCartResult = await getCartViaIdFunction(uid);
+      if (getCartResult.result) {
+        return {
+          props: {
+            cart: getCartResult.result,
+            isError: false,
+            errorMessage: "",
+            redirect: "/",
+          },
+        };
+      } else {
+        return {
+          props: {
+            cart: null,
+            isError: false,
+            errorMessage: "",
+            redirect: "/",
+          },
+        };
+      }
+    } else {
+      if (cookies.cart) {
+        return {
+          props: {
+            cart: JSON.parse(cookies.cart),
+            isError: false,
+            errorMessage: "",
+            redirect: "/",
+          },
+        };
+      } else {
+        return {
+          props: {
+            cart: null,
+            isError: false,
+            errorMessage: "",
+            redirect: "/",
+          },
+        };
+      }
+    }
+  } catch (err) {
+    return {
+      props: {
+        cart: null,
+        isError: true,
+        errorMessage: "Error with getting cart",
+        redirect: "/login",
+      },
+    };
+  }
 }
