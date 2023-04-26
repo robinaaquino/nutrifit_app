@@ -183,6 +183,9 @@ export interface OrdersDatabaseType {
   total_price: number;
   updated_at?: string;
   user_id: string;
+  note?: string;
+  delivery_mode: string;
+  shipping_details: ShippingDetailsType;
 }
 
 export interface ProductsDatabaseType {
