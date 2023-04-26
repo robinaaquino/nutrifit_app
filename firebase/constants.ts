@@ -132,7 +132,7 @@ export interface ShippingDetailsType {
   address: string;
   first_name: string;
   last_name: string;
-  municipality: string;
+  city: string;
   province: string;
   contact_number?: string;
 }
@@ -156,9 +156,9 @@ export enum PaymentMethodEnum {
 
 export interface PaymentType {
   created_at: string;
-  date_cleared: string;
+  date_cleared?: string;
   payment_method: PaymentMethodEnum;
-  price_paid: number;
+  price_paid?: number;
   updated_at: string;
 }
 
