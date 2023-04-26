@@ -4,10 +4,29 @@ import nookies from "nookies";
 import admin from "../firebase/admin-config";
 import { getCartViaIdFunction } from "@/firebase/firebase_functions/cart_function";
 import Image from "next/image";
+import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import {
+  OrdersDatabaseType,
+  PaymentMethodEnum,
+  OrderStatusEnum,
+} from "@/firebase/constants";
+import { addOrderFunction } from "@/firebase/firebase_functions/orders_functions";
+import { useRouter } from "next/navigation";
 
 export default function Cart(props: any) {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [contactNumber, setContactNumber] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [province, setProvince] = useState("");
+  const [deliveryMode, setDeliveryMode] = useState("");
+  const [notes, setNotes] = useState("");
+
   const [cartContents, setCartContents] = useState<any>(null);
-  const { updateCartContext, cart, removeFromCart } = useAuthContext();
+  const { updateCartContext, cart, removeFromCart, error, success } =
+    useAuthContext();
+  const router = useRouter();
 
   async function fetchCarts() {
     if (props.cart) {
@@ -45,6 +64,52 @@ export default function Cart(props: any) {
     removeFromCart(product);
   }
 
+  const handleFormForPaymentUponPickup = async (e: any) => {
+    if (cartContents != null && cartContents.products.length > 0) {
+      const shipping_details = {
+        address: address,
+        first_name: firstName,
+        last_name: lastName,
+        city: city,
+        province: province,
+        contact_number: contactNumber,
+      };
+
+      const orderDetails: OrdersDatabaseType = {
+        total_price: cartContents.subtotal_price,
+        payment: {
+          created_at: new Date().toString(),
+          date_cleared: "",
+          payment_method: PaymentMethodEnum.PAYMENT_UPON_PICK_UP,
+          price_paid: 0,
+          updated_at: new Date().toString(),
+        },
+        products: cartContents.products,
+        status: OrderStatusEnum.PENDING,
+
+        user_id: props.user ? props.user : "",
+        note: notes,
+        delivery_mode: "pickup",
+        shipping_details: shipping_details,
+      };
+
+      const result = await addOrderFunction(orderDetails);
+      console.log(result);
+
+      if (result.isSuccess) {
+        success(result.resultText);
+        router.push(`/order/${result.result}`);
+        //clear cart
+      } else {
+        error(result.resultText);
+      }
+    } else {
+      error("No items in cart");
+    }
+    e.preventDefault();
+    console.log("fml");
+  };
+
   useEffect(() => {
     fetchCarts();
   }, []);
@@ -57,7 +122,10 @@ export default function Cart(props: any) {
             <h2 className="mb-4 font-bold md:text-xl text-heading text-black">
               Shipping Address and Contact Details
             </h2>
-            <form className="justify-center w-full mx-auto" method="post">
+            <form
+              className="justify-center w-full mx-auto"
+              onSubmit={(e) => e.preventDefault()}
+            >
               <div className="">
                 <div className="space-x-0 lg:flex lg:space-x-4">
                   <div className="w-full lg:w-1/2">
@@ -72,6 +140,9 @@ export default function Cart(props: any) {
                       type="text"
                       placeholder="First Name"
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white text-black"
+                      onChange={(e) => {
+                        setFirstName(e.target.value);
+                      }}
                     />
                   </div>
                   <div className="w-full lg:w-1/2 ">
@@ -86,6 +157,9 @@ export default function Cart(props: any) {
                       type="text"
                       placeholder="Last Name"
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white text-black"
+                      onChange={(e) => {
+                        setLastName(e.target.value);
+                      }}
                     />
                   </div>
                 </div>
@@ -102,6 +176,9 @@ export default function Cart(props: any) {
                       type="text"
                       placeholder="Contact number"
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white text-black"
+                      onChange={(e) => {
+                        setContactNumber(e.target.value);
+                      }}
                     />
                   </div>
                 </div>
@@ -119,6 +196,9 @@ export default function Cart(props: any) {
                       cols={20}
                       rows={4}
                       placeholder="Address"
+                      onChange={(e) => {
+                        setAddress(e.target.value);
+                      }}
                     ></textarea>
                   </div>
                 </div>
@@ -135,6 +215,9 @@ export default function Cart(props: any) {
                       type="text"
                       placeholder="City"
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white text-black"
+                      onChange={(e) => {
+                        setCity(e.target.value);
+                      }}
                     />
                   </div>
                   <div className="w-full lg:w-1/2 ">
@@ -149,6 +232,9 @@ export default function Cart(props: any) {
                       type="text"
                       placeholder="Province"
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white text-black"
+                      onChange={(e) => {
+                        setProvince(e.target.value);
+                      }}
                     />
                   </div>
                 </div>
@@ -166,6 +252,9 @@ export default function Cart(props: any) {
                         type="radio"
                         value="delivery"
                         className="m-2"
+                        onChange={(e) => {
+                          setDeliveryMode(e.target.value);
+                        }}
                       />
                       <label htmlFor="deliveryMode" className="text-black">
                         Delivery
@@ -175,6 +264,9 @@ export default function Cart(props: any) {
                         type="radio"
                         value="pickup"
                         className="m-2"
+                        onChange={(e) => {
+                          setDeliveryMode(e.target.value);
+                        }}
                       />
                       <label htmlFor="deliveryMode" className="text-black">
                         Pickup
@@ -221,12 +313,41 @@ export default function Cart(props: any) {
                     className="flex items-center w-full px-4 py-3 text-sm border bg-white text-black border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-600"
                     rows={4}
                     placeholder="Notes for delivery"
+                    onChange={(e) => {
+                      setNotes(e.target.value);
+                    }}
                   ></textarea>
                 </div>
                 <div className="mt-4">
-                  <button className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900">
-                    Process
-                  </button>
+                  {deliveryMode == "pickup" ? (
+                    <div>
+                      <button
+                        className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900 disabled"
+                        onClick={(e) => {
+                          e.preventDefault();
+                        }}
+                      >
+                        Process Payment
+                      </button>
+                      <button
+                        className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900 mt-2"
+                        onClick={(e) => {
+                          handleFormForPaymentUponPickup(e);
+                        }}
+                      >
+                        Payment Upon Pickup
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900 disabled"
+                      onClick={(e) => {
+                        e.preventDefault();
+                      }}
+                    >
+                      Process Payment
+                    </button>
+                  )}
                 </div>
               </div>
             </form>
@@ -407,30 +528,24 @@ export async function getServerSideProps(context: any) {
 
       const { uid, email } = token;
 
+      //get user shipping details
+      const getUserResult = await getUserFunction(uid);
+
       const getCartResult = await getCartViaIdFunction(uid);
-      if (getCartResult.result) {
-        return {
-          props: {
-            cart: getCartResult.result,
-            isError: false,
-            errorMessage: "",
-            redirect: "/",
-          },
-        };
-      } else {
-        return {
-          props: {
-            cart: null,
-            isError: false,
-            errorMessage: "",
-            redirect: "/",
-          },
-        };
-      }
+      return {
+        props: {
+          userDetails: getUserResult.isSuccess ? getUserResult.result : null,
+          cart: getCartResult.isSuccess ? getCartResult.result : null,
+          isError: false,
+          errorMessage: "",
+          redirect: "/",
+        },
+      };
     } else {
       if (cookies.cart) {
         return {
           props: {
+            userDetails: null,
             cart: JSON.parse(cookies.cart),
             isError: false,
             errorMessage: "",
@@ -440,6 +555,7 @@ export async function getServerSideProps(context: any) {
       } else {
         return {
           props: {
+            userDetails: null,
             cart: null,
             isError: false,
             errorMessage: "",
@@ -451,6 +567,7 @@ export async function getServerSideProps(context: any) {
   } catch (err) {
     return {
       props: {
+        userDetails: null,
         cart: null,
         isError: true,
         errorMessage: "Error with getting cart",
