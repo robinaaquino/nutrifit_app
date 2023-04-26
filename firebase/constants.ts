@@ -134,6 +134,7 @@ export interface ShippingDetailsType {
   last_name: string;
   municipality: string;
   province: string;
+  contact_number?: string;
 }
 
 export interface UsersDatabaseType {
