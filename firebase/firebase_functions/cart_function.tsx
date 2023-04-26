@@ -258,6 +258,11 @@ export const removeFromCartFunction = async (product: any, userId: string) => {
   return resultObject;
 };
 
+export const clearCartFunction = async (userId: string) => {
+  //reset products
+  //subtotal price = 0
+};
+
 export const getCartViaIdFunction = async (userId: string) => {
   let resultObject: FunctionResult = {
     result: "",
