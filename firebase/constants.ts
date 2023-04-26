@@ -176,13 +176,16 @@ export enum OrderStatusEnum {
 export interface OrdersDatabaseType {
   id?: string;
   created_at?: string;
+  updated_at?: string;
+
+  total_price: number;
   date_cleared?: string;
+
   payment: PaymentType;
   products: ProductsInOrderType[];
   status: OrderStatusEnum;
-  total_price: number;
-  updated_at?: string;
-  user_id: string;
+
+  user_id?: string;
   note?: string;
   delivery_mode: string;
   shipping_details: ShippingDetailsType;
