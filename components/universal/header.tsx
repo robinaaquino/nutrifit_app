@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRouter as nextRouter } from "next/router";
 import nookies from "nookies";
+import { useEffect } from "react";
 
 //usecontext not resetting, dropdown of profile still reliant on isAuthorized of useAuthContext
 export default function Header() {
@@ -142,7 +143,7 @@ export default function Header() {
                   className="dropdown-content menu p-2 shadow bg-nf_green rounded-box "
                 >
                   <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
-                    <Link href="/profile">Edit profile</Link>
+                    <Link href={"/user/" + user}>Profile</Link>
                   </li>
                   <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
                     <button
@@ -160,6 +161,9 @@ export default function Header() {
                   tabIndex={0}
                   className="dropdown-content menu p-2 shadow bg-nf_green rounded-box "
                 >
+                  <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
+                    <Link href={"/user/" + user}>Profile</Link>
+                  </li>
                   <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
                     <button
                       onClick={() => {
