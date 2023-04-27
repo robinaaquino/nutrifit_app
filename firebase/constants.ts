@@ -141,10 +141,11 @@ export interface UsersDatabaseType {
   id: string;
   contact_number?: string;
   created_at?: string;
+  updated_at?: string;
   email: string;
   role?: RoleEnum;
   shipping_details?: ShippingDetailsType;
-  updated_at?: string;
+  image?: string | File;
 }
 
 export enum PaymentMethodEnum {
