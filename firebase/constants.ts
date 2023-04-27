@@ -152,6 +152,7 @@ export enum PaymentMethodEnum {
   BANK_TRANSFER = "bank_transfer",
   PAYMAYA = "paymaya",
   PAYMENT_UPON_PICK_UP = "payment_upon_pick_up",
+  BLANK = "",
 }
 
 export interface PaymentType {
