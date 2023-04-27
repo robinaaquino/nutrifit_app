@@ -63,9 +63,8 @@ export default function OrderShow(props: any) {
       router.push("/");
     } else {
       if (
-        props.user &&
-        props.user !== result.result.user_id &&
-        !props.authorized
+        (props.user && props.user == props.userDetails.id) ||
+        props.authorized
       ) {
         error("Unauthorized viewing");
         router.push("/");
@@ -77,9 +76,8 @@ export default function OrderShow(props: any) {
   useEffect(() => {
     if (props.order) {
       if (
-        props.user &&
-        props.user !== props.order.user_id &&
-        !props.authorized
+        (props.user && props.user == props.userDetails.id) ||
+        props.authorized
       ) {
         error("Unauthorized viewing");
         router.push("/");
