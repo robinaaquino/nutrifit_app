@@ -162,7 +162,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
 
     const cookies = nookies.get(undefined);
 
-    if (cookies.cart != undefined) {
+    if (cookies.cart) {
       var cartObjectFromCookies = JSON.parse(cookies.cart);
 
       if (isProductInArray(product, cartObjectFromCookies.products)) {

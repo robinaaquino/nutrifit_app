@@ -107,13 +107,14 @@ export default function Cart(props: any) {
 
       if (result.isSuccess) {
         success(result.resultText);
-        router.push(`/order/${result.result}`);
+        router.push(`/order/${result.result.id}`);
 
         if (props.user || user) {
           const clearCartResult = await clearCartFunction(props.user || user);
 
           if (clearCartResult.isSuccess) {
             deleteCartInCookiesAndContext();
+            nookies.set(undefined, "order", JSON.stringify(result.result));
           } else {
             error(result.resultText);
           }
@@ -542,13 +543,10 @@ export async function getServerSideProps(context: any) {
 
       const { uid, email } = token;
 
-      //get user shipping details
-      const getUserResult = await getUserFunction(uid);
-
       const getCartResult = await getCartViaIdFunction(uid);
       return {
         props: {
-          userDetails: getUserResult.isSuccess ? getUserResult.result : null,
+          user: uid,
           cart: getCartResult.isSuccess ? getCartResult.result : null,
           isError: false,
           errorMessage: "",
@@ -559,7 +557,7 @@ export async function getServerSideProps(context: any) {
       if (cookies.cart) {
         return {
           props: {
-            userDetails: null,
+            user: null,
             cart: JSON.parse(cookies.cart),
             isError: false,
             errorMessage: "",
@@ -569,7 +567,7 @@ export async function getServerSideProps(context: any) {
       } else {
         return {
           props: {
-            userDetails: null,
+            user: null,
             cart: null,
             isError: false,
             errorMessage: "",
@@ -581,7 +579,7 @@ export async function getServerSideProps(context: any) {
   } catch (err) {
     return {
       props: {
-        userDetails: null,
+        user: null,
         cart: null,
         isError: true,
         errorMessage: "Error with getting cart",

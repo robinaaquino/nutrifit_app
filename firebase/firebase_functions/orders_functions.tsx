@@ -178,7 +178,7 @@ export const getAllOrdersWithSearchFunction = async (searchString: any) => {
   return resultObject;
 };
 
-export const getProductViaIdFunction = async (id: string) => {
+export const getOrderViaIdFunction = async (id: string) => {
   let resultObject: FunctionResult = {
     result: "",
     isSuccess: false,
@@ -188,30 +188,30 @@ export const getProductViaIdFunction = async (id: string) => {
   let data: string = "";
 
   try {
-    const productReference = doc(db, "products", id);
+    const orderReference = doc(db, "orders", id);
 
-    const productSnapshot = await getDoc(productReference);
+    const orderSnapshot = await getDoc(orderReference);
 
-    if (productSnapshot.exists()) {
+    if (orderSnapshot.exists()) {
       resultObject = {
-        result: { id: productSnapshot.id, ...productSnapshot.data() },
+        result: { id: orderSnapshot.id, ...orderSnapshot.data() },
         isSuccess: true,
-        resultText: "Successful in getting product information",
+        resultText: "Successful in getting order information",
         errorMessage: "",
       };
     } else {
       resultObject = {
         result: data,
-        isSuccess: true,
-        resultText: "Product does not exist",
+        isSuccess: false,
+        resultText: "Order does not exist",
         errorMessage: "",
       };
     }
   } catch (e: unknown) {
     resultObject = {
       result: data,
-      isSuccess: true,
-      resultText: "Failed in getting product information",
+      isSuccess: false,
+      resultText: "Failed in getting order information",
       errorMessage: parseError(e),
     };
   }
@@ -246,8 +246,26 @@ export const addOrderFunction = async (order: Constants.OrdersDatabaseType) => {
       shipping_details: order.shipping_details,
     });
 
+    const data = {
+      id: documentRef.id,
+      created_at: new Date().toString(),
+      updated_at: new Date().toString(),
+
+      total_price: order.total_price,
+      date_cleared: "",
+
+      payment: order.payment,
+      products: order.products,
+      status: order.status,
+
+      user_id: order.user_id,
+      note: order.note,
+      delivery_mode: order.delivery_mode,
+      shipping_details: order.shipping_details,
+    };
+
     resultObject = {
-      result: documentRef.id,
+      result: data,
       isSuccess: true,
       resultText: "Successful in adding order",
       errorMessage: "",
