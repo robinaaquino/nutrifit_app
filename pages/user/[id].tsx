@@ -133,7 +133,7 @@ export default function UserShow(props: any) {
       created_at: userInfo.created_at,
       updated_at: new Date().toString(),
       email: userInfo.email,
-      role: RoleEnum.CUSTOMER,
+      role: userInfo.role,
       shipping_details: {
         address: (address ? address : userInfo.shipping_details?.address) || "",
         first_name:
