@@ -52,6 +52,8 @@ export default function Filter({
         minPrice: filterMinPrice,
         maxPrice: filterMaxPrice,
         status: filterStatus,
+        //add delivery mode
+        //add payment method
       };
       handleFilters(filterObject);
     } else if (isCustomerFilter) {

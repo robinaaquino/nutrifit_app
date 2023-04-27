@@ -132,8 +132,9 @@ export interface ShippingDetailsType {
   address: string;
   first_name: string;
   last_name: string;
-  municipality: string;
+  city: string;
   province: string;
+  contact_number?: string;
 }
 
 export interface UsersDatabaseType {
@@ -155,9 +156,9 @@ export enum PaymentMethodEnum {
 
 export interface PaymentType {
   created_at: string;
-  date_cleared: string;
+  date_cleared?: string;
   payment_method: PaymentMethodEnum;
-  price_paid: number;
+  price_paid?: number;
   updated_at: string;
 }
 
@@ -175,13 +176,19 @@ export enum OrderStatusEnum {
 export interface OrdersDatabaseType {
   id?: string;
   created_at?: string;
+  updated_at?: string;
+
+  total_price: number;
   date_cleared?: string;
+
   payment: PaymentType;
   products: ProductsInOrderType[];
   status: OrderStatusEnum;
-  total_price: number;
-  updated_at?: string;
-  user_id: string;
+
+  user_id?: string;
+  note?: string;
+  delivery_mode: string;
+  shipping_details: ShippingDetailsType;
 }
 
 export interface ProductsDatabaseType {
