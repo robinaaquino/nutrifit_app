@@ -294,20 +294,14 @@ export default function Cart(props: any) {
                     </div>
                   </div>
                   {/* TODO: Google Map */}
-                  <div className="w-full lg:w-1/2 ">
+                  {/* <div className="w-full lg:w-1/2 ">
                     <label
                       htmlFor="googleMap"
                       className="block mb-3 text-sm font-semibold text-gray-500"
                     >
                       Google Map
                     </label>
-                    {/* <input
-                      name="province"
-                      type="text"
-                      placeholder="Province"
-                      className="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
-                    /> */}
-                  </div>
+                  </div> */}
                 </div>
                 {/* <div className="flex items-center mt-4">
                   <label className="flex items-center text-sm group text-heading">
