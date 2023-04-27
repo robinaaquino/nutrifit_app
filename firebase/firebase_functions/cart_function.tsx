@@ -261,6 +261,52 @@ export const removeFromCartFunction = async (product: any, userId: string) => {
 export const clearCartFunction = async (userId: string) => {
   //reset products
   //subtotal price = 0
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+  let data: any = {}; //change to orders database type
+
+  try {
+    const cartReference = doc(db, "carts", userId);
+
+    const cartSnapshot = await getDoc(cartReference);
+
+    if (cartSnapshot.exists()) {
+      data = cartSnapshot.data();
+
+      data.products = [];
+      data.subtotal_price = 0;
+      data.updated_at = new Date().toString();
+
+      await setDoc(cartReference, data);
+
+      resultObject = {
+        result: data,
+        isSuccess: true,
+        resultText: "Successful in resetting cart information",
+        errorMessage: "",
+      };
+    } else {
+      resultObject = {
+        result: data,
+        isSuccess: false,
+        resultText: "Failed in getting cart information and resetting cart",
+        errorMessage: "User has no cart",
+      };
+    }
+  } catch (e: unknown) {
+    resultObject = {
+      result: data,
+      isSuccess: false,
+      resultText: "Failed in resetting cart information",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
 };
 
 export const getCartViaIdFunction = async (userId: string) => {

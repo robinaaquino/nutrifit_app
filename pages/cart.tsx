@@ -2,7 +2,10 @@ import { useAuthContext } from "@/context/AuthContext";
 import { useState, useEffect } from "react";
 import nookies from "nookies";
 import admin from "../firebase/admin-config";
-import { getCartViaIdFunction } from "@/firebase/firebase_functions/cart_function";
+import {
+  getCartViaIdFunction,
+  clearCartFunction,
+} from "@/firebase/firebase_functions/cart_function";
 import Image from "next/image";
 import { getUserFunction } from "@/firebase/firebase_functions/users_function";
 import {
@@ -24,8 +27,14 @@ export default function Cart(props: any) {
   const [notes, setNotes] = useState("");
 
   const [cartContents, setCartContents] = useState<any>(null);
-  const { updateCartContext, cart, removeFromCart, error, success } =
-    useAuthContext();
+  const {
+    deleteCartInCookiesAndContext,
+    cart,
+    removeFromCart,
+    error,
+    success,
+    user,
+  } = useAuthContext();
   const router = useRouter();
 
   async function fetchCarts() {
@@ -99,7 +108,18 @@ export default function Cart(props: any) {
       if (result.isSuccess) {
         success(result.resultText);
         router.push(`/order/${result.result}`);
-        //clear cart
+
+        if (props.user || user) {
+          const clearCartResult = await clearCartFunction(props.user || user);
+
+          if (clearCartResult.isSuccess) {
+            deleteCartInCookiesAndContext();
+          } else {
+            error(result.resultText);
+          }
+        } else {
+          deleteCartInCookiesAndContext();
+        }
       } else {
         error(result.resultText);
       }

@@ -36,7 +36,7 @@ export const AuthContext = createContext({
   cart: [],
   addToCart: (product: any, quantity: any, user?: any) => {},
   removeFromCart: (product: any) => {},
-  updateCartContext: () => {},
+  deleteCartInCookiesAndContext: () => {},
 });
 
 export const useAuthContext = () => useContext(AuthContext);
@@ -284,26 +284,12 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
     }
   };
 
-  const updateCartContext = async () => {
-    if (cart == null) {
-      if (user) {
-        const getCartResult = await getCartViaIdFunction(user);
-
-        if (getCartResult.isSuccess) {
-          setCart(getCartResult.result);
-        } else {
-          error(getCartResult.errorMessage);
-          setCart(null);
-        }
-      } else {
-        const cookies = nookies.get(undefined);
-        if (cookies.cart != undefined) {
-          setCart(JSON.parse(cookies.cart));
-        } else {
-          setCart(null);
-        }
-      }
+  const deleteCartInCookiesAndContext = async () => {
+    if (cart != null) {
+      setCart(null);
     }
+
+    nookies.set(undefined, "cart", "", { path: "/" });
   };
 
   useEffect(() => {
@@ -353,7 +339,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         cart,
         addToCart,
         removeFromCart,
-        updateCartContext,
+        deleteCartInCookiesAndContext,
       }}
     >
       {loading ? <div>Loading...</div> : children}
