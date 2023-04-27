@@ -57,25 +57,36 @@ export default function UserShow(props: any) {
       error(result.resultText);
       router.push("/");
     } else {
-      if (
-        !(
-          (props.user && props.user == props.userDetails.id) ||
-          props.authorized
-        )
-      ) {
-        error("Unauthorized viewing");
-        router.push("/");
+      if (props.authorized) {
+        setUserInfo(result.result);
+
+        setFirstName(result.result.shipping_details?.first_name || "");
+        setLastName(result.result.shipping_details?.last_name || "");
+        setContactNumber(result.result.shipping_details?.contact_number || "");
+        setAddress(result.result.shipping_details?.address || "");
+        setCity(result.result.shipping_details?.city || "");
+        setProvince(result.result.shipping_details?.province || "");
+
+        setImage(result.result.image);
+      } else {
+        if (idInput != user) {
+          error("Unauthorized viewing");
+          router.push("/");
+        } else {
+          setUserInfo(result.result);
+
+          setFirstName(result.result.shipping_details?.first_name || "");
+          setLastName(result.result.shipping_details?.last_name || "");
+          setContactNumber(
+            result.result.shipping_details?.contact_number || ""
+          );
+          setAddress(result.result.shipping_details?.address || "");
+          setCity(result.result.shipping_details?.city || "");
+          setProvince(result.result.shipping_details?.province || "");
+
+          setImage(result.result.image);
+        }
       }
-      setUserInfo(result.result);
-
-      setFirstName(result.result.shipping_details?.first_name || "");
-      setLastName(result.result.shipping_details?.last_name || "");
-      setContactNumber(result.result.shipping_details?.contact_number || "");
-      setAddress(result.result.shipping_details?.address || "");
-      setCity(result.result.shipping_details?.city || "");
-      setProvince(result.result.shipping_details?.province || "");
-
-      setImage(result.result.image);
     }
   }
 
@@ -141,7 +152,6 @@ export default function UserShow(props: any) {
     };
 
     const result = await updateUserFunction(newInfo, idInput);
-    console.log(result);
 
     if (result.isSuccess) {
       success(result.resultText);
@@ -163,16 +173,7 @@ export default function UserShow(props: any) {
   };
 
   useEffect(() => {
-    if (props.userDetails) {
-      if (
-        !(
-          (props.user && props.user == props.userDetails.id) ||
-          props.authorized
-        )
-      ) {
-        error("Unauthorized viewing");
-        router.push("/");
-      }
+    if (props.isAuthorized || (id == props.user && props.userDetails)) {
       setUserInfo(props.userDetails);
 
       setFirstName(props.userDetails.shipping_details?.first_name || "");
@@ -441,7 +442,6 @@ export async function getServerSideProps(context: any) {
       const { uid } = token;
 
       const userDetails = await getUserFunction(uid);
-
       //should return if user is admin
       if (userDetails.isSuccess) {
         const isAdmin = userDetails.result.role == "admin" ? true : false;
