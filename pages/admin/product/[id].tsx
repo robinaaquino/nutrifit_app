@@ -134,7 +134,7 @@ export default function AdminProductShow(props: any) {
         authContextObject.success(result.resultText);
         router.push("/admin/product");
       } else {
-        authContextObject.error(result.resultText);
+        authContextObject.error(result.errorMessage);
       }
     };
 
