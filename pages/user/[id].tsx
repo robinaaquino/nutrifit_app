@@ -189,7 +189,7 @@ export default function UserShow(props: any) {
     } else {
       fetchUser();
     }
-  }, []);
+  }, [id, props]);
 
   return (
     <>
