@@ -279,11 +279,11 @@ export default function OrderShow(props: any) {
               <div className="mt-8">
                 <div className="flex flex-col space-y-4">
                   {order && order.products && order.products.length > 0 ? (
-                    order.products.map((e: any) => {
+                    order.products.map((e: any, index) => {
                       const imageLink = e.image.src ? e.image.src : e.image;
                       return (
                         <>
-                          <div className="flex space-x-4">
+                          <div className="flex space-x-4" key={index}>
                             <div>
                               <Image
                                 src={imageLink}
