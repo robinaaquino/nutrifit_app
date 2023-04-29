@@ -11,6 +11,7 @@ import { UsersDatabaseType, RoleEnum } from "@/firebase/constants";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { User } from "firebase/auth";
+import { resetPassword } from "@/firebase/firebase_functions/auth";
 
 export default function UserShow(props: any) {
   const router = useRouter();
@@ -161,6 +162,15 @@ export default function UserShow(props: any) {
     }
   };
 
+  const handleResetPassword = async () => {
+    const resetPasswordResult = await resetPassword(userInfo.email);
+    if (resetPasswordResult.isSuccess) {
+      success(resetPasswordResult.resultText);
+    } else {
+      error(resetPasswordResult.errorMessage);
+    }
+  };
+
   const discardChanges = async (e: any) => {
     e.preventDefault();
     (document.getElementById("grid-first-name") as HTMLInputElement).value = "";
@@ -259,10 +269,18 @@ export default function UserShow(props: any) {
                 <button
                   className="appearance-none block w-full bg-nf_green text-white border  rounded py-3 px-4 mb-3 leading-tight hover:bg-nf_dark_blue"
                   onClick={() => {
-                    console.log("pretend it works");
+                    // if (props?.user) {
+                    //   nookies.set(
+                    //     undefined,
+                    //     "user",
+                    //     JSON.stringify(props?.user)
+                    //   );
+                    // }
+                    // router.push("/resetPassword");
+                    handleResetPassword();
                   }}
                 >
-                  Drain my soul
+                  Reset Password
                 </button>
               </div>
             </div>
