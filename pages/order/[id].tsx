@@ -433,7 +433,6 @@ export async function getServerSideProps(context: any) {
   };
   try {
     const cookies = nookies.get(context);
-
     if (cookies.order) {
       const order = JSON.parse(cookies.order);
 
