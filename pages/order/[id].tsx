@@ -44,7 +44,7 @@ export default function OrderShow(props: any) {
       contact_number: "",
     },
   });
-  const { error } = useAuthContext();
+  const { error, user } = useAuthContext();
 
   async function fetchOrder() {
     var idInput = "";
@@ -62,26 +62,17 @@ export default function OrderShow(props: any) {
       error(result.resultText);
       router.push("/");
     } else {
-      if (
-        (props.user && props.user == props.userDetails.id) ||
-        props.authorized
-      ) {
+      if (props.user == result.result.user_id || props.authorized) {
+        setOrder(result.result);
+      } else {
         error("Unauthorized viewing");
         router.push("/");
       }
-      setOrder(result.result);
     }
   }
 
   useEffect(() => {
     if (props.order) {
-      if (
-        (props.user && props.user == props.userDetails.id) ||
-        props.authorized
-      ) {
-        error("Unauthorized viewing");
-        router.push("/");
-      }
       setOrder(props.order);
     } else {
       fetchOrder();
@@ -432,40 +423,37 @@ export default function OrderShow(props: any) {
 }
 
 export async function getServerSideProps(context: any) {
+  var props: any = {
+    authorized: false,
+    user: null,
+    order: null,
+    isError: false,
+    errorMessage: "",
+    redirect: "/",
+  };
   try {
     const cookies = nookies.get(context);
 
-    if (cookies.order && cookies.token) {
-      const orderDetails = JSON.parse(cookies.order);
+    if (cookies.order) {
+      const order = JSON.parse(cookies.order);
 
+      props.order = order;
+    }
+
+    if (cookies.token) {
       const token = await admin.auth().verifyIdToken(cookies.token);
       const { uid } = token;
+
+      props.user = uid;
 
       const isAdminResult = await getUserFunction(uid);
 
       const isAdmin = isAdminResult.result.role == "admin" ? true : false;
-      return {
-        props: {
-          authorized: isAdmin,
-          user: uid,
-          order: orderDetails,
-          isError: false,
-          errorMessage: "",
-          redirect: "/",
-        },
-      };
+
+      props.authorized = isAdmin;
     }
 
-    return {
-      props: {
-        authorized: false,
-        user: null,
-        order: null,
-        isError: false,
-        errorMessage: "",
-        redirect: "/",
-      },
-    };
+    return { props };
   } catch (err) {
     return {
       props: {
