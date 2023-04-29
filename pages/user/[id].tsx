@@ -394,7 +394,9 @@ export default function UserShow(props: any) {
           <div>
             <div className="h-full">
               <div className="h-1/2">
-                <div className="text-black">User Image</div>
+                <div className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                  User Image
+                </div>
 
                 <div className="flex flex-col w-auto h-auto p-10 bg-gray-100 text-gray-800">
                   <div className="grid  grid-cols-2 gap-x-6 gap-y-12 w-full mt-6">
@@ -456,7 +458,9 @@ export default function UserShow(props: any) {
                   </div>
                 </div>
 
-                <div className="text-black">Orders</div>
+                <div className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 mt-2">
+                  Orders
+                </div>
                 <div className="p-2 ml-4">
                   <TableComponent
                     headers={orderHeaders}
