@@ -196,6 +196,7 @@ export default function AdminProduct(props: any) {
           contentKeys={tableContentKeys}
           content={products}
           type="product"
+          isAdmin={true}
         />
 
         {/* <div className="mt-6 md:flex md:items-center md:justify-between">

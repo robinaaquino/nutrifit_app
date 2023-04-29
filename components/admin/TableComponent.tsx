@@ -12,11 +12,13 @@ export default function TableComponent({
   contentKeys,
   content,
   type,
+  isAdmin,
 }: {
   headers: string[];
   contentKeys: string[];
   content: any[];
   type: string;
+  isAdmin: boolean;
 }) {
   const [productList, setProductList] = useState<any[]>(content);
   var [currentProductList, setCurrentProductList] = useState<any[]>(
@@ -116,11 +118,13 @@ export default function TableComponent({
                         );
                       })}
 
-                      <TableRowHeader
-                        canSort={false}
-                        text="Actions"
-                        handleClick={() => {}}
-                      />
+                      {isAdmin ? (
+                        <TableRowHeader
+                          canSort={false}
+                          text="Actions"
+                          handleClick={() => {}}
+                        />
+                      ) : null}
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-nf_dark_blue ">
@@ -128,38 +132,45 @@ export default function TableComponent({
                       return (
                         <>
                           <tr className="">
-                            {contentKeys.map((key) => {
+                            {contentKeys.map((key, index) => {
                               const currentText = currentElement[key];
                               return (
                                 <>
-                                  <TableRowText text={currentElement[key]} />
+                                  <TableRowText
+                                    key={index}
+                                    text={currentElement[key]}
+                                    type={type}
+                                    tableKey={key}
+                                  />
                                 </>
                               );
                             })}
-                            <td className="flex">
-                              <button
-                                className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue"
-                                onClick={() => {
-                                  if (type == "product") {
-                                    router.push(
-                                      `/admin/product/${currentElement.id}`
-                                    );
-                                  }
-                                }}
-                              >
-                                Edit
-                              </button>
-                              <button
-                                className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue ml-2"
-                                onClick={() => {
-                                  if (type == "product") {
-                                    deleteProduct(currentElement);
-                                  }
-                                }}
-                              >
-                                Delete
-                              </button>
-                            </td>
+                            {isAdmin ? (
+                              <td className="flex">
+                                <button
+                                  className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue"
+                                  onClick={() => {
+                                    if (type == "product") {
+                                      router.push(
+                                        `/admin/product/${currentElement.id}`
+                                      );
+                                    }
+                                  }}
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue ml-2"
+                                  onClick={() => {
+                                    if (type == "product") {
+                                      deleteProduct(currentElement);
+                                    }
+                                  }}
+                                >
+                                  Delete
+                                </button>
+                              </td>
+                            ) : null}
                           </tr>
                         </>
                       );

@@ -12,6 +12,8 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { User } from "firebase/auth";
 import { resetPassword } from "@/firebase/firebase_functions/auth";
+import { getAllOrdersViaIdFunction } from "@/firebase/firebase_functions/orders_functions";
+import TableComponent from "@/components/admin/TableComponent";
 
 export default function UserShow(props: any) {
   const router = useRouter();
@@ -41,6 +43,10 @@ export default function UserShow(props: any) {
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [province, setProvince] = useState("");
+
+  const [orders, setOrders] = useState([]);
+  const orderHeaders = ["ID", "Status", "Date ordered", "Total Price"];
+  const orderKeys = ["id", "status", "created_at", "total_price"];
 
   async function fetchUser() {
     var idInput = "";
@@ -88,6 +94,25 @@ export default function UserShow(props: any) {
           setImage(result.result.image);
         }
       }
+    }
+  }
+
+  async function fetchOrder() {
+    var idInput = "";
+    if (id) {
+      if (id[0]) {
+        idInput = id.toString();
+      } else if (typeof id == "string") {
+        idInput = id;
+      }
+    }
+
+    const result = await getAllOrdersViaIdFunction(idInput);
+
+    if (result.isSuccess) {
+      setOrders(result.result);
+    } else {
+      error("result.errorMessage");
     }
   }
 
@@ -199,6 +224,7 @@ export default function UserShow(props: any) {
     } else {
       fetchUser();
     }
+    fetchOrder();
   }, [id, props]);
 
   return (
@@ -367,65 +393,78 @@ export default function UserShow(props: any) {
           </div>
           <div>
             <div className="h-full">
-              <div className="text-black">User Image</div>
+              <div className="h-1/2">
+                <div className="text-black">User Image</div>
 
-              <div className="flex flex-col w-auto h-auto p-10 bg-gray-100 text-gray-800">
-                <div className="grid  grid-cols-2 gap-x-6 gap-y-12 w-full mt-6">
-                  {image ? (
-                    <div className="h-96 w-96 border-2 items-center rounded-md  bg-gray-300 border-gray-400 border-dotted">
-                      <div className="flex cursor-pointer bg-white  w-auto justify-center">
-                        <button
-                          onClick={() => {
-                            removeIndividualImage();
-                          }}
-                          className="flex rounded-full bg-white text-black "
-                        >
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
-                            fill="currentColor"
-                            className="bi bi-x-circle m-auto"
-                            viewBox="0 0 16 16"
+                <div className="flex flex-col w-auto h-auto p-10 bg-gray-100 text-gray-800">
+                  <div className="grid  grid-cols-2 gap-x-6 gap-y-12 w-full mt-6">
+                    {image ? (
+                      <div className="h-96 w-96 border-2 items-center rounded-md  bg-gray-300 border-gray-400 border-dotted">
+                        <div className="flex cursor-pointer bg-white  w-auto justify-center">
+                          <button
+                            onClick={() => {
+                              removeIndividualImage();
+                            }}
+                            className="flex rounded-full bg-white text-black "
                           >
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                            <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
-                          </svg>
-                          <span className="px-2">Remove</span>
-                        </button>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              fill="currentColor"
+                              className="bi bi-x-circle m-auto"
+                              viewBox="0 0 16 16"
+                            >
+                              <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                              <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                            </svg>
+                            <span className="px-2">Remove</span>
+                          </button>
+                        </div>
+
+                        <Image
+                          className="m-auto object-cover"
+                          src={image.name ? URL.createObjectURL(image) : image}
+                          alt={image.name ? URL.createObjectURL(image) : image}
+                          width="1024"
+                          height="1024"
+                        />
                       </div>
+                    ) : (
+                      <div className="h-96 w-96 border-2 items-center rounded-md  bg-gray-300 border-gray-400 border-dotted ">
+                        <input
+                          type="file"
+                          onChange={(event) => handleIndividualFile(event)}
+                          className="h-96 w-96 bg-green-200 opacity-0 z-10 absolute cursor-pointer"
+                          name="files[]"
+                        />
+                        <div className="flex justify-center items-center ">
+                          <div className="h-full w-full flex flex-col text-center m-auto">
+                            <span className="text-[12px] mb-2">{`Upload an image`}</span>
 
-                      <Image
-                        className="m-auto object-cover"
-                        src={image.name ? URL.createObjectURL(image) : image}
-                        alt={image.name ? URL.createObjectURL(image) : image}
-                        width="1024"
-                        height="1024"
-                      />
-                    </div>
-                  ) : (
-                    <div className="h-96 w-96 border-2 items-center rounded-md  bg-gray-300 border-gray-400 border-dotted ">
-                      <input
-                        type="file"
-                        onChange={(event) => handleIndividualFile(event)}
-                        className="h-96 w-96 bg-green-200 opacity-0 z-10 absolute cursor-pointer"
-                        name="files[]"
-                      />
-                      <div className="flex justify-center items-center ">
-                        <div className="h-full w-full flex flex-col text-center m-auto">
-                          <span className="text-[12px] mb-2">{`Upload an image`}</span>
-
-                          <Image
-                            className="m-auto object-cover "
-                            src={no_image}
-                            alt="no_image"
-                            width="1024"
-                            height="1024"
-                          />
+                            <Image
+                              className="m-auto object-cover "
+                              src={no_image}
+                              alt="no_image"
+                              width="1024"
+                              height="1024"
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                </div>
+
+                <div className="text-black">Orders</div>
+                <div className="p-2 ml-4">
+                  <TableComponent
+                    headers={orderHeaders}
+                    contentKeys={orderKeys}
+                    content={orders}
+                    type={"order"}
+                    isAdmin={false}
+                  ></TableComponent>
                 </div>
               </div>
             </div>
