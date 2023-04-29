@@ -61,6 +61,47 @@ export const getAllOrdersFunction = async () => {
   return resultObject;
 };
 
+export const getAllOrdersViaIdFunction = async (userId: string) => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+  let datas: any[] = [];
+
+  try {
+    const docs = await getDocs(collection(db, "orders"));
+
+    docs.forEach((doc) => {
+      const id = doc.id;
+      const data = doc.data();
+      if (data.user_id == userId) {
+        datas.push({
+          id,
+          ...data,
+        });
+      }
+    });
+
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Successful in getting all orders for user",
+      errorMessage: "",
+    };
+  } catch (e: unknown) {
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Failed in getting all orders for user",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
+};
+
 export const getAllOrdersWithFilterFunction = async (filter: any) => {
   let resultObject: FunctionResult = {
     result: "",

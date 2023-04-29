@@ -5,6 +5,7 @@ import {
   signInWithRedirect,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { FunctionResult } from "@/firebase/constants";
 
@@ -112,6 +113,37 @@ export const signUp = async (email: string, password: string) => {
         result: "",
         isSuccess: false,
         resultText: "Failed in signing up via email",
+        errorMessage: errorMessage,
+      };
+    });
+
+  return resultObject;
+};
+
+export const resetPassword = async (email: string) => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+
+  await sendPasswordResetEmail(auth, email)
+    .then(() => {
+      resultObject = {
+        result: "",
+        isSuccess: true,
+        resultText: "Successful in sending reset password email",
+        errorMessage: "",
+      };
+    })
+    .catch((error: any) => {
+      const errorMessage = error.message;
+
+      resultObject = {
+        result: "",
+        isSuccess: false,
+        resultText: "Failed in resetting password",
         errorMessage: errorMessage,
       };
     });

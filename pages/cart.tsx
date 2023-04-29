@@ -103,18 +103,17 @@ export default function Cart(props: any) {
       };
 
       const result = await addOrderFunction(orderDetails);
-      console.log(result);
 
       if (result.isSuccess) {
         success(result.resultText);
         router.push(`/order/${result.result.id}`);
+        nookies.set(undefined, "order", JSON.stringify(result.result));
 
         if (props.user || user) {
           const clearCartResult = await clearCartFunction(props.user || user);
 
           if (clearCartResult.isSuccess) {
             deleteCartInCookiesAndContext();
-            nookies.set(undefined, "order", JSON.stringify(result.result));
           } else {
             error(result.resultText);
           }
@@ -128,7 +127,6 @@ export default function Cart(props: any) {
       error("No items in cart");
     }
     e.preventDefault();
-    console.log("fml");
   };
 
   useEffect(() => {

@@ -1,4 +1,4 @@
-import { db } from "../config";
+import { db, storage } from "../config";
 import {
   collection,
   getDocs,
@@ -12,6 +12,12 @@ import {
 import * as Constants from "../constants";
 import { FunctionResult } from "@/firebase/constants";
 import { parseError } from "../helpers";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage";
 
 export const getAllUsersFunction = async () => {
   let datas: any[] = [];
@@ -107,6 +113,59 @@ export const getUserFunction = async (id: string) => {
       result: data,
       isSuccess: true,
       resultText: "Failed in getting user information",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
+};
+
+export const updateUserFunction = async (
+  user: Constants.UsersDatabaseType,
+  userId: string
+) => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+
+  try {
+    let userToBeAdded: Constants.UsersDatabaseType = {
+      id: userId,
+      updated_at: new Date().toString(),
+      created_at: user.created_at,
+      email: user.email,
+      role: user.role,
+      shipping_details: user.shipping_details,
+      image: user.image ? user.image : "",
+    };
+
+    const storageRef = ref(storage, `/users/${userId}`);
+    if (user.image && user.image instanceof File && user.image.name) {
+      await uploadBytes(storageRef, user.image, {
+        contentType: user.image["type"],
+      }).then(async (snapshot) => {
+        await getDownloadURL(snapshot.ref).then((url: any) => {
+          userToBeAdded.image = url;
+        });
+      });
+    }
+
+    await setDoc(doc(db, "users", userId), userToBeAdded);
+
+    resultObject = {
+      result: userToBeAdded,
+      isSuccess: true,
+      resultText: "Successful in updating user",
+      errorMessage: "",
+    };
+  } catch (e: unknown) {
+    resultObject = {
+      result: {},
+      isSuccess: false,
+      resultText: "Failed in updating user",
       errorMessage: parseError(e),
     };
   }
