@@ -185,6 +185,15 @@ export default function Header() {
                   <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
                     <button
                       onClick={() => {
+                        router.push("/admin/user");
+                      }}
+                    >
+                      Users
+                    </button>
+                  </li>
+                  <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
+                    <button
+                      onClick={() => {
                         router.push("/");
                         logout();
                         reset();
