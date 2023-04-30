@@ -84,7 +84,7 @@ export default function TableComponent({
   };
 
   const deleteOrder = async (order: any) => {
-    const result = await deleteOrderFunction(order);
+    const result = await deleteOrderFunction(order.id);
 
     if (result.isSuccess) {
       authContextObject.success(result.resultText);
