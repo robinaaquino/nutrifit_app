@@ -5,11 +5,13 @@ export default function TableRowText({
   type,
   tableKey,
   key,
+  isAdmin,
 }: {
   text: string;
   type: string;
   tableKey: string;
   key: number;
+  isAdmin: boolean;
 }) {
   const router = useRouter();
   return (
@@ -23,7 +25,11 @@ export default function TableRowText({
             <h2
               className="font-medium text-blue-500 "
               onClick={() => {
-                router.push(`/${type}/${text}`);
+                if (isAdmin && type == "order") {
+                  router.push(`/admin/${type}/${text}`);
+                } else {
+                  router.push(`/${type}/${text}`);
+                }
               }}
             >
               {text}

@@ -8,6 +8,8 @@ import {
   deleteDoc,
   getDoc,
   setDoc,
+  query,
+  where,
 } from "firebase/firestore";
 import * as Constants from "../constants";
 import { FunctionResult } from "@/firebase/constants";
@@ -20,19 +22,42 @@ import {
 } from "firebase/storage";
 
 export const getAllUsersFunction = async () => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
   let datas: any[] = [];
-  const docs = await getDocs(collection(db, "users"));
 
-  docs.forEach((doc) => {
-    const id = doc.id;
-    const data = doc.data();
-    datas.push({
-      id,
-      ...data,
+  try {
+    const docs = await getDocs(collection(db, "users"));
+
+    docs.forEach((doc) => {
+      const id = doc.id;
+      const data = doc.data();
+      datas.push({
+        id,
+        ...data,
+      });
     });
-  });
 
-  return datas;
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Successful in getting all users",
+      errorMessage: "",
+    };
+  } catch (e: unknown) {
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Failed in getting all users",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
 };
 
 export const addUserFunction = async (user: Constants.UsersDatabaseType) => {
@@ -206,6 +231,152 @@ export const isUserAuthorizedFunction = async (id: string) => {
       result: false,
       isSuccess: true,
       resultText: "Failed in getting user information",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
+};
+
+export const getAllUsersWithFilterFunction = async (filter: any) => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+  let datas: any[] = [];
+  let userQuery: any[] = [];
+
+  try {
+    if (filter.role) {
+      userQuery.push(where("role", "==", filter.role));
+    }
+
+    const userReference = query(collection(db, "users"), ...userQuery);
+
+    const docs = await getDocs(userReference);
+    docs.forEach((doc) => {
+      const id = doc.id;
+      const data = doc.data();
+      datas.push({
+        id,
+        ...data,
+      });
+    });
+
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Successful in getting all users with filter",
+      errorMessage: "",
+    };
+  } catch (e: unknown) {
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Failed in getting all users with filter",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
+};
+
+export const getAllUsersWithSearchFunction = async (searchString: any) => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+  let datas: any[] = [];
+
+  try {
+    const result = await getAllUsersFunction();
+
+    if (!result.isSuccess) {
+      resultObject = {
+        result: datas,
+        isSuccess: false,
+        resultText: "Failed in getting all users with search string",
+        errorMessage: result.errorMessage,
+      };
+    }
+
+    const users = result.result;
+
+    const individualStrings = searchString.toLowerCase().split(" ");
+    for (let i = 0; i < users.length; i++) {
+      let matchedString = false;
+      for (let j = 0; j < individualStrings.length; j++) {
+        let regexExpression = `^.*` + individualStrings[j] + `.*$`;
+        if (
+          users[i].email.toLowerCase().match(regexExpression) ||
+          users[i].shipping_details?.first_name
+            .toString()
+            .match(regexExpression) ||
+          users[i].shipping_details?.last_name
+            .toString()
+            .match(regexExpression) ||
+          users[i].shipping_details?.address
+            .toString()
+            .match(regexExpression) ||
+          users[i].shipping_details?.province
+            .toString()
+            .match(regexExpression) ||
+          users[i].shipping_details?.city.toString().match(regexExpression) ||
+          users[i].role.toLowerCase().match(regexExpression)
+        ) {
+          matchedString = true;
+          break;
+        }
+      }
+      if (matchedString) {
+        datas.push(users[i]);
+      }
+    }
+
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Successful in getting all users with search string",
+      errorMessage: "",
+    };
+  } catch (e: unknown) {
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Failed in getting all users with search string",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
+};
+
+export const deleteUserFunction = async (userId: string) => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+
+  try {
+    await deleteDoc(doc(db, "users", userId));
+
+    resultObject = {
+      result: {},
+      isSuccess: true,
+      resultText: "Successful in deleting user",
+      errorMessage: "",
+    };
+  } catch (e: unknown) {
+    resultObject = {
+      result: {},
+      isSuccess: false,
+      resultText: "Failed in deleting user",
       errorMessage: parseError(e),
     };
   }

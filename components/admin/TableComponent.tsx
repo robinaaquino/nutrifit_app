@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { useAuthContext, AuthContext } from "@/context/AuthContext";
 import { deleteProductFunction } from "@/firebase/firebase_functions/products_function";
 import { deleteOrderFunction } from "@/firebase/firebase_functions/orders_functions";
+import { deleteUserFunction } from "@/firebase/firebase_functions/users_function";
 
 export default function TableComponent({
   headers,
@@ -33,6 +34,7 @@ export default function TableComponent({
       : Math.ceil(itemList.length / pageSize);
   const router = useRouter();
   const authContextObject = useContext(AuthContext);
+  const [sort, setSort] = useState(1);
 
   const onPageChange = (page: number) => {
     var prevIndex = 0;
@@ -54,12 +56,27 @@ export default function TableComponent({
   const sortBy = (text: string) => {
     const key = returnKeyByValue(text) || "name";
 
-    let previousList = itemList;
-    let newList = previousList.sort((a, b) =>
-      a[key] > b[key] ? 1 : b[key] > a[key] ? -1 : 0
-    );
-    setItemList(newList);
-    onPageChange(currentPage);
+    if (text == "First name" || text == "Last name") {
+      let previousList = itemList;
+      let newList = previousList.sort((a, b) =>
+        a["shipping_details"][key] > b["shipping_details"][key]
+          ? sort
+          : b["shipping_details"][key] > a["shipping_details"][key]
+          ? sort * -1
+          : 0
+      );
+      setSort(sort * -1);
+      setItemList(newList);
+      onPageChange(currentPage);
+    } else {
+      let previousList = itemList;
+      let newList = previousList.sort((a, b) =>
+        a[key] > b[key] ? sort : b[key] > a[key] ? sort * -1 : 0
+      );
+      setSort(sort * -1);
+      setItemList(newList);
+      onPageChange(currentPage);
+    }
   };
 
   const deleteProduct = async (product: any) => {
@@ -92,6 +109,27 @@ export default function TableComponent({
 
       for (let i = 0; i < itemList.length; i++) {
         if (order.id == itemList[i].id) {
+          previousOrderList.splice(i, 1);
+          setItemList(previousOrderList);
+          break;
+        }
+      }
+
+      onPageChange(currentPage);
+    } else {
+      authContextObject.error(result.resultText);
+    }
+  };
+
+  const deleteUser = async (user: any) => {
+    const result = await deleteOrderFunction(user.id);
+
+    if (result.isSuccess) {
+      authContextObject.success(result.resultText);
+      let previousOrderList = itemList;
+
+      for (let i = 0; i < itemList.length; i++) {
+        if (user.id == itemList[i].id) {
           previousOrderList.splice(i, 1);
           setItemList(previousOrderList);
           break;
@@ -155,14 +193,22 @@ export default function TableComponent({
                           <>
                             <tr className="">
                               {contentKeys.map((key, index) => {
-                                const currentText = currentElement[key];
+                                var currentText;
+                                if (key == "first_name" || key == "last_name") {
+                                  currentText =
+                                    currentElement["shipping_details"][key];
+                                } else {
+                                  currentText = currentElement[key];
+                                }
+
                                 return (
                                   <>
                                     <TableRowText
                                       key={index}
-                                      text={currentElement[key]}
+                                      text={currentText}
                                       type={type}
                                       tableKey={key}
+                                      isAdmin={isAdmin}
                                     />
                                   </>
                                 );
@@ -180,6 +226,10 @@ export default function TableComponent({
                                         router.push(
                                           `/admin/order/${currentElement.id}`
                                         );
+                                      } else if (type == "user") {
+                                        router.push(
+                                          `/admin/user/${currentElement.id}`
+                                        );
                                       }
                                     }}
                                   >
@@ -192,6 +242,8 @@ export default function TableComponent({
                                         deleteProduct(currentElement);
                                       } else if (type == "order") {
                                         deleteOrder(currentElement);
+                                      } else if (type == "user") {
+                                        deleteUser(currentElement);
                                       }
                                     }}
                                   >
