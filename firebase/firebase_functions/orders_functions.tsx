@@ -113,20 +113,20 @@ export const getAllOrdersWithFilterFunction = async (filter: any) => {
   let orderQuery: any[] = [];
 
   try {
-    if (filter.status != "") {
+    if (filter.status) {
       orderQuery.push(where("status", "==", filter.status));
     }
 
-    if (filter.deliveryMode != "") {
+    if (filter.deliveryMode) {
       orderQuery.push(where("delivery_mode", "==", filter.deliveryMode));
     }
 
     if (filter.minPrice != 0) {
-      orderQuery.push(where("price", ">", filter.minPrice));
+      orderQuery.push(where("total_price", ">", filter.minPrice));
     }
 
     if (filter.maxPrice != 0) {
-      orderQuery.push(where("price", "<", filter.maxPrice));
+      orderQuery.push(where("total_price", "<", filter.maxPrice));
     }
 
     const orderReference = query(collection(db, "orders"), ...orderQuery);
@@ -188,9 +188,11 @@ export const getAllOrdersWithSearchFunction = async (searchString: any) => {
       for (let j = 0; j < individualStrings.length; j++) {
         let regexExpression = `^.*` + individualStrings[j] + `.*$`;
         if (
-          orders[i].name.toLowerCase().match(regexExpression) ||
-          orders[i].description.toLowerCase().match(regexExpression) ||
-          orders[i].category.toLowerCase().match(regexExpression)
+          orders[i].user_id.toLowerCase().match(regexExpression) ||
+          orders[i].total_price.toString().match(regexExpression) ||
+          orders[i].delivery_mode.toLowerCase().match(regexExpression) ||
+          orders[i].status.toLowerCase().match(regexExpression) ||
+          orders[i].id.toLowerCase().match(regexExpression)
         ) {
           matchedString = true;
           break;

@@ -33,7 +33,7 @@ export default function TableRowText({
       ) : (
         <td className="px-4 py-4 text-sm font-medium whitespace-nowrap ">
           <div>
-            <h2 className="font-medium text-black ">{text}</h2>
+            <h2 className="font-medium text-black ">{text ? text : ""}</h2>
           </div>
         </td>
       )}
