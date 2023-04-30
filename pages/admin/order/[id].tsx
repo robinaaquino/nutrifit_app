@@ -98,12 +98,7 @@ export default function OrderShow(props: any) {
   };
 
   useEffect(() => {
-    if (props.order) {
-      setOrder(props.order);
-      setStatus(props.order.status);
-    } else {
-      fetchOrder();
-    }
+    fetchOrder();
   }, []);
 
   return (
