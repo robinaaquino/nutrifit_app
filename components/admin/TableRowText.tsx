@@ -5,11 +5,13 @@ export default function TableRowText({
   type,
   tableKey,
   key,
+  isAdmin,
 }: {
   text: string;
   type: string;
   tableKey: string;
   key: number;
+  isAdmin: boolean;
 }) {
   const router = useRouter();
   return (
@@ -23,7 +25,11 @@ export default function TableRowText({
             <h2
               className="font-medium text-blue-500 "
               onClick={() => {
-                router.push(`/${type}/${text}`);
+                if (isAdmin && type == "order") {
+                  router.push(`/admin/${type}/${text}`);
+                } else {
+                  router.push(`/${type}/${text}`);
+                }
               }}
             >
               {text}
@@ -33,7 +39,7 @@ export default function TableRowText({
       ) : (
         <td className="px-4 py-4 text-sm font-medium whitespace-nowrap ">
           <div>
-            <h2 className="font-medium text-black ">{text}</h2>
+            <h2 className="font-medium text-black ">{text ? text : ""}</h2>
           </div>
         </td>
       )}

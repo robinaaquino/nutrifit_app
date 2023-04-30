@@ -24,10 +24,30 @@ export function returnKeyByValue(text: string) {
     return "price";
   } else if (text == "Description") {
     return "description";
-  } else if (text == "Created at") {
+  } else if (text == "Created at" || text == "Date ordered") {
     return "created_at";
   } else if (text == "Last updated") {
     return "updated_at";
+  } else if (text == "ID") {
+    return "id";
+  } else if (text == "Total price") {
+    return "total_price";
+  } else if (text == "Delivery mode") {
+    return "delivery_mode";
+  } else if (text == "Status") {
+    return "status";
+  } else if (text == "User ID") {
+    return "user_id";
+  } else if (text == "Date cleared") {
+    return "date_cleared";
+  } else if (text == "First name") {
+    return "first_name";
+  } else if (text == "Last name") {
+    return "last_name";
+  } else if (text == "Role") {
+    return "role";
+  } else if (text == "Email") {
+    return "email";
   }
 }
 
