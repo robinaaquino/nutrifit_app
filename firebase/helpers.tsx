@@ -40,6 +40,14 @@ export function returnKeyByValue(text: string) {
     return "user_id";
   } else if (text == "Date cleared") {
     return "date_cleared";
+  } else if (text == "First name") {
+    return "first_name";
+  } else if (text == "Last name") {
+    return "last_name";
+  } else if (text == "Role") {
+    return "role";
+  } else if (text == "Email") {
+    return "email";
   }
 }
 
