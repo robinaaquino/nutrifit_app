@@ -108,7 +108,7 @@ export default function Filter({
               Filters
             </button> */}
             <button
-              className="flex items-center justify-center px-5 py-2 w-auto text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 gap-x-2 hover:bg-nf_dark_blue"
+              className="flex items-center justify-center px-5 py-2 w-auto text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 gap-x-2 hover:bg-nf_dark_blue float-right"
               onClick={() => showFilters()}
             >
               <svg
@@ -173,7 +173,7 @@ export default function Filter({
                         <path d="M6 10.5a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-2-3a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
                       </svg>
                     </div>
-                    <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                    <div className="mt-3 text-left ml-2">
                       <h3
                         className="text-base font-semibold leading-6 text-gray-900"
                         id="modal-title"
@@ -207,7 +207,7 @@ export default function Filter({
                                     (e) => {
                                       return (
                                         <>
-                                          <div className="flex space-x-2  items-center justify-start">
+                                          <div className="flex space-x-2  items-center justify-start ">
                                             <input
                                               type="radio"
                                               id={e}
