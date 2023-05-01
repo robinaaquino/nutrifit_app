@@ -73,7 +73,7 @@ export default function Cart(props: any) {
     removeFromCart(product);
   }
 
-  const handleFormForPaymentUponPickup = async (e: any) => {
+  const handleFormForPayment = async (e: any) => {
     if (cartContents != null && cartContents.products.length > 0) {
       const shipping_details = {
         address: address,
@@ -98,7 +98,7 @@ export default function Cart(props: any) {
 
         user_id: props.user ? props.user : "",
         note: notes,
-        delivery_mode: "pickup",
+        delivery_mode: deliveryMode,
         shipping_details: shipping_details,
       };
 
@@ -338,24 +338,26 @@ export default function Cart(props: any) {
                         className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900 disabled"
                         onClick={(e) => {
                           e.preventDefault();
+                          handleFormForPayment(e);
                         }}
                       >
                         Process Payment
                       </button>
-                      <button
+                      {/* <button
                         className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900 mt-2"
                         onClick={(e) => {
-                          handleFormForPaymentUponPickup(e);
+                          handleFormForPayment(e);
                         }}
                       >
                         Payment Upon Pickup
-                      </button>
+                      </button> */}
                     </div>
                   ) : (
                     <button
                       className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900 disabled"
                       onClick={(e) => {
                         e.preventDefault();
+                        handleFormForPayment(e);
                       }}
                     >
                       Process Payment
