@@ -83,7 +83,7 @@ export default function AdminOrder(props: any) {
 
   return (
     <>
-      <div className="container px-4 mx-auto">
+      <div className="container px-4 mx-auto min-h-screen">
         <div className="sm:flex sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-x-3">
