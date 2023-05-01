@@ -9,6 +9,7 @@ import {
   query,
   where,
   getDoc,
+  orderBy,
 } from "firebase/firestore";
 import * as Constants from "../constants";
 import { FunctionResult } from "@/firebase/constants";
@@ -399,6 +400,50 @@ export const deleteProductFunction = async (
       result: datas,
       isSuccess: false,
       resultText: "Failed in deleting product",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
+};
+
+export const getBestSellingProducts = async () => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+  let datas: any[] = [];
+
+  try {
+    const productReference = query(
+      collection(db, "products"),
+      orderBy("quantity_sold", "desc")
+    );
+
+    const docs = await getDocs(productReference);
+
+    docs.forEach((doc) => {
+      const id = doc.id;
+      const data = doc.data();
+      datas.push({
+        id,
+        ...data,
+      });
+    });
+
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Successful in getting best selling products",
+      errorMessage: "",
+    };
+  } catch (e: unknown) {
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Failed in getting best selling products",
       errorMessage: parseError(e),
     };
   }

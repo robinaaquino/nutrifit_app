@@ -10,8 +10,10 @@ import {
   PRODUCT_CATEGORIES,
   PRODUCT_CATEGORIES_PUBLIC_NAME,
   PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY,
+  ProductsDatabaseType,
 } from "@/firebase/constants";
 import nookies from "nookies";
+import { getBestSellingProducts } from "@/firebase/firebase_functions/products_function";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,6 +28,7 @@ export default function Home() {
   ];
   const [categoryIndex, setCategoryIndex] = useState(0);
   const numberOfShownCategories = 3;
+  const [bestProducts, setBestProducts] = useState<any>([]);
 
   function returnCategoryName(index: number) {
     if (index >= PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.length) {
@@ -61,9 +64,21 @@ export default function Home() {
     }
   }
 
+  async function fetchBestProducts() {
+    const result = await getBestSellingProducts();
+
+    if (!result.isSuccess) {
+      authContextObject.error(result.resultText);
+    } else {
+      let limit: number = result.result.length > 4 ? 4 : result.result.length;
+      setBestProducts(result.result.slice(0, limit));
+    }
+  }
+
   useEffect(() => {
     if (process.env.TEST_KEY === `uwu`) {
     }
+    fetchBestProducts();
   }, []);
 
   return (
@@ -91,30 +106,27 @@ export default function Home() {
             </h2>
 
             <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8 ">
-              {landingPageCategories.map((e: string) => {
-                const currentCategory = PRODUCT_CATEGORIES_PUBLIC_NAME[e];
+              {bestProducts.map((e: any, index: number) => {
                 return (
                   <>
-                    <a href="#" className="group">
+                    <button
+                      onClick={() => {
+                        router.push("/product/" + e.id);
+                      }}
+                    >
                       <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-white xl:aspect-h-8 xl:aspect-w-7">
                         <Image
                           className="h-full w-full object-cover object-center group-hover:opacity-75 "
-                          src={no_image}
+                          src={e.image ? e.image : no_image}
                           alt="Sunset in the mountains"
                           width="256"
                           height="256"
                         />
-                        {/* <img
-                    src="https://tailwindui.com/img/ecommerce-images/category-page-04-image-card-01.jpg"
-                    alt="Tall slender porcelain bottle with natural clay textured body and cork stopper."
-                    className="h-full w-full object-cover object-center group-hover:opacity-75"
-                  /> */}
                       </div>
                       <h3 className="mt-4 text-lg text-gray-700 text-center">
-                        {currentCategory}
+                        {e.name}
                       </h3>
-                      {/* <p className="mt-1 text-lg font-medium text-gray-900">$48</p> */}
-                    </a>
+                    </button>
                   </>
                 );
               })}
