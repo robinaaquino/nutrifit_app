@@ -112,7 +112,19 @@ export default function Catalog(props: any) {
   };
 
   useEffect(() => {
-    fetchAllProducts();
+    if (props.category) {
+      handleFilters({
+        category: props.category,
+        minPrice: 0,
+        maxPrice: 99999,
+        inStock: true,
+      });
+      nookies.set(undefined, "category", "", {
+        path: "/",
+      });
+    } else {
+      fetchAllProducts();
+    }
   }, [props]);
 
   useEffect(() => {
@@ -489,12 +501,44 @@ export default function Catalog(props: any) {
 }
 
 export async function getServerSideProps(context: any) {
+  let props: any = {
+    searchString: "",
+    user: null,
+    cart: null,
+    category: null,
+    orders: null,
+    isError: true,
+    errorMessage: "Error with getting user info",
+    redirect: "/login",
+  };
+
   try {
     const cookies = nookies.get(context);
 
     var searchString = "";
+    props.searchString = searchString;
+
     if (cookies.search) {
       searchString = cookies.search;
+
+      props.searchString = searchString;
+      props.isError = false;
+      props.errorMessage = "";
+      props.redirect = "/";
+    }
+
+    if (cookies.cart) {
+      props.cart = JSON.parse(cookies.cart);
+      props.isError = false;
+      props.errorMessage = "";
+      props.redirect = "/";
+    }
+
+    if (cookies.category) {
+      props.category = cookies.category;
+      props.isError = false;
+      props.errorMessage = "";
+      props.redirect = "/";
     }
 
     if (cookies.token) {
@@ -502,47 +546,17 @@ export async function getServerSideProps(context: any) {
 
       const { uid } = token;
 
-      return {
-        props: {
-          searchString,
-          user: uid,
-          isError: false,
-          errorMessage: "",
-          redirect: "/",
-        },
-      };
-    } else {
-      if (cookies.cart) {
-        return {
-          props: {
-            searchString,
-            cart: JSON.parse(cookies.cart),
-            isError: false,
-            errorMessage: "",
-            redirect: "/",
-          },
-        };
-      } else {
-        return {
-          props: {
-            searchString,
-            cart: null,
-            isError: false,
-            errorMessage: "",
-            redirect: "/",
-          },
-        };
-      }
+      props.user = uid;
+      props.isError = false;
+      props.errorMessage = "";
+      props.redirect = "/";
     }
+
+    return { props };
   } catch (err) {
-    return {
-      props: {
-        searchString: "",
-        user: null,
-        isError: true,
-        errorMessage: "Error with getting user info",
-        redirect: "/login",
-      },
-    };
+    props.errorMessage = "Error with getting user info";
+    props.redirect = "/";
+
+    return { props };
   }
 }
