@@ -92,7 +92,12 @@ export default function Home() {
           <h3 className="my-4 text-2xl text-white">
             More likely than you think!
           </h3>
-          <button className="bg-white font-bold rounded-full mt-6 py-4 px-8 uppercase tracking-wider text-black">
+          <button
+            className="bg-white font-bold rounded-full mt-6 py-4 px-8 uppercase tracking-wider text-black"
+            onClick={() => {
+              router.push("/product");
+            }}
+          >
             Get started with filling up your meal plan
           </button>
         </div>
