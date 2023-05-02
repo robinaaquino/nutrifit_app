@@ -289,7 +289,10 @@ export default function TableComponent({
                 </div>
               ) : (
                 <div className="text-center text-lg font-bold text-black bg-white">
-                  {type == "order" || type == "product" || type == "user"
+                  {type == "order" ||
+                  type == "product" ||
+                  type == "user" ||
+                  type == "message"
                     ? `No ${type}s`
                     : type == "sale"
                     ? "No sales per category"
