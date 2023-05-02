@@ -50,6 +50,8 @@ export function returnKeyByValue(text: string) {
     return "email";
   } else if (text == "Sales") {
     return "sales";
+  } else if (text == "Message") {
+    return "message";
   }
 }
 
