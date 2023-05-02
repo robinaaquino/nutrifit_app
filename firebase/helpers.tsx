@@ -48,6 +48,8 @@ export function returnKeyByValue(text: string) {
     return "role";
   } else if (text == "Email") {
     return "email";
+  } else if (text == "Sales") {
+    return "sales";
   }
 }
 

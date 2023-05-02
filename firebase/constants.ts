@@ -165,7 +165,7 @@ export interface PaymentType {
 }
 
 export interface ProductsInOrderType {
-  product_id: string;
+  id: string;
   quantity: number;
 }
 

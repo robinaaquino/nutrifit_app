@@ -21,6 +21,7 @@ import {
   deleteObject,
 } from "firebase/storage";
 import { v4 } from "uuid";
+import { getProductViaIdFunction } from "./products_function";
 
 export const getAllOrdersFunction = async () => {
   let resultObject: FunctionResult = {
@@ -355,6 +356,38 @@ export const updateOrderFunction = async (
       shipping_details: order.shipping_details,
     });
 
+    //update product quantity_sold
+    if (order.status == "delivered") {
+      for (let i = 0; i < order.products.length; i++) {
+        const currentProduct = order.products[i];
+        const getProductInfo = await getProductViaIdFunction(currentProduct.id);
+
+        if (!getProductInfo.isSuccess) {
+          return (resultObject = {
+            result: "",
+            isSuccess: false,
+            resultText: getProductInfo.resultText,
+            errorMessage: getProductInfo.errorMessage,
+          });
+        }
+
+        const getProductResult = getProductInfo.result;
+
+        await setDoc(
+          doc(db, "products", getProductResult.id),
+          {
+            quantity_left:
+              parseInt(getProductResult.quantity_left) -
+              currentProduct.quantity,
+            quantity_sold:
+              parseInt(getProductResult.quantity_sold) +
+              currentProduct.quantity,
+          },
+          { merge: true }
+        );
+      }
+    }
+
     resultObject = {
       result: orderId,
       isSuccess: true,
@@ -364,7 +397,7 @@ export const updateOrderFunction = async (
   } catch (e: unknown) {
     resultObject = {
       result: "",
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in updating order",
       errorMessage: parseError(e),
     };

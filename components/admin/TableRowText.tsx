@@ -11,7 +11,7 @@ export default function TableRowText({
   type: string;
   tableKey: string;
   key: number;
-  isAdmin: boolean;
+  isAdmin?: boolean;
 }) {
   const router = useRouter();
   return (
