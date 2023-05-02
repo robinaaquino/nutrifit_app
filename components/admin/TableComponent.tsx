@@ -21,7 +21,7 @@ export default function TableComponent({
   contentKeys: string[];
   content: any[];
   type: string;
-  isAdmin: boolean;
+  isAdmin?: boolean;
   disablePagination?: boolean;
 }) {
   const [itemList, setItemList] = useState<any[]>(content);
@@ -262,8 +262,11 @@ export default function TableComponent({
                 </div>
               ) : (
                 <div className="text-center text-lg font-bold text-black bg-white">
-                  No {type}
-                  {"s"}
+                  {type == "order" || type == "product" || type == "user"
+                    ? `No ${type}s`
+                    : type == "sale"
+                    ? "No sales per category"
+                    : `No info for table of type ${type}`}
                 </div>
               )}
             </div>
