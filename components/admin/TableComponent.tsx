@@ -15,12 +15,14 @@ export default function TableComponent({
   content,
   type,
   isAdmin,
+  disablePagination,
 }: {
   headers: string[];
   contentKeys: string[];
   content: any[];
   type: string;
   isAdmin: boolean;
+  disablePagination?: boolean;
 }) {
   const [itemList, setItemList] = useState<any[]>(content);
   var [currentItemList, setCurrentItemList] = useState<any[]>(
@@ -267,8 +269,7 @@ export default function TableComponent({
             </div>
           </div>
         </div>
-
-        {/* {currentItemList.length > 0 ? (
+        {currentItemList.length > 0 && !disablePagination ? (
           <div className="mt-6 sm:flex sm:items-center sm:justify-between ">
             <div className="text-sm text-black ">
               Page{" "}
@@ -329,7 +330,7 @@ export default function TableComponent({
               </button>
             </div>
           </div>
-        ) : null} */}
+        ) : null}
       </div>
     </>
   );
