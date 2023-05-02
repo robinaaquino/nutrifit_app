@@ -378,10 +378,10 @@ export const updateOrderFunction = async (
           {
             quantity_left:
               parseInt(getProductResult.quantity_left) -
-              parseInt(currentProduct.quantity),
+              currentProduct.quantity,
             quantity_sold:
               parseInt(getProductResult.quantity_sold) +
-              parseInt(currentProduct.quantity),
+              currentProduct.quantity,
           },
           { merge: true }
         );
