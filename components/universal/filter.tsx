@@ -12,12 +12,14 @@ export default function Filter({
   isProductFilter,
   isOrderFilter,
   isCustomerFilter,
+  isMessageFilter,
 }: {
   handleFilters: any;
   resetFilter: any;
   isProductFilter?: boolean;
   isOrderFilter?: boolean;
   isCustomerFilter?: boolean;
+  isMessageFilter?: boolean;
 }) {
   const [filterCategory, setFilterCategory] = useState<string>("");
   const [filterMinPrice, setFilterMinPrice] = useState<number>(0);
@@ -59,6 +61,11 @@ export default function Filter({
     } else if (isCustomerFilter) {
       const filterObject = {
         role: filterRole,
+      };
+      handleFilters(filterObject);
+    } else if (isMessageFilter) {
+      const filterObject = {
+        status: filterStatus,
       };
       handleFilters(filterObject);
     }
@@ -501,6 +508,66 @@ export default function Filter({
                                           className="mr-2 text-sm leading-3 font-normal text-black"
                                         >
                                           Administrator
+                                        </label>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        ) : isMessageFilter ? (
+                          <>
+                            <div>
+                              {/* Status Filter */}
+                              <div className="pr-2 pt-2">
+                                <div className="flex text-black">
+                                  <p className="leading-5 text-sm font-bold">
+                                    Status
+                                  </p>
+                                </div>
+                                <div className="flex pt-2">
+                                  <div className="flex space-x-2  items-center justify-start">
+                                    <input
+                                      type="radio"
+                                      id="unread"
+                                      name="role"
+                                      value="unread"
+                                      className=" w-auto bg-white text-black "
+                                      onChange={(event) =>
+                                        setFilterStatus(event.target.value)
+                                      }
+                                    />
+                                    <div className="inline-block">
+                                      <div className="flex space-x-6 justify-center items-center">
+                                        <label
+                                          htmlFor="unread"
+                                          className="mr-2 text-sm leading-3 font-normal text-black"
+                                        >
+                                          Unread
+                                        </label>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <div className="flex space-x-2  items-center justify-start">
+                                    <input
+                                      type="radio"
+                                      id="replied"
+                                      name="role"
+                                      value="replied"
+                                      className=" w-auto bg-white text-black "
+                                      onChange={(event) =>
+                                        setFilterStatus(event.target.value)
+                                      }
+                                    />
+                                    <div className="inline-block">
+                                      <div className="flex space-x-6 justify-center items-center">
+                                        <label
+                                          htmlFor="replied"
+                                          className="mr-2 text-sm leading-3 font-normal text-black"
+                                        >
+                                          Replied
                                         </label>
                                       </div>
                                     </div>

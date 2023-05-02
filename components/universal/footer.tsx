@@ -1,4 +1,5 @@
 import { MdFacebook } from "react-icons/md";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -14,11 +15,11 @@ export default function Footer() {
           </div>
 
           <div>
-            <a href="#">
+            <Link href="/contactUs">
               <span className="font-inter text-xl text-white font-bold ml-3">
                 Contact Us
               </span>
-            </a>
+            </Link>
           </div>
 
           <div>

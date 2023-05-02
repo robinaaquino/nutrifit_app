@@ -8,6 +8,7 @@ import { useAuthContext, AuthContext } from "@/context/AuthContext";
 import { deleteProductFunction } from "@/firebase/firebase_functions/products_function";
 import { deleteOrderFunction } from "@/firebase/firebase_functions/orders_functions";
 import { deleteUserFunction } from "@/firebase/firebase_functions/users_function";
+import { deleteMessageFunction } from "@/firebase/firebase_functions/messages_functions";
 
 export default function TableComponent({
   headers,
@@ -124,7 +125,7 @@ export default function TableComponent({
   };
 
   const deleteUser = async (user: any) => {
-    const result = await deleteOrderFunction(user.id);
+    const result = await deleteUserFunction(user.id);
 
     if (result.isSuccess) {
       authContextObject.success(result.resultText);
@@ -138,6 +139,26 @@ export default function TableComponent({
         }
       }
 
+      onPageChange(currentPage);
+    } else {
+      authContextObject.error(result.resultText);
+    }
+  };
+
+  const deleteMessage = async (message: any) => {
+    const result = await deleteMessageFunction(message.id);
+
+    if (result.isSuccess) {
+      authContextObject.success(result.resultText);
+      let previousOrderList = itemList;
+
+      for (let i = 0; i < itemList.length; i++) {
+        if (message.id == itemList[i].id) {
+          previousOrderList.splice(i, 1);
+          setItemList(previousOrderList);
+          break;
+        }
+      }
       onPageChange(currentPage);
     } else {
       authContextObject.error(result.resultText);
@@ -232,6 +253,10 @@ export default function TableComponent({
                                         router.push(
                                           `/admin/user/${currentElement.id}`
                                         );
+                                      } else if (type == "message") {
+                                        router.push(
+                                          `/admin/message/${currentElement.id}`
+                                        );
                                       }
                                     }}
                                   >
@@ -246,6 +271,8 @@ export default function TableComponent({
                                         deleteOrder(currentElement);
                                       } else if (type == "user") {
                                         deleteUser(currentElement);
+                                      } else if (type == "message") {
+                                        deleteMessage(currentElement);
                                       }
                                     }}
                                   >
@@ -262,7 +289,10 @@ export default function TableComponent({
                 </div>
               ) : (
                 <div className="text-center text-lg font-bold text-black bg-white">
-                  {type == "order" || type == "product" || type == "user"
+                  {type == "order" ||
+                  type == "product" ||
+                  type == "user" ||
+                  type == "message"
                     ? `No ${type}s`
                     : type == "sale"
                     ? "No sales per category"
