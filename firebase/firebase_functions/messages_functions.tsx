@@ -60,6 +60,112 @@ export const getAllMessagesFunction = async () => {
   return resultObject;
 };
 
+export const getAllMessagesWithFilterFunction = async (filter: any) => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+  let datas: any[] = [];
+  let messageQuery: any[] = [];
+
+  try {
+    if (filter.status) {
+      messageQuery.push(where("status", "==", filter.status));
+    }
+
+    const messageReference = query(collection(db, "messages"), ...messageQuery);
+
+    const docs = await getDocs(messageReference);
+    docs.forEach((doc) => {
+      const id = doc.id;
+      const data = doc.data();
+      datas.push({
+        id,
+        ...data,
+      });
+    });
+
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Successful in getting all messages with filter",
+      errorMessage: "",
+    };
+  } catch (e: unknown) {
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Failed in getting all messages with filter",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
+};
+
+export const getAllMessagesWithSearchFunction = async (searchString: any) => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+  let datas: any[] = [];
+
+  try {
+    const result = await getAllMessagesFunction();
+
+    if (!result.isSuccess) {
+      resultObject = {
+        result: datas,
+        isSuccess: false,
+        resultText: "Failed in getting all messages with search string",
+        errorMessage: result.errorMessage,
+      };
+    }
+
+    const messages = result.result;
+
+    const individualStrings = searchString.toLowerCase().split(" ");
+    for (let i = 0; i < messages.length; i++) {
+      let matchedString = false;
+      for (let j = 0; j < individualStrings.length; j++) {
+        let regexExpression = `^.*` + individualStrings[j] + `.*$`;
+        if (
+          messages[i].name.toLowerCase().match(regexExpression) ||
+          messages[i].email.toLowerCase().match(regexExpression) ||
+          messages[i].status.toLowerCase().match(regexExpression) ||
+          messages[i].message.toLowerCase().match(regexExpression)
+        ) {
+          matchedString = true;
+          break;
+        }
+      }
+      if (matchedString) {
+        datas.push(messages[i]);
+      }
+    }
+
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Successful in getting all messages with search string",
+      errorMessage: "",
+    };
+  } catch (e: unknown) {
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Failed in getting all messages with search string",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
+};
+
 export const addMessageFunction = async (message: any) => {
   let resultObject: FunctionResult = {
     result: "",
