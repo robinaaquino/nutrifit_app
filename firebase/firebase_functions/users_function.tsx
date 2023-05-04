@@ -51,7 +51,7 @@ export const getAllUsersFunction = async () => {
   } catch (e: unknown) {
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all users",
       errorMessage: parseError(e),
     };
@@ -95,7 +95,7 @@ export const addUserFunction = async (user: Constants.UsersDatabaseType) => {
   } catch (e: unknown) {
     resultObject = {
       result: "",
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in adding customer",
       errorMessage: parseError(e),
     };
@@ -136,7 +136,7 @@ export const getUserFunction = async (id: string) => {
   } catch (e: unknown) {
     resultObject = {
       result: data,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting user information",
       errorMessage: parseError(e),
     };
@@ -229,7 +229,7 @@ export const isUserAuthorizedFunction = async (id: string) => {
   } catch (e: unknown) {
     resultObject = {
       result: false,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting user information",
       errorMessage: parseError(e),
     };
@@ -274,7 +274,7 @@ export const getAllUsersWithFilterFunction = async (filter: any) => {
   } catch (e: unknown) {
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all users with filter",
       errorMessage: parseError(e),
     };
@@ -346,7 +346,7 @@ export const getAllUsersWithSearchFunction = async (searchString: any) => {
   } catch (e: unknown) {
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all users with search string",
       errorMessage: parseError(e),
     };

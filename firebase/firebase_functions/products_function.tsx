@@ -52,7 +52,7 @@ export const getAllProductsFunction = async () => {
   } catch (e: unknown) {
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all products",
       errorMessage: parseError(e),
     };
@@ -118,7 +118,7 @@ export const getAllProductsWithFilterFunction = async (filter: any) => {
   } catch (e: unknown) {
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all products with filter",
       errorMessage: parseError(e),
     };
@@ -178,7 +178,7 @@ export const getAllProductsWithSearchFunction = async (searchString: any) => {
   } catch (e: unknown) {
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all products with search string",
       errorMessage: parseError(e),
     };
@@ -219,7 +219,7 @@ export const getProductViaIdFunction = async (id: string) => {
   } catch (e: unknown) {
     resultObject = {
       result: data,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting product information",
       errorMessage: parseError(e),
     };
@@ -277,7 +277,7 @@ export const addProductFunction = async (
   } catch (e: unknown) {
     resultObject = {
       result: "",
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in adding product",
       errorMessage: parseError(e),
     };
@@ -442,7 +442,7 @@ export const getBestSellingProducts = async () => {
   } catch (e: unknown) {
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting best selling products",
       errorMessage: parseError(e),
     };

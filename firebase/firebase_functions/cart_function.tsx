@@ -89,7 +89,7 @@ export const initializeNewCartFunction = async (
   } catch (e: unknown) {
     resultObject = {
       result: {},
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in initializing cart",
       errorMessage: parseError(e),
     };

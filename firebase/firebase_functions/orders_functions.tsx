@@ -53,7 +53,7 @@ export const getAllOrdersFunction = async () => {
   } catch (e: unknown) {
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all orders",
       errorMessage: parseError(e),
     };
@@ -94,7 +94,7 @@ export const getAllOrdersViaIdFunction = async (userId: string) => {
   } catch (e: unknown) {
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all orders for user",
       errorMessage: parseError(e),
     };
@@ -151,7 +151,7 @@ export const getAllOrdersWithFilterFunction = async (filter: any) => {
   } catch (e: unknown) {
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all orders with filter",
       errorMessage: parseError(e),
     };
@@ -213,7 +213,7 @@ export const getAllOrdersWithSearchFunction = async (searchString: any) => {
   } catch (e: unknown) {
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all orders with search string",
       errorMessage: parseError(e),
     };
@@ -317,7 +317,7 @@ export const addOrderFunction = async (order: Constants.OrdersDatabaseType) => {
   } catch (e: unknown) {
     resultObject = {
       result: "",
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in adding order",
       errorMessage: parseError(e),
     };

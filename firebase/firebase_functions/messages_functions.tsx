@@ -51,7 +51,7 @@ export const getAllMessagesFunction = async () => {
   } catch (e: unknown) {
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all messages",
       errorMessage: parseError(e),
     };
@@ -96,7 +96,7 @@ export const getAllMessagesWithFilterFunction = async (filter: any) => {
   } catch (e: unknown) {
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all messages with filter",
       errorMessage: parseError(e),
     };
@@ -157,7 +157,7 @@ export const getAllMessagesWithSearchFunction = async (searchString: any) => {
   } catch (e: unknown) {
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all messages with search string",
       errorMessage: parseError(e),
     };
@@ -192,7 +192,7 @@ export const addMessageFunction = async (message: any) => {
   } catch (e: unknown) {
     resultObject = {
       result: "",
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in sending message",
       errorMessage: parseError(e),
     };
@@ -233,7 +233,7 @@ export const getMessageFunction = async (id: string) => {
   } catch (e: unknown) {
     resultObject = {
       result: data,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting message information",
       errorMessage: parseError(e),
     };
