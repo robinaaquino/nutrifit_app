@@ -3,11 +3,15 @@ export default function RadioButton({
   id,
   value,
   handleInput,
+  isBoolean,
+  label,
 }: {
   name: string;
   id: string;
   value: string;
   handleInput: any;
+  label: string;
+  isBoolean?: boolean;
 }) {
   return (
     <>
@@ -17,7 +21,11 @@ export default function RadioButton({
           id={id}
           name={name}
           value={value}
-          onChange={(event) => handleInput(event.target.value)}
+          onChange={(event) =>
+            isBoolean
+              ? handleInput(event.target.value == "true" ? true : false)
+              : handleInput(event.target.value)
+          }
           className="form-radio text-black  bg-gray-200 border border-gray-500 checked:border-none checked:bg-black cursor-pointer
                                               "
         />
@@ -27,7 +35,7 @@ export default function RadioButton({
               htmlFor={value}
               className="mr-2 text-sm leading-3 font-normal text-black"
             >
-              {value}
+              {label}
             </label>
           </div>
         </div>
