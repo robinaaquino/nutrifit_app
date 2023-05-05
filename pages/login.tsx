@@ -4,7 +4,7 @@ import { logInWithEmailAndPassword } from "@/firebase/firebase_functions/auth";
 import { useRouter } from "next/navigation";
 import { signInWithGoogle } from "@/firebase/firebase_functions/auth";
 import Image from "next/image";
-import { AuthContext } from "@/context/AuthContext";
+import { AuthContext, useAuthContext } from "@/context/AuthContext";
 import Link from "next/link";
 import { getAuth } from "firebase/auth";
 import { getUserFunction } from "@/firebase/firebase_functions/users_function";
@@ -13,8 +13,7 @@ export default function Login() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const router = useRouter();
-  const authContextObject = useContext(AuthContext);
-  const auth = getAuth();
+  const { user, success, error } = useAuthContext();
 
   const handleForm = async (e: any) =>
     // event: any
@@ -26,19 +25,28 @@ export default function Login() {
         const getUserResult = await getUserFunction(result.result);
 
         if (getUserResult.isSuccess) {
-          authContextObject.success(result.resultText);
-          // authContextObject.setUserAndAuthorization(
-          //   result.result,
-          //   getUserResult.result.role == "admin" ? true : false
-          // );
+          success(result.resultText);
           router.push("/");
         }
       } else {
-        authContextObject.error(result.resultText);
+        error(result.resultText);
       }
     };
 
-  useEffect(() => {}, []);
+  const handleFormGoogle = async () =>
+    // event: any
+    {
+      const result = await signInWithGoogle();
+      success("Successful in logging in");
+      router.push("/");
+    };
+
+  useEffect(() => {
+    if (user) {
+      router.push("/");
+      success("Successfully logged in");
+    }
+  }, [user]);
   return (
     <>
       <div className="container mx-auto bg-[#F4F7FF] py-20 lg:py-[120px] p-10">
@@ -117,7 +125,7 @@ export default function Login() {
                 </li> */}
                 <li className="w-full px-2">
                   <button
-                    onClick={() => signInWithGoogle()}
+                    onClick={() => handleFormGoogle()}
                     className="flex h-11 items-center justify-center rounded-md bg-[#D64937] hover:bg-opacity-90 w-full"
                   >
                     <svg
