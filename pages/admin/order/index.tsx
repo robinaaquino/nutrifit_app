@@ -24,7 +24,9 @@ export default function AdminOrder(props: any) {
 
   const tableHeaders: string[] = [
     "ID",
-    "User ID",
+    "Email",
+    "First name",
+    "Last name",
     "Total price",
     "Status",
     "Delivery mode",
@@ -34,7 +36,9 @@ export default function AdminOrder(props: any) {
 
   const tableContentKeys: string[] = [
     "id",
-    "user_id",
+    "email",
+    "first_name",
+    "last_name",
     "total_price",
     "status",
     "delivery_mode",
@@ -44,6 +48,7 @@ export default function AdminOrder(props: any) {
 
   async function fetchAllOrders() {
     const result = await getAllOrdersFunction();
+    console.log(result);
 
     if (!result.isSuccess) {
       error(result.resultText);
