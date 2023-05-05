@@ -17,6 +17,9 @@ import { getUserFunction } from "@/firebase/firebase_functions/users_function";
 import nookies from "nookies";
 import admin from "../../../firebase/admin-config";
 
+import { useForm } from "react-hook-form";
+import WarningMessage from "@/components/forms/WarningMessage";
+
 export default function AdminProductShow(props: any) {
   const router = useRouter();
   const { id } = router.query;
@@ -45,6 +48,21 @@ export default function AdminProductShow(props: any) {
   const productImagesArray = [0, 1, 2, 3];
   const { error } = useAuthContext();
   const authContextObject = useContext(AuthContext);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      inputCategory: "",
+      inputProductDescription: "",
+      inputPrice: "",
+      inputQuantity: "",
+      inputProductName: "",
+    },
+  });
 
   async function fetchProduct() {
     var idInput = "";
@@ -105,10 +123,18 @@ export default function AdminProductShow(props: any) {
     setFiles(previousFiles);
   };
 
-  const handleForm = async (e: any) =>
+  const handleForm = async (data: any, e: any) =>
     // event: any
     {
       e.preventDefault();
+      const {
+        inputCategory,
+        inputProductDescription,
+        inputPrice,
+        inputQuantity,
+        inputProductName,
+      } = data;
+
       var idInput = "";
       if (id) {
         if (id[0]) {
@@ -118,11 +144,11 @@ export default function AdminProductShow(props: any) {
         }
       }
       const productObject: ProductsDatabaseType = {
-        category: productCategory,
-        description: productDescription,
-        price: price,
-        quantity_left: quantityLeft,
-        name: productName,
+        category: inputCategory,
+        description: inputProductDescription,
+        price: inputPrice,
+        quantity_left: inputQuantity,
+        name: inputProductName,
         images: files,
         quantity_in_carts: quantityInCarts,
         quantity_sold: quantitySold,
@@ -147,7 +173,7 @@ export default function AdminProductShow(props: any) {
   return (
     <>
       <form
-        onSubmit={handleForm}
+        onSubmit={handleSubmit(handleForm)}
         className="container mx-auto py-20 p-10 h-full w-full"
       >
         <div className="grid grid-cols-2 gap-4">
@@ -166,27 +192,16 @@ export default function AdminProductShow(props: any) {
                   type="text"
                   value={productName}
                   placeholder="Type your name..."
-                  onChange={(e) => setProductName(e.target.value)}
-                  required
+                  {...register("inputProductName", {
+                    required: "Product name is required",
+                    onChange: (e: any) => setProductName(e.target.value),
+                  })}
+                  aria-invalid={errors.inputProductName ? "true" : "false"}
                 />
-                <p className="text-red-500 text-xs italic">
-                  Please fill out this field.
-                </p>
               </div>
-              {/* <div className="w-full md:w-1/2 px-3">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="grid-last-name"
-            >
-              Last Name
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-              id="grid-last-name"
-              type="text"
-              placeholder="Doe"
-            />
-          </div> */}
+              {errors.inputProductName && (
+                <WarningMessage text={errors.inputProductName?.message} />
+              )}
             </div>
             <div className="flex flex-wrap -mx-3 mb-6">
               <div className="w-full px-3 mb-6">
@@ -200,8 +215,11 @@ export default function AdminProductShow(props: any) {
                   <select
                     className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                     id="grid-category"
-                    onChange={(e) => setProductCategory(e.target.value)}
-                    required
+                    {...register("inputCategory", {
+                      required: "Category is required",
+                      onChange: (e: any) => setProductCategory(e.target.value),
+                    })}
+                    aria-invalid={errors.inputCategory ? "true" : "false"}
                   >
                     {PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.map((category) => {
                       return (
@@ -215,7 +233,10 @@ export default function AdminProductShow(props: any) {
                       );
                     })}
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                  {errors.inputCategory && (
+                    <WarningMessage text={errors.inputCategory?.message} />
+                  )}
+                  {/* <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                     <svg
                       className="fill-current h-4 w-4"
                       xmlns="http://www.w3.org/2000/svg"
@@ -223,7 +244,7 @@ export default function AdminProductShow(props: any) {
                     >
                       <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                     </svg>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>
@@ -241,13 +262,16 @@ export default function AdminProductShow(props: any) {
                   type="number"
                   value={price}
                   placeholder="Type your price..."
-                  onChange={(e) => setPrice(parseInt(e.target.value))}
-                  required
+                  {...register("inputPrice", {
+                    required: "Price is required",
+                    onChange: (e: any) => setPrice(parseInt(e.target.value)),
+                  })}
+                  aria-invalid={errors.inputPrice ? "true" : "false"}
                 />
-                <p className="text-red-500 text-xs italic">
-                  Please fill out this field.
-                </p>
               </div>
+              {errors.inputPrice && (
+                <WarningMessage text={errors.inputPrice?.message} />
+              )}
             </div>
             <div className="flex flex-wrap -mx-3 mb-6">
               <div className="w-full px-3 mb-6">
@@ -263,13 +287,17 @@ export default function AdminProductShow(props: any) {
                   type="number"
                   value={quantityLeft}
                   placeholder="Type your quantity..."
-                  onChange={(e) => setQuantityLeft(parseInt(e.target.value))}
-                  required
+                  {...register("inputQuantity", {
+                    required: "Quantity is required",
+                    onChange: (e: any) =>
+                      setQuantityLeft(parseInt(e.target.value)),
+                  })}
+                  aria-invalid={errors.inputQuantity ? "true" : "false"}
                 />
-                <p className="text-red-500 text-xs italic">
-                  Please fill out this field.
-                </p>
               </div>
+              {errors.inputQuantity && (
+                <WarningMessage text={errors.inputQuantity?.message} />
+              )}
             </div>
             <div className="flex flex-wrap -mx-3 mb-6">
               <div className="w-full px-3 mb-6">
@@ -325,13 +353,20 @@ export default function AdminProductShow(props: any) {
                   rows={3}
                   placeholder="Type your product description..."
                   value={productDescription}
-                  onChange={(e) => setProductDescription(e.target.value)}
-                  required
+                  {...register("inputProductDescription", {
+                    required: "Product description is required",
+                    onChange: (e: any) => setProductDescription(e.target.value),
+                  })}
+                  aria-invalid={
+                    errors.inputProductDescription ? "true" : "false"
+                  }
                 />
 
-                <p className="text-red-500 text-xs italic">
-                  Please fill out this field.
-                </p>
+                {errors.inputProductDescription && (
+                  <WarningMessage
+                    text={errors.inputProductDescription?.message}
+                  />
+                )}
               </div>
             </div>
           </div>
