@@ -8,18 +8,32 @@ import { AuthContext, useAuthContext } from "@/context/AuthContext";
 import Link from "next/link";
 import { getAuth } from "firebase/auth";
 import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { useForm } from "react-hook-form";
+import WarningMessage from "@/components/forms/WarningMessage";
 
 export default function Login() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const router = useRouter();
   const { user, success, error } = useAuthContext();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      inputEmail: "",
+      inputPassword: "",
+    },
+  });
 
-  const handleForm = async (e: any) =>
+  const handleForm = async (data: any, e: any) =>
     // event: any
     {
       e.preventDefault();
-      const result = await logInWithEmailAndPassword(email, password);
+      const { inputEmail, inputPassword } = data;
+      const result = await logInWithEmailAndPassword(inputEmail, inputPassword);
 
       if (result.isSuccess) {
         const getUserResult = await getUserFunction(result.result);
@@ -56,30 +70,53 @@ export default function Login() {
               <h2 className="mt-6 mb-10 text-center text-3xl font-bold tracking-tight text-gray-900">
                 Log in
               </h2>
-              <form onSubmit={handleForm}>
+              <form onSubmit={handleSubmit(handleForm)}>
                 <div className="mb-6">
                   <input
                     type="text"
                     placeholder="Email"
-                    className="bordder-[#E9EDF4] w-full rounded-md border bg-[#FCFDFE] py-3 px-5 text-base text-body-color placeholder-[#ACB6BE] outline-none focus:border-primary focus-visible:shadow-none"
-                    required={true}
-                    onChange={(e) => setEmail(e.target.value)}
+                    className="border-[#E9EDF4] w-full rounded-md border bg-[#FCFDFE] py-3 px-5 text-base text-body-color placeholder-[#ACB6BE] outline-none focus:border-primary focus-visible:shadow-none"
+                    {...register("inputEmail", {
+                      required: "Email address is required",
+                      pattern: {
+                        value:
+                          /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:.[a-zA-Z0-9-]+)*$/,
+                        message:
+                          "Follow the correct email format. An example is email@email.com",
+                      },
+                      onChange: (e) => setEmail(e.target.value),
+                    })}
+                    aria-invalid={errors.inputEmail ? "true" : "false"}
                   />
+                  {errors.inputEmail && (
+                    <WarningMessage text={errors.inputEmail?.message} />
+                  )}
                 </div>
                 <div className="mb-6">
                   <input
                     type="password"
                     placeholder="Password"
-                    className="bordder-[#E9EDF4] w-full rounded-md border bg-[#FCFDFE] py-3 px-5 text-base text-body-color placeholder-[#ACB6BE] outline-none focus:border-primary focus-visible:shadow-none"
-                    required={true}
-                    onChange={(e) => setPassword(e.target.value)}
+                    className="border-[#E9EDF4] w-full rounded-md border bg-[#FCFDFE] py-3 px-5 text-base text-body-color placeholder-[#ACB6BE] outline-none focus:border-primary focus-visible:shadow-none"
+                    {...register("inputPassword", {
+                      required: "Password is required",
+                      minLength: {
+                        value: 8,
+                        message:
+                          "Password should have a minimum of 8 characters",
+                      },
+                      onChange: (e: any) => setPassword(e.target.value),
+                    })}
+                    aria-invalid={errors.inputPassword ? "true" : "false"}
                   />
+                  {errors.inputPassword && (
+                    <WarningMessage text={errors.inputPassword?.message} />
+                  )}
                 </div>
                 <div className="mb-10">
                   <input
                     type="submit"
                     value="Sign In"
-                    className="bordder-primary w-full cursor-pointer rounded-md border bg-nf_green py-3 px-5 text-base text-white transition hover:bg-nf_dark_green"
+                    className="border-primary w-full cursor-pointer rounded-md border bg-nf_green py-3 px-5 text-base text-white transition hover:bg-nf_dark_green"
                   />
                 </div>
               </form>
