@@ -148,6 +148,60 @@ export const getUserFunction = async (id: string) => {
   return resultObject;
 };
 
+export const getUserViaEmailFunction = async (email: string) => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+  let datas: any[] = [];
+
+  try {
+    const userReference = query(
+      collection(db, "users"),
+      where("email", "==", email)
+    );
+
+    const userSnapshot = await getDocs(userReference);
+
+    userSnapshot.forEach((doc) => {
+      const id = doc.id;
+      const data = doc.data();
+      datas.push({
+        id,
+        ...data,
+      });
+    });
+
+    if (datas.length == 0) {
+      return (resultObject = {
+        result: datas,
+        isSuccess: false,
+        resultText: "Failed in getting users with email",
+        errorMessage: "",
+      });
+    }
+
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Successful in getting users with email",
+      errorMessage: "",
+    };
+  } catch (e: unknown) {
+    console.log(e);
+    resultObject = {
+      result: datas,
+      isSuccess: false,
+      resultText: "Failed in gettingusers with email",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
+};
+
 export const updateUserFunction = async (
   user: Constants.UsersDatabaseType,
   userId: string
