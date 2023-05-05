@@ -43,6 +43,6 @@ module.exports = {
   plugins: [
     require("daisyui"),
     require("tw-elements/dist/plugin"),
-    require("@tailwindcss/custom-forms"),
+    require("@tailwindcss/forms"),
   ],
 };
