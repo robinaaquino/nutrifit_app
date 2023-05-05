@@ -230,7 +230,7 @@ export default function UserShow(props: any) {
   return (
     <>
       <div className="container mx-auto py-20 p-10 h-full w-full">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 m-2 h-full">
           <div>
             {/* First Name Last Name */}
             <div className="flex space-x-0">
@@ -457,19 +457,6 @@ export default function UserShow(props: any) {
                     )}
                   </div>
                 </div>
-
-                <div className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 mt-2">
-                  Orders
-                </div>
-                <div className="p-2 ml-4">
-                  <TableComponent
-                    headers={orderHeaders}
-                    contentKeys={orderKeys}
-                    content={orders}
-                    type={"order"}
-                    isAdmin={false}
-                  ></TableComponent>
-                </div>
               </div>
             </div>
             <div>
@@ -488,6 +475,22 @@ export default function UserShow(props: any) {
             </div>
           </div>
         </div>
+        {orders && orders.length > 0 ? (
+          <div className="mt-10">
+            <div className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 mt-2">
+              Order Summary
+            </div>
+            <div className="p-2 ml-4">
+              <TableComponent
+                headers={orderHeaders}
+                contentKeys={orderKeys}
+                content={orders}
+                type={"order"}
+                isAdmin={false}
+              ></TableComponent>
+            </div>
+          </div>
+        ) : null}
       </div>
     </>
   );
