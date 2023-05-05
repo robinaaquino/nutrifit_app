@@ -49,6 +49,7 @@ export const getAllMessagesFunction = async () => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
       isSuccess: false,
@@ -94,6 +95,7 @@ export const getAllMessagesWithFilterFunction = async (filter: any) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
       isSuccess: false,
@@ -155,6 +157,7 @@ export const getAllMessagesWithSearchFunction = async (searchString: any) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
       isSuccess: false,
@@ -190,6 +193,7 @@ export const addMessageFunction = async (message: any) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: "",
       isSuccess: false,
@@ -231,6 +235,7 @@ export const getMessageFunction = async (id: string) => {
       };
     }
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: data,
       isSuccess: false,
@@ -270,6 +275,7 @@ export const updateMessageFunction = async (
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: {},
       isSuccess: false,
@@ -299,6 +305,7 @@ export const deleteMessageFunction = async (messageId: string) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: {},
       isSuccess: false,

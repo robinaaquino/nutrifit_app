@@ -50,6 +50,7 @@ export const getAllProductsFunction = async () => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
       isSuccess: false,
@@ -116,6 +117,7 @@ export const getAllProductsWithFilterFunction = async (filter: any) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
       isSuccess: false,
@@ -176,6 +178,7 @@ export const getAllProductsWithSearchFunction = async (searchString: any) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
       isSuccess: false,
@@ -217,6 +220,7 @@ export const getProductViaIdFunction = async (id: string) => {
       };
     }
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: data,
       isSuccess: false,
@@ -275,6 +279,7 @@ export const addProductFunction = async (
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: "",
       isSuccess: false,
@@ -344,6 +349,7 @@ export const updateProductFunction = async (
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
       isSuccess: false,
@@ -396,6 +402,7 @@ export const deleteProductFunction = async (
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
       isSuccess: false,
@@ -440,6 +447,7 @@ export const getBestSellingProducts = async () => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
       isSuccess: false,

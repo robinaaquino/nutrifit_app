@@ -87,6 +87,7 @@ export const initializeNewCartFunction = async (
       };
     }
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: {},
       isSuccess: false,
@@ -182,6 +183,7 @@ export const addToCartFunction = async (
       }
     }
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: data,
       isSuccess: false,
@@ -247,6 +249,7 @@ export const removeFromCartFunction = async (product: any, userId: string) => {
       };
     }
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: data,
       isSuccess: false,
@@ -298,6 +301,7 @@ export const clearCartFunction = async (userId: string) => {
       };
     }
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: data,
       isSuccess: false,
@@ -354,6 +358,7 @@ export const getCartViaIdFunction = async (userId: string) => {
       }
     }
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: data,
       isSuccess: false,

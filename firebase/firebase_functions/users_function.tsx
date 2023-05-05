@@ -49,6 +49,7 @@ export const getAllUsersFunction = async () => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
       isSuccess: false,
@@ -93,6 +94,7 @@ export const addUserFunction = async (user: Constants.UsersDatabaseType) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: "",
       isSuccess: false,
@@ -134,6 +136,7 @@ export const getUserFunction = async (id: string) => {
       };
     }
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: data,
       isSuccess: false,
@@ -187,6 +190,7 @@ export const updateUserFunction = async (
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: {},
       isSuccess: false,
@@ -227,6 +231,7 @@ export const isUserAuthorizedFunction = async (id: string) => {
       };
     }
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: false,
       isSuccess: false,
@@ -272,6 +277,7 @@ export const getAllUsersWithFilterFunction = async (filter: any) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
       isSuccess: false,
@@ -344,6 +350,7 @@ export const getAllUsersWithSearchFunction = async (searchString: any) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
       isSuccess: false,
@@ -373,6 +380,7 @@ export const deleteUserFunction = async (userId: string) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: {},
       isSuccess: false,
