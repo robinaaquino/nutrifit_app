@@ -187,6 +187,13 @@ export default function TableComponent({
                   <table className="min-w-full divide-y divide-nf_dark_blue table-auto">
                     <thead className="bg-nf_green">
                       <tr className="w-full">
+                        {isAdmin ? (
+                          <TableRowHeader
+                            canSort={false}
+                            text="Actions"
+                            handleClick={() => {}}
+                          />
+                        ) : null}
                         {headers.map((e) => {
                           return (
                             <>
@@ -200,14 +207,6 @@ export default function TableComponent({
                             </>
                           );
                         })}
-
-                        {isAdmin ? (
-                          <TableRowHeader
-                            canSort={false}
-                            text="Actions"
-                            handleClick={() => {}}
-                          />
-                        ) : null}
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-nf_dark_blue ">
@@ -215,29 +214,8 @@ export default function TableComponent({
                         return (
                           <>
                             <tr className="">
-                              {contentKeys.map((key, index) => {
-                                var currentText;
-                                if (key == "first_name" || key == "last_name") {
-                                  currentText =
-                                    currentElement["shipping_details"][key];
-                                } else {
-                                  currentText = currentElement[key];
-                                }
-
-                                return (
-                                  <>
-                                    <TableRowText
-                                      key={index}
-                                      text={currentText}
-                                      type={type}
-                                      tableKey={key}
-                                      isAdmin={isAdmin}
-                                    />
-                                  </>
-                                );
-                              })}
                               {isAdmin ? (
-                                <td className="flex">
+                                <td className="flex mt-2">
                                   <button
                                     className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue"
                                     onClick={() => {
@@ -280,6 +258,27 @@ export default function TableComponent({
                                   </button>
                                 </td>
                               ) : null}
+                              {contentKeys.map((key, index) => {
+                                var currentText;
+                                if (key == "first_name" || key == "last_name") {
+                                  currentText =
+                                    currentElement["shipping_details"][key];
+                                } else {
+                                  currentText = currentElement[key];
+                                }
+
+                                return (
+                                  <>
+                                    <TableRowText
+                                      key={index}
+                                      text={currentText}
+                                      type={type}
+                                      tableKey={key}
+                                      isAdmin={isAdmin}
+                                    />
+                                  </>
+                                );
+                              })}
                             </tr>
                           </>
                         );
