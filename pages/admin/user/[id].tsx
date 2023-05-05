@@ -216,14 +216,14 @@ export default function AdminUserShow(props: any) {
       image: image,
     };
 
-    // const result = await updateUserFunction(newInfo, idInput);
+    const result = await updateUserFunction(newInfo, idInput);
 
-    // if (result.isSuccess) {
-    //   success(result.resultText);
-    //   setUserInfo(result.result);
-    // } else {
-    //   error(result.errorMessage);
-    // }
+    if (result.isSuccess) {
+      success(result.resultText);
+      setUserInfo(result.result);
+    } else {
+      error(result.errorMessage);
+    }
   };
 
   const handleResetPassword = async () => {
