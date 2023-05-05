@@ -17,6 +17,9 @@ import { addOrderFunction } from "@/firebase/firebase_functions/orders_functions
 import { useRouter } from "next/navigation";
 import RadioButton from "@/components/forms/RadioButton";
 
+import { useForm } from "react-hook-form";
+import WarningMessage from "@/components/forms/WarningMessage";
+
 export default function Cart(props: any) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -24,8 +27,30 @@ export default function Cart(props: any) {
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [province, setProvince] = useState("");
-  const [deliveryMode, setDeliveryMode] = useState("");
+  const [deliveryMode, setDeliveryMode] = useState("pickup");
   const [notes, setNotes] = useState("");
+
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodEnum>(
+    PaymentMethodEnum.BLANK
+  );
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      inputFirstName: "",
+      inputLastName: "",
+      inputContactNumber: "",
+      inputAddress: "",
+      inputCity: "",
+      inputProvince: "",
+      inputDeliveryMode: "pickup",
+      inputNotes: "",
+    },
+  });
 
   const [cartContents, setCartContents] = useState<any>(null);
   const {
@@ -74,15 +99,25 @@ export default function Cart(props: any) {
     removeFromCart(product);
   }
 
-  const handleFormForPayment = async (e: any) => {
+  const handleFormForPayment = async (data: any, e: any) => {
+    const {
+      inputFirstName,
+      inputLastName,
+      inputContactNumber,
+      inputAddress,
+      inputCity,
+      inputProvince,
+      inputDeliveryMode,
+      inputNotes,
+    } = data;
     if (cartContents != null && cartContents.products.length > 0) {
       const shipping_details = {
-        address: address,
-        first_name: firstName,
-        last_name: lastName,
-        city: city,
-        province: province,
-        contact_number: contactNumber,
+        address: inputAddress,
+        first_name: inputFirstName,
+        last_name: inputLastName,
+        city: inputCity,
+        province: inputProvince,
+        contact_number: inputContactNumber,
       };
 
       const orderDetails: OrdersDatabaseType = {
@@ -90,7 +125,9 @@ export default function Cart(props: any) {
         payment: {
           created_at: new Date().toString(),
           date_cleared: "",
-          payment_method: PaymentMethodEnum.PAYMENT_UPON_PICK_UP,
+          payment_method: paymentMethod
+            ? paymentMethod
+            : PaymentMethodEnum.BLANK,
           price_paid: 0,
           updated_at: new Date().toString(),
         },
@@ -98,8 +135,8 @@ export default function Cart(props: any) {
         status: OrderStatusEnum.PENDING,
 
         user_id: props.user ? props.user : "",
-        note: notes,
-        delivery_mode: deliveryMode,
+        note: inputNotes,
+        delivery_mode: inputDeliveryMode,
         shipping_details: shipping_details,
       };
 
@@ -144,7 +181,7 @@ export default function Cart(props: any) {
             </h2>
             <form
               className="justify-center w-full mx-auto"
-              onSubmit={(e) => e.preventDefault()}
+              onSubmit={handleSubmit(handleFormForPayment)}
             >
               <div className="">
                 <div className="space-x-0 lg:flex lg:space-x-4">
@@ -156,15 +193,19 @@ export default function Cart(props: any) {
                       First Name
                     </label>
                     <input
-                      name="firstName"
                       type="text"
                       placeholder="First Name"
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white text-black"
-                      onChange={(e) => {
-                        setFirstName(e.target.value);
-                      }}
+                      {...register("inputFirstName", {
+                        required: "First name is required",
+                        onChange: (e: any) => setFirstName(e.target.value),
+                      })}
+                      aria-invalid={errors.inputFirstName ? "true" : "false"}
                     />
                   </div>
+                  {errors.inputFirstName && (
+                    <WarningMessage text={errors.inputFirstName?.message} />
+                  )}
                   <div className="w-full lg:w-1/2 ">
                     <label
                       htmlFor="firstName"
@@ -173,15 +214,19 @@ export default function Cart(props: any) {
                       Last Name
                     </label>
                     <input
-                      name="Last Name"
                       type="text"
                       placeholder="Last Name"
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white text-black"
-                      onChange={(e) => {
-                        setLastName(e.target.value);
-                      }}
+                      {...register("inputLastName", {
+                        required: "Last name is required",
+                        onChange: (e: any) => setLastName(e.target.value),
+                      })}
+                      aria-invalid={errors.inputLastName ? "true" : "false"}
                     />
                   </div>
+                  {errors.inputLastName && (
+                    <WarningMessage text={errors.inputLastName?.message} />
+                  )}
                 </div>
                 <div className="mt-4">
                   <div className="w-full">
@@ -192,15 +237,21 @@ export default function Cart(props: any) {
                       Contact Number
                     </label>
                     <input
-                      name="Last Name"
                       type="text"
                       placeholder="Contact number"
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white text-black"
-                      onChange={(e) => {
-                        setContactNumber(e.target.value);
-                      }}
+                      {...register("inputContactNumber", {
+                        required: "Contact number is required",
+                        onChange: (e: any) => setContactNumber(e.target.value),
+                      })}
+                      aria-invalid={
+                        errors.inputContactNumber ? "true" : "false"
+                      }
                     />
                   </div>
+                  {errors.inputContactNumber && (
+                    <WarningMessage text={errors.inputContactNumber?.message} />
+                  )}
                 </div>
                 <div className="mt-4">
                   <div className="w-full">
@@ -212,14 +263,18 @@ export default function Cart(props: any) {
                     </label>
                     <textarea
                       className="w-full px-4 py-3 text-xs border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white text-black"
-                      name="Address"
                       cols={20}
                       rows={4}
                       placeholder="Address"
-                      onChange={(e) => {
-                        setAddress(e.target.value);
-                      }}
+                      {...register("inputAddress", {
+                        required: "Address is required",
+                        onChange: (e: any) => setAddress(e.target.value),
+                      })}
+                      aria-invalid={errors.inputAddress ? "true" : "false"}
                     ></textarea>
+                    {errors.inputAddress && (
+                      <WarningMessage text={errors.inputAddress?.message} />
+                    )}
                   </div>
                 </div>
                 <div className="space-x-0 lg:flex lg:space-x-4">
@@ -231,15 +286,19 @@ export default function Cart(props: any) {
                       City
                     </label>
                     <input
-                      name="city"
                       type="text"
                       placeholder="City"
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white text-black"
-                      onChange={(e) => {
-                        setCity(e.target.value);
-                      }}
+                      {...register("inputCity", {
+                        required: "City is required",
+                        onChange: (e: any) => setCity(e.target.value),
+                      })}
+                      aria-invalid={errors.inputCity ? "true" : "false"}
                     />
                   </div>
+                  {errors.inputCity && (
+                    <WarningMessage text={errors.inputCity?.message} />
+                  )}
                   <div className="w-full lg:w-1/2 ">
                     <label
                       htmlFor="province"
@@ -248,15 +307,19 @@ export default function Cart(props: any) {
                       Province
                     </label>
                     <input
-                      name="province"
                       type="text"
                       placeholder="Province"
                       className="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white text-black"
-                      onChange={(e) => {
-                        setProvince(e.target.value);
-                      }}
+                      {...register("inputProvince", {
+                        required: "Province is required",
+                        onChange: (e: any) => setProvince(e.target.value),
+                      })}
+                      aria-invalid={errors.inputProvince ? "true" : "false"}
                     />
                   </div>
+                  {errors.inputProvince && (
+                    <WarningMessage text={errors.inputProvince?.message} />
+                  )}
                 </div>
                 <div className="space-x-0 lg:flex lg:space-x-4 mt-4">
                   <div className="w-full lg:w-1/2">
@@ -272,6 +335,9 @@ export default function Cart(props: any) {
                       value={"delivery"}
                       handleInput={setDeliveryMode}
                       label={"Delivery"}
+                      checkedFunction={
+                        deliveryMode == "delivery" ? true : false
+                      }
                     />
                     <RadioButton
                       name={"deliveryMode"}
@@ -279,6 +345,7 @@ export default function Cart(props: any) {
                       value={"pickup"}
                       handleInput={setDeliveryMode}
                       label={"Pick-up"}
+                      checkedFunction={deliveryMode == "pickup" ? true : false}
                     />
                   </div>
                   {/* TODO: Google Map */}
@@ -291,17 +358,6 @@ export default function Cart(props: any) {
                     </label>
                   </div> */}
                 </div>
-                {/* <div className="flex items-center mt-4">
-                  <label className="flex items-center text-sm group text-heading">
-                    <input
-                      type="checkbox"
-                      className="w-5 h-5 border border-gray-300 rounded focus:outline-none focus:ring-1"
-                    />
-                    <span className="ml-2">
-                      Save this information htmlFor next time
-                    </span>
-                  </label>
-                </div> */}
                 <div className="relative pt-3 xl:pt-6">
                   <label
                     htmlFor="note"
@@ -311,43 +367,42 @@ export default function Cart(props: any) {
                     Notes (Optional)
                   </label>
                   <textarea
-                    name="note"
                     className="flex items-center w-full px-4 py-3 text-sm border bg-white text-black border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-600"
                     rows={4}
                     placeholder="Notes for delivery"
-                    onChange={(e) => {
-                      setNotes(e.target.value);
-                    }}
+                    {...register("inputNotes", {
+                      onChange: (e: any) => setNotes(e.target.value),
+                    })}
+                    aria-invalid={errors.inputNotes ? "true" : "false"}
                   ></textarea>
+                  {errors.inputNotes && (
+                    <WarningMessage text={errors.inputNotes?.message} />
+                  )}
                 </div>
                 <div className="mt-4">
                   {deliveryMode == "pickup" ? (
                     <div>
                       <button
+                        type="submit"
                         className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900 disabled"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleFormForPayment(e);
-                        }}
                       >
                         Process Payment
                       </button>
-                      {/* <button
+                      <button
                         className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900 mt-2"
                         onClick={(e) => {
-                          handleFormForPayment(e);
+                          setPaymentMethod(
+                            PaymentMethodEnum.PAYMENT_UPON_PICK_UP
+                          );
                         }}
                       >
                         Payment Upon Pickup
-                      </button> */}
+                      </button>
                     </div>
                   ) : (
                     <button
                       className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900 disabled"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleFormForPayment(e);
-                      }}
+                      type="submit"
                     >
                       Process Payment
                     </button>
