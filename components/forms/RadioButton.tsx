@@ -19,7 +19,7 @@ export default function RadioButton({
 }) {
   return (
     <>
-      <div className="flex space-x-2 items-center justify-start ">
+      <div className="flex space-x-2 items-center justify-start mt-2">
         <input
           type="radio"
           id={id}
