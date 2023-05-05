@@ -12,7 +12,7 @@ import Image from "next/image";
 import admin from "@/firebase/admin-config";
 import { getUserFunction } from "@/firebase/firebase_functions/users_function";
 import { updateOrderFunction } from "@/firebase/firebase_functions/orders_functions";
-import { Original_Surfer } from "next/font/google";
+import RadioButton from "@/components/forms/RadioButton";
 
 export default function OrderShow(props: any) {
   const router = useRouter();
@@ -229,32 +229,26 @@ export default function OrderShow(props: any) {
                     >
                       Delivery Mode
                     </label>
-                    <div>
-                      <input
-                        name="deliveryMode"
-                        type="radio"
-                        value="delivery"
-                        className="m-2"
-                        checked={
-                          order.delivery_mode == "delivery" ? true : false
-                        }
-                        disabled
-                      />
-                      <label htmlFor="deliveryMode" className="text-black">
-                        Delivery
-                      </label>
-                      <input
-                        name="deliveryMode"
-                        type="radio"
-                        value="pickup"
-                        className="m-2"
-                        checked={order.delivery_mode == "pickup" ? true : false}
-                        disabled
-                      />
-                      <label htmlFor="deliveryMode" className="text-black">
-                        Pickup
-                      </label>
-                    </div>
+                    <RadioButton
+                      name={"deliveryMode"}
+                      id={"delivery"}
+                      value={"delivery"}
+                      label={"Delivery"}
+                      checkedFunction={
+                        order.delivery_mode == "delivery" ? true : false
+                      }
+                      disabled
+                    />
+                    <RadioButton
+                      name={"deliveryMode"}
+                      id={"pickup"}
+                      value={"pickup"}
+                      label={"Pick-up"}
+                      checkedFunction={
+                        order.delivery_mode == "pickup" ? true : false
+                      }
+                      disabled
+                    />
                   </div>
                 </div>
                 <div className="relative pt-3 xl:pt-6">

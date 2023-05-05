@@ -15,6 +15,7 @@ import {
 } from "@/firebase/constants";
 import { addOrderFunction } from "@/firebase/firebase_functions/orders_functions";
 import { useRouter } from "next/navigation";
+import RadioButton from "@/components/forms/RadioButton";
 
 export default function Cart(props: any) {
   const [firstName, setFirstName] = useState("");
@@ -265,32 +266,20 @@ export default function Cart(props: any) {
                     >
                       Delivery Mode
                     </label>
-                    <div>
-                      <input
-                        name="deliveryMode"
-                        type="radio"
-                        value="delivery"
-                        className="m-2"
-                        onChange={(e) => {
-                          setDeliveryMode(e.target.value);
-                        }}
-                      />
-                      <label htmlFor="deliveryMode" className="text-black">
-                        Delivery
-                      </label>
-                      <input
-                        name="deliveryMode"
-                        type="radio"
-                        value="pickup"
-                        className="m-2"
-                        onChange={(e) => {
-                          setDeliveryMode(e.target.value);
-                        }}
-                      />
-                      <label htmlFor="deliveryMode" className="text-black">
-                        Pickup
-                      </label>
-                    </div>
+                    <RadioButton
+                      name={"deliveryMode"}
+                      id={"delivery"}
+                      value={"delivery"}
+                      handleInput={setDeliveryMode}
+                      label={"Delivery"}
+                    />
+                    <RadioButton
+                      name={"deliveryMode"}
+                      id={"pickup"}
+                      value={"pickup"}
+                      handleInput={setDeliveryMode}
+                      label={"Pick-up"}
+                    />
                   </div>
                   {/* TODO: Google Map */}
                   {/* <div className="w-full lg:w-1/2 ">

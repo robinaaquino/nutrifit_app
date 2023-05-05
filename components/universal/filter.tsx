@@ -5,6 +5,7 @@ import {
   OrderStatusEnum,
   PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY,
 } from "../../firebase/constants";
+import RadioButton from "../forms/RadioButton";
 
 export default function Filter({
   handleFilters,
@@ -57,6 +58,7 @@ export default function Filter({
         //add delivery mode
         //add payment method
       };
+      console.log("filter object order:", filterObject);
       handleFilters(filterObject);
     } else if (isCustomerFilter) {
       const filterObject = {
@@ -195,16 +197,6 @@ export default function Filter({
                               {/* Category Filter */}
                               <div className="p-2">
                                 <div className="flex text-black">
-                                  {/* <img
-                                    className="dark:hidden"
-                                    src="https://tuk-cdn.s3.amazonaws.com/can-uploader/filter1-svg4.svg"
-                                    alt="materials"
-                                  />
-                                  <img
-                                    className="hidden dark:block"
-                                    src="https://tuk-cdn.s3.amazonaws.com/can-uploader/filter1-svg4dark.svg"
-                                    alt="materials"
-                                  /> */}
                                   <p className="leading-5 text-sm font-bold">
                                     Category
                                   </p>
@@ -214,31 +206,13 @@ export default function Filter({
                                     (e) => {
                                       return (
                                         <>
-                                          <div className="flex space-x-2  items-center justify-start ">
-                                            <input
-                                              type="radio"
-                                              id={e}
-                                              name="productCategory"
-                                              value={e}
-                                              onChange={(event) =>
-                                                setFilterCategory(
-                                                  event.target.value
-                                                )
-                                              }
-                                            />
-                                            <div className="inline-block">
-                                              <div className="flex space-x-6 justify-center items-center">
-                                                <label
-                                                  htmlFor={e}
-                                                  className="mr-2 text-sm leading-3 font-normal text-black"
-                                                >
-                                                  {e}
-                                                </label>
-                                              </div>
-                                            </div>
-
-                                            <br />
-                                          </div>
+                                          <RadioButton
+                                            name={"productCategory"}
+                                            id={e}
+                                            value={e}
+                                            handleInput={setFilterCategory}
+                                            label={e}
+                                          />
                                         </>
                                       );
                                     }
@@ -285,59 +259,23 @@ export default function Filter({
                                   </p>
                                 </div>
                                 <div className="flex pt-2">
-                                  <div className="flex space-x-2  items-center justify-start">
-                                    <input
-                                      type="radio"
-                                      id="yes"
-                                      name="inStock"
-                                      value="true"
-                                      className=" w-auto bg-white text-black "
-                                      onChange={(event) => {
-                                        setFilterInStock(
-                                          event.target.value == "true"
-                                            ? true
-                                            : false
-                                        );
-                                      }}
-                                    />
-                                    <div className="inline-block">
-                                      <div className="flex space-x-6 justify-center items-center">
-                                        <label
-                                          htmlFor="yes"
-                                          className="mr-2 text-sm leading-3 font-normal text-black"
-                                        >
-                                          Yes
-                                        </label>
-                                      </div>
-                                    </div>
-                                  </div>
+                                  <RadioButton
+                                    name={"inStock"}
+                                    id={"yes"}
+                                    value={"true"}
+                                    label={"True"}
+                                    handleInput={setFilterInStock}
+                                    isBoolean={true}
+                                  />
 
-                                  <div className="flex space-x-2  items-center justify-start">
-                                    <input
-                                      type="radio"
-                                      id="no"
-                                      name="inStock"
-                                      value="false"
-                                      className=" w-auto bg-white text-black "
-                                      onChange={(event) => {
-                                        setFilterInStock(
-                                          event.target.value == "false"
-                                            ? false
-                                            : true
-                                        );
-                                      }}
-                                    />
-                                    <div className="inline-block">
-                                      <div className="flex space-x-6 justify-center items-center">
-                                        <label
-                                          htmlFor="no"
-                                          className="mr-2 text-sm leading-3 font-normal text-black"
-                                        >
-                                          No
-                                        </label>
-                                      </div>
-                                    </div>
-                                  </div>
+                                  <RadioButton
+                                    name={"inStock"}
+                                    id={"no"}
+                                    value={"false"}
+                                    label={"False"}
+                                    handleInput={setFilterInStock}
+                                    isBoolean={true}
+                                  />
                                 </div>
                               </div>
                             </div>
@@ -384,74 +322,29 @@ export default function Filter({
                                   </p>
                                 </div>
                                 <div className="flex pt-2">
-                                  <div className="flex space-x-2  items-center justify-start">
-                                    <input
-                                      type="radio"
-                                      id="pending"
-                                      name="status"
-                                      value="pending"
-                                      className=" w-auto bg-white text-black "
-                                      onChange={(event) =>
-                                        setFilterStatus(event.target.value)
-                                      }
-                                    />
-                                    <div className="inline-block">
-                                      <div className="flex space-x-6 justify-center items-center">
-                                        <label
-                                          htmlFor="pending"
-                                          className="mr-2 text-sm leading-3 font-normal text-black"
-                                        >
-                                          Pending
-                                        </label>
-                                      </div>
-                                    </div>
-                                  </div>
+                                  <RadioButton
+                                    name={"status"}
+                                    id={"pending"}
+                                    value={"pending"}
+                                    label={"Pending"}
+                                    handleInput={setFilterStatus}
+                                  />
 
-                                  <div className="flex space-x-2  items-center justify-start">
-                                    <input
-                                      type="radio"
-                                      id="delivered"
-                                      name="status"
-                                      value="delivered"
-                                      className=" w-auto bg-white text-black "
-                                      onChange={(event) =>
-                                        setFilterStatus(event.target.value)
-                                      }
-                                    />
-                                    <div className="inline-block">
-                                      <div className="flex space-x-6 justify-center items-center">
-                                        <label
-                                          htmlFor="delivered"
-                                          className="mr-2 text-sm leading-3 font-normal text-black"
-                                        >
-                                          Delivered
-                                        </label>
-                                      </div>
-                                    </div>
-                                  </div>
+                                  <RadioButton
+                                    name={"status"}
+                                    id={"delivered"}
+                                    value={"delivered"}
+                                    label={"Delivered"}
+                                    handleInput={setFilterStatus}
+                                  />
 
-                                  <div className="flex space-x-2  items-center justify-start">
-                                    <input
-                                      type="radio"
-                                      id="cancelled"
-                                      name="status"
-                                      value="cancelled"
-                                      className=" w-auto bg-white text-black "
-                                      onChange={(event) =>
-                                        setFilterStatus(event.target.value)
-                                      }
-                                    />
-                                    <div className="inline-block">
-                                      <div className="flex space-x-6 justify-center items-center">
-                                        <label
-                                          htmlFor="cancelled"
-                                          className="mr-2 text-sm leading-3 font-normal text-black"
-                                        >
-                                          Cancelled
-                                        </label>
-                                      </div>
-                                    </div>
-                                  </div>
+                                  <RadioButton
+                                    name={"status"}
+                                    id={"cancelled"}
+                                    value={"cancelled"}
+                                    label={"Cancelled"}
+                                    handleInput={setFilterStatus}
+                                  />
                                 </div>
                               </div>
                             </div>
@@ -467,51 +360,21 @@ export default function Filter({
                                   </p>
                                 </div>
                                 <div className="flex pt-2">
-                                  <div className="flex space-x-2  items-center justify-start">
-                                    <input
-                                      type="radio"
-                                      id="customer"
-                                      name="role"
-                                      value="customer"
-                                      className=" w-auto bg-white text-black "
-                                      onChange={(event) =>
-                                        setFilterRole(event.target.value)
-                                      }
-                                    />
-                                    <div className="inline-block">
-                                      <div className="flex space-x-6 justify-center items-center">
-                                        <label
-                                          htmlFor="customer"
-                                          className="mr-2 text-sm leading-3 font-normal text-black"
-                                        >
-                                          Customer
-                                        </label>
-                                      </div>
-                                    </div>
-                                  </div>
+                                  <RadioButton
+                                    name={"role"}
+                                    id={"customer"}
+                                    value={"customer"}
+                                    label={"Customer"}
+                                    handleInput={setFilterRole}
+                                  />
 
-                                  <div className="flex space-x-2  items-center justify-start">
-                                    <input
-                                      type="radio"
-                                      id="admin"
-                                      name="role"
-                                      value="admin"
-                                      className=" w-auto bg-white text-black "
-                                      onChange={(event) =>
-                                        setFilterRole(event.target.value)
-                                      }
-                                    />
-                                    <div className="inline-block">
-                                      <div className="flex space-x-6 justify-center items-center">
-                                        <label
-                                          htmlFor="admin"
-                                          className="mr-2 text-sm leading-3 font-normal text-black"
-                                        >
-                                          Administrator
-                                        </label>
-                                      </div>
-                                    </div>
-                                  </div>
+                                  <RadioButton
+                                    name={"role"}
+                                    id={"admin"}
+                                    value={"admin"}
+                                    label={"Admin"}
+                                    handleInput={setFilterRole}
+                                  />
                                 </div>
                               </div>
                             </div>
@@ -527,51 +390,20 @@ export default function Filter({
                                   </p>
                                 </div>
                                 <div className="flex pt-2">
-                                  <div className="flex space-x-2  items-center justify-start">
-                                    <input
-                                      type="radio"
-                                      id="unread"
-                                      name="role"
-                                      value="unread"
-                                      className=" w-auto bg-white text-black "
-                                      onChange={(event) =>
-                                        setFilterStatus(event.target.value)
-                                      }
-                                    />
-                                    <div className="inline-block">
-                                      <div className="flex space-x-6 justify-center items-center">
-                                        <label
-                                          htmlFor="unread"
-                                          className="mr-2 text-sm leading-3 font-normal text-black"
-                                        >
-                                          Unread
-                                        </label>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  <div className="flex space-x-2  items-center justify-start">
-                                    <input
-                                      type="radio"
-                                      id="replied"
-                                      name="role"
-                                      value="replied"
-                                      className=" w-auto bg-white text-black "
-                                      onChange={(event) =>
-                                        setFilterStatus(event.target.value)
-                                      }
-                                    />
-                                    <div className="inline-block">
-                                      <div className="flex space-x-6 justify-center items-center">
-                                        <label
-                                          htmlFor="replied"
-                                          className="mr-2 text-sm leading-3 font-normal text-black"
-                                        >
-                                          Replied
-                                        </label>
-                                      </div>
-                                    </div>
-                                  </div>
+                                  <RadioButton
+                                    name={"messageType"}
+                                    id={"unread"}
+                                    value={"unread"}
+                                    label={"Unread"}
+                                    handleInput={setFilterStatus}
+                                  />
+                                  <RadioButton
+                                    name={"messageType"}
+                                    id={"replied"}
+                                    value={"replied"}
+                                    label={"Replied"}
+                                    handleInput={setFilterStatus}
+                                  />
                                 </div>
                               </div>
                             </div>
