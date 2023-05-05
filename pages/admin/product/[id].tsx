@@ -52,6 +52,7 @@ export default function AdminProductShow(props: any) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     mode: "onChange",
@@ -88,6 +89,12 @@ export default function AdminProductShow(props: any) {
       setQuantityInCarts(result.result.quantity_in_carts);
       setQuantitySold(result.result.quantity_sold);
       setFiles(result.result.images);
+
+      setValue("inputCategory", result.result.category);
+      setValue("inputProductDescription", result.result.description);
+      setValue("inputPrice", result.result.price);
+      setValue("inputQuantity", result.result.quantity_left);
+      setValue("inputProductName", result.result.name);
     }
   }
 
