@@ -54,6 +54,7 @@ export default function UserShow(props: any) {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm({
     mode: "onChange",
@@ -93,6 +94,25 @@ export default function UserShow(props: any) {
         setCity(result.result.shipping_details?.city || "");
         setProvince(result.result.shipping_details?.province || "");
 
+        setValue(
+          "inputFirstName",
+          result.result.shipping_details?.first_name || ""
+        );
+        setValue(
+          "inputLastName",
+          result.result.shipping_details?.last_name || ""
+        );
+        setValue(
+          "inputContactNumber",
+          result.result.shipping_details?.contact_number || ""
+        );
+        setValue("inputAddress", result.result.shipping_details?.address || "");
+        setValue("inputCity", result.result.shipping_details?.city || "");
+        setValue(
+          "inputProvince",
+          result.result.shipping_details?.province || ""
+        );
+
         setImage(result.result.image);
       } else {
         if (idInput != user) {
@@ -109,6 +129,28 @@ export default function UserShow(props: any) {
           setAddress(result.result.shipping_details?.address || "");
           setCity(result.result.shipping_details?.city || "");
           setProvince(result.result.shipping_details?.province || "");
+
+          setValue(
+            "inputFirstName",
+            result.result.shipping_details?.first_name || ""
+          );
+          setValue(
+            "inputLastName",
+            result.result.shipping_details?.last_name || ""
+          );
+          setValue(
+            "inputContactNumber",
+            result.result.shipping_details?.contact_number || ""
+          );
+          setValue(
+            "inputAddress",
+            result.result.shipping_details?.address || ""
+          );
+          setValue("inputCity", result.result.shipping_details?.city || "");
+          setValue(
+            "inputProvince",
+            result.result.shipping_details?.province || ""
+          );
 
           setImage(result.result.image);
         }
@@ -254,6 +296,28 @@ export default function UserShow(props: any) {
       setAddress(props.userDetails.shipping_details?.address || "");
       setCity(props.userDetails.shipping_details?.city || "");
       setProvince(props.userDetails.shipping_details?.province || "");
+
+      setValue(
+        "inputFirstName",
+        props.userDetails.shipping_details?.first_name || ""
+      );
+      setValue(
+        "inputLastName",
+        props.userDetails.shipping_details?.last_name || ""
+      );
+      setValue(
+        "inputContactNumber",
+        props.userDetails.shipping_details?.contact_number || ""
+      );
+      setValue(
+        "inputAddress",
+        props.userDetails.shipping_details?.address || ""
+      );
+      setValue("inputCity", props.userDetails.shipping_details?.city || "");
+      setValue(
+        "inputProvince",
+        props.userDetails.shipping_details?.province || ""
+      );
 
       setImage(props.userDetails.image);
     } else {
