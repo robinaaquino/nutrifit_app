@@ -28,6 +28,7 @@ module.exports = {
     fontFamily: {
       inter: ["Inter", "sans-serif"],
       bitter: ["Bitter", "serif"],
+      source: ["Source Sans Pro", "sans-serif"],
     },
     extend: {
       colors: {
