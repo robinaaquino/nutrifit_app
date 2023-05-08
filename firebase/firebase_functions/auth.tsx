@@ -133,7 +133,7 @@ export const resetPassword = async (email: string) => {
       resultObject = {
         result: "",
         isSuccess: true,
-        resultText: "Successful in sending reset password email",
+        resultText: "Check your email to reset your password",
         errorMessage: "",
       };
     })
@@ -143,7 +143,7 @@ export const resetPassword = async (email: string) => {
       resultObject = {
         result: "",
         isSuccess: false,
-        resultText: "Failed in resetting password",
+        resultText: "Failed to send email to reset your password",
         errorMessage: errorMessage,
       };
     });
