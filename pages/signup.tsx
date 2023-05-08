@@ -2,11 +2,12 @@
 import React, { useContext } from "react";
 import { signUp } from "@/firebase/firebase_functions/auth";
 import { useRouter } from "next/navigation";
-import { AuthContext } from "@/context/AuthContext";
+import { AuthContext, useAuthContext } from "@/context/AuthContext";
 import { addUserFunction } from "@/firebase/firebase_functions/users_function";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import WarningMessage from "@/components/forms/WarningMessage";
+import SocialMediaLogin from "@/components/common/SocialMediaLogin";
 
 export default function Signup() {
   const {
@@ -23,7 +24,8 @@ export default function Signup() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const router = useRouter();
-  const authContextObject = useContext(AuthContext);
+  // const authContextObject = useContext(AuthContext);
+  const { success, error } = useAuthContext();
 
   const handleForm = async (data: any, e?: any) =>
     // event: any
@@ -40,15 +42,16 @@ export default function Signup() {
 
       if (result.isSuccess) {
         if (addResult.isSuccess) {
-          authContextObject.success(result.resultText);
+          success(result.resultText);
           router.push("/");
         } else {
-          authContextObject.error(addResult.resultText);
+          error(addResult.resultText);
         }
       } else {
-        authContextObject.error(result.resultText);
+        error(result.resultText);
       }
     };
+
   return (
     <>
       <div className="container mx-auto bg-[#F4F7FF] py-20 lg:py-[120px] p-10">
@@ -62,15 +65,14 @@ export default function Signup() {
                 <div className="mb-6">
                   <input
                     type="text"
-                    placeholder="Email"
-                    className="border-[#E9EDF4] w-full rounded-md border bg-[#FCFDFE] py-3 px-5 text-base text-body-color placeholder-[#ACB6BE] outline-none focus:border-primary focus-visible:shadow-none"
+                    placeholder="Type your email..."
+                    className="w-full rounded-md bg-gray-200 py-3 px-5 text-base text-black placeholder-gray-500 outline-none border-none  focus:border-nf_green focus-visible:shadow-none"
                     {...register("inputEmail", {
                       required: "Email address is required",
                       pattern: {
                         value:
                           /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:.[a-zA-Z0-9-]+)*$/,
-                        message:
-                          "Follow the correct email format. An example is email@email.com",
+                        message: "Please, enter a valid email address",
                       },
                       onChange: (e) => setEmail(e.target.value),
                     })}
@@ -84,8 +86,8 @@ export default function Signup() {
                 <div className="mb-6">
                   <input
                     type="password"
-                    placeholder="Password"
-                    className="border-[#E9EDF4] w-full rounded-md border bg-[#FCFDFE] py-3 px-5 text-base text-body-color placeholder-[#ACB6BE] outline-none focus:border-primary focus-visible:shadow-none"
+                    placeholder="Type your password..."
+                    className="w-full rounded-md bg-gray-200 py-3 px-5 text-base text-black placeholder-gray-500 outline-none border-none  focus:border-nf_green focus-visible:shadow-none"
                     {...register("inputPassword", {
                       required: "Password is required",
                       minLength: {
@@ -101,7 +103,7 @@ export default function Signup() {
                     <WarningMessage text={errors.inputPassword?.message} />
                   )}
                 </div>
-                <div className="mb-10">
+                <div className="">
                   <input
                     type="submit"
                     value="Sign Up"
@@ -109,6 +111,7 @@ export default function Signup() {
                   />
                 </div>
               </form>
+              <SocialMediaLogin addDivider={true} />
               <p className="text-base text-[#adadad]">
                 Already have an account?
                 <Link
@@ -122,102 +125,6 @@ export default function Signup() {
           </div>
         </div>
       </div>
-      {/* <div
-        className="m-auto my-24 w-1/3 h-1/3 divide-y-4 space-y-1 bg-white
-      "
-      >
-        <div className="w-full max-w-xs">
-          <h1 className="text-2xl font-bold leading-7 text-black sm:truncate sm:text-3xl sm:tracking-tight">
-            Create Account
-          </h1>
-          <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-            <div className="mb-4">
-              <label
-                className="block text-black text-sm font-bold mb-2"
-                htmlFor="email"
-              >
-                Email
-              </label>
-              <input
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-white bg-nf_green leading-tight"
-                id="email"
-                type="text"
-                required
-                maxLength={255}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div className="mb-6">
-              <label
-                className="block text-black text-sm font-bold mb-2"
-                htmlFor="password"
-              >
-                Password
-              </label>
-              <input
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-white bg-nf_green mb-3 leading-tight"
-                id="password"
-                type="password"
-                required
-                minLength={6}
-                maxLength={255}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <button
-                className="hover:bg-blue-700 text-white bg-nf_green font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                type="submit"
-                onClick={() => handleForm()}
-              >
-                Sign up
-              </button>
-            </div>
-          </form>
-        </div>
-      </div> */}
     </>
-    //   <div className="m-auto my-24 w-1/3 h-1/3 divide-y-4 space-y-1 bg-white">
-    //     <div className="w-full max-w-xs">
-    //       <h1 className="text-2xl font-bold leading-7 text-black sm:truncate sm:text-3xl sm:tracking-tight">
-    //         Create an Account
-    //       </h1>
-    //       <form action="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-    //         <div className="mb-4">
-    //           <label
-    //             htmlFor="email"
-    //             className="block text-black text-sm font-bold mb-2"
-    //           >
-    //             Email{" "}
-    //           </label>
-    //           <input
-    //             name="email"
-    //             type="email"
-    //             onChange={(e) => setEmail(e.target.value)}
-    //             className="shadow appearance-none border rounded w-full py-2 px-3 text-white bg-nf_green leading-tight"
-    //           />
-    //           <label
-    //             htmlFor="password"
-    //             className="block text-black text-sm font-bold mb-2"
-    //           >
-    //             Password{" "}
-    //           </label>
-    //           <input
-    //             name="password"
-    //             type="password"
-    //             onChange={(e) => setPassword(e.target.value)}
-    //             className="shadow appearance-none border rounded w-full py-2 px-3 text-white bg-nf_green leading-tight"
-    //           />
-    //         </div>
-    //         <button
-    //           onClick={() => handleForm()}
-    //           className="bg-blue-500 hover:bg-blue-700 text-white bg-nf_green font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-    //         >
-    //           Create account
-    //         </button>
-    //       </form>
-    //     </div>
-    //   </div>
-    // );
   );
 }
