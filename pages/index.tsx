@@ -234,7 +234,7 @@ export default function Home(props: any) {
                 >
                   <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-white">
                     <Image
-                      className="h-full w-full object-cover object-center group-hover:opacity-75 "
+                      className="h-full w-full object-cover object-center group-hover:opacity-75 max-w-64 max-h-64"
                       src={no_image}
                       alt="Sunset in the mountains"
                       width="256"
@@ -260,7 +260,7 @@ export default function Home(props: any) {
                   }}
                   className="grid grid-cols-1 grid-rows-2 gap-2"
                 >
-                  <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-white">
+                  <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-white max-w-64 max-h-64">
                     <Image
                       className="h-full w-full object-cover object-center group-hover:opacity-75 "
                       src={no_image}
@@ -288,7 +288,7 @@ export default function Home(props: any) {
                   }}
                   className="grid grid-cols-1 grid-rows-2 gap-2"
                 >
-                  <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-white">
+                  <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-white max-w-64 max-h-64">
                     <Image
                       className="h-full w-full object-cover object-center group-hover:opacity-75 "
                       src={no_image}
