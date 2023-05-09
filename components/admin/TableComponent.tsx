@@ -1,7 +1,7 @@
 import TableRowText from "./TableRowText";
 import TableRowHeader from "./TableRowHeader";
 import { useContext, useState, useEffect } from "react";
-import { returnKeyByValue } from "../../firebase/helpers";
+import { returnKeyByValue, formatDate } from "../../firebase/helpers";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useAuthContext, AuthContext } from "@/context/AuthContext";
@@ -186,7 +186,7 @@ export default function TableComponent({
                 <div className="overflow-hidden border bg-nf_dark_blue ">
                   <table className="min-w-full divide-y divide-nf_dark_blue table-auto">
                     <thead className="bg-nf_green">
-                      <tr className="w-full">
+                      <tr className="w-auto">
                         {isAdmin ? (
                           <TableRowHeader
                             canSort={false}
@@ -263,6 +263,12 @@ export default function TableComponent({
                                 if (key == "first_name" || key == "last_name") {
                                   currentText =
                                     currentElement["shipping_details"][key];
+                                } else if (
+                                  key == "created_at" ||
+                                  key == "updated_at" ||
+                                  key == "date_cleared"
+                                ) {
+                                  currentText = formatDate(currentElement[key]);
                                 } else {
                                   currentText = currentElement[key];
                                 }
