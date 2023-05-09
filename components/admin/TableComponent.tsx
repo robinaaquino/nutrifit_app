@@ -215,7 +215,7 @@ export default function TableComponent({
                           <>
                             <tr className="">
                               {isAdmin ? (
-                                <td className="flex mt-2">
+                                <td className="flex mt-2 mx-2">
                                   <button
                                     className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue"
                                     onClick={() => {
@@ -241,7 +241,7 @@ export default function TableComponent({
                                     Edit
                                   </button>
                                   <button
-                                    className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue ml-2"
+                                    className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-red-500 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue ml-2"
                                     onClick={() => {
                                       if (type == "product") {
                                         deleteProduct(currentElement);
