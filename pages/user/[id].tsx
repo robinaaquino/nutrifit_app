@@ -332,94 +332,257 @@ export default function UserShow(props: any) {
         <div className="container mx-auto py-20 p-10 h-full w-full">
           <div className="grid grid-cols-2 gap-4 m-2 h-full">
             <div>
-              {/* First Name Last Name */}
-              <div className="flex space-x-0">
-                <div className="w-full  mb-6">
-                  <label
-                    className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                    htmlFor="grid-first-name"
-                  >
-                    First Name
-                  </label>
-                  <input
-                    className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-                    id="grid-first-name"
-                    type="text"
-                    placeholder={userInfo.shipping_details?.first_name}
-                    {...register("inputFirstName", {
-                      onChange: (e: any) => setFirstName(e.target.value),
-                    })}
-                    aria-invalid={errors.inputFirstName ? "true" : "false"}
-                  />
+              <div className="grid grid-cols-2 gap-x-6 gap-y-12 w-full mt-6">
+                <div className="">
+                  <div className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
+                    User Image
+                  </div>
+
+                  <div className="flex flex-col w-auto h-auto p-10 text-gray-800 lg:bg-gray-50 ">
+                    <div className="grid  grid-cols-2 gap-x-6 gap-y-12 w-full mt-6">
+                      {image ? (
+                        <div className="h-64 w-64 border-2 items-center rounded-md  bg-gray-300 border-gray-400 border-dotted">
+                          <div className="flex cursor-pointer bg-white  w-auto justify-center">
+                            <button
+                              onClick={() => {
+                                removeIndividualImage();
+                              }}
+                              className="flex rounded-full bg-white text-black "
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                fill="currentColor"
+                                className="bi bi-x-circle m-auto"
+                                viewBox="0 0 16 16"
+                              >
+                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+                              </svg>
+                              <span className="px-2">Remove</span>
+                            </button>
+                          </div>
+
+                          <Image
+                            className="m-auto object-cover"
+                            src={
+                              image.name ? URL.createObjectURL(image) : image
+                            }
+                            alt={
+                              image.name ? URL.createObjectURL(image) : image
+                            }
+                            width="1024"
+                            height="1024"
+                          />
+                        </div>
+                      ) : (
+                        <div className="h-64 w-64 border-2 items-center rounded-md  bg-gray-300 border-gray-400 border-dotted ">
+                          <input
+                            type="file"
+                            onChange={(event) => handleIndividualFile(event)}
+                            className="h-64 w-64 bg-green-200 opacity-0 z-10 absolute cursor-pointer"
+                            name="files[]"
+                          />
+                          <div className="flex justify-center items-center ">
+                            <div className="h-full w-full flex flex-col text-center m-auto">
+                              <span className="text-[12px] mb-2">{`Upload an image`}</span>
+
+                              <Image
+                                className="m-auto object-cover "
+                                src={no_image}
+                                alt="no_image"
+                                width="1024"
+                                height="1024"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                {errors.inputFirstName && (
-                  <WarningMessage text={errors.inputFirstName?.message} />
-                )}
-                <div className="w-full px-3 mb-6">
-                  <label
-                    className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                    htmlFor="grid-last-name"
-                  >
-                    Last Name
-                  </label>
-                  <input
-                    className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-                    id="grid-last-name"
-                    type="text"
-                    placeholder={userInfo.shipping_details?.last_name}
-                    {...register("inputLastName", {
-                      onChange: (e: any) => setLastName(e.target.value),
-                    })}
-                    aria-invalid={errors.inputLastName ? "true" : "false"}
-                  />
+                <div
+                  className="
+                hidden lg:block"
+                >
+                  <div className="flex flex-wrap -mx-3 ">
+                    {/* First Name */}
+                    <div className="w-full px-3 mb-6">
+                      <label
+                        className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        htmlFor="grid-first-name"
+                      >
+                        First Name
+                      </label>
+                      <input
+                        className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+                        id="grid-first-name"
+                        type="text"
+                        placeholder={userInfo.shipping_details?.first_name}
+                        {...register("inputFirstName", {
+                          onChange: (e: any) => setFirstName(e.target.value),
+                        })}
+                        aria-invalid={errors.inputFirstName ? "true" : "false"}
+                      />
+                    </div>
+                    {errors.inputFirstName && (
+                      <WarningMessage text={errors.inputFirstName?.message} />
+                    )}
+                  </div>
+
+                  {/* Last Name */}
+                  <div className="flex space-x-0">
+                    <div className="w-full  mb-6">
+                      <label
+                        className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        htmlFor="grid-last-name"
+                      >
+                        Last Name
+                      </label>
+                      <input
+                        className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+                        id="grid-last-name"
+                        type="text"
+                        placeholder={userInfo.shipping_details?.last_name}
+                        {...register("inputLastName", {
+                          onChange: (e: any) => setLastName(e.target.value),
+                        })}
+                        aria-invalid={errors.inputLastName ? "true" : "false"}
+                      />
+                    </div>
+                    {errors.inputLastName && (
+                      <WarningMessage text={errors.inputLastName?.message} />
+                    )}
+                  </div>
+
+                  {/* Email Field */}
+                  <div className="flex flex-wrap -mx-3 ">
+                    <div className="w-full px-3 mb-6">
+                      <label
+                        className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        htmlFor="grid-email"
+                      >
+                        Email
+                      </label>
+                      <input
+                        className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+                        id="grid-email"
+                        type="text"
+                        placeholder={userInfo.email}
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  {/* Reset Password Button */}
+                  <div className="flex flex-wrap -mx-3 ">
+                    <div className="w-full px-3 mb-6">
+                      <label
+                        className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        htmlFor="grid-category"
+                      >
+                        Password
+                      </label>
+                      <button
+                        className="appearance-none block w-full bg-nf_green text-white border  rounded py-3 px-4 mb-3 leading-tight hover:bg-nf_dark_blue"
+                        onClick={() => {
+                          handleResetPassword();
+                        }}
+                      >
+                        Reset Password
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                {errors.inputLastName && (
-                  <WarningMessage text={errors.inputLastName?.message} />
-                )}
               </div>
-              {/* Email Field */}
-              <div className="flex flex-wrap -mx-3 ">
-                <div className="w-full px-3 mb-6">
-                  <label
-                    className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                    htmlFor="grid-email"
-                  >
-                    Email
-                  </label>
-                  <input
-                    className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-                    id="grid-email"
-                    type="text"
-                    placeholder={userInfo.email}
-                    disabled
-                  />
+              {/* */}
+              <div className="visible lg:hidden">
+                <div className="flex flex-wrap -mx-3 ">
+                  {/* First Name */}
+                  <div className="w-full px-3 mb-6">
+                    <label
+                      className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                      htmlFor="grid-first-name"
+                    >
+                      First Name
+                    </label>
+                    <input
+                      className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+                      id="grid-first-name"
+                      type="text"
+                      placeholder={userInfo.shipping_details?.first_name}
+                      {...register("inputFirstName", {
+                        onChange: (e: any) => setFirstName(e.target.value),
+                      })}
+                      aria-invalid={errors.inputFirstName ? "true" : "false"}
+                    />
+                  </div>
+                  {errors.inputFirstName && (
+                    <WarningMessage text={errors.inputFirstName?.message} />
+                  )}
                 </div>
-              </div>
-              {/* Reset Password Button */}
-              <div className="flex flex-wrap -mx-3 ">
-                <div className="w-full px-3 mb-6">
-                  <label
-                    className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                    htmlFor="grid-category"
-                  >
-                    Password
-                  </label>
-                  <button
-                    className="appearance-none block w-full bg-nf_green text-white border  rounded py-3 px-4 mb-3 leading-tight hover:bg-nf_dark_blue"
-                    onClick={() => {
-                      // if (props?.user) {
-                      //   nookies.set(
-                      //     undefined,
-                      //     "user",
-                      //     JSON.stringify(props?.user)
-                      //   );
-                      // }
-                      // router.push("/resetPassword");
-                      handleResetPassword();
-                    }}
-                  >
-                    Reset Password
-                  </button>
+
+                {/* Last Name */}
+                <div className="flex space-x-0">
+                  <div className="w-full  mb-6">
+                    <label
+                      className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                      htmlFor="grid-last-name"
+                    >
+                      Last Name
+                    </label>
+                    <input
+                      className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+                      id="grid-last-name"
+                      type="text"
+                      placeholder={userInfo.shipping_details?.last_name}
+                      {...register("inputLastName", {
+                        onChange: (e: any) => setLastName(e.target.value),
+                      })}
+                      aria-invalid={errors.inputLastName ? "true" : "false"}
+                    />
+                  </div>
+                  {errors.inputLastName && (
+                    <WarningMessage text={errors.inputLastName?.message} />
+                  )}
+                </div>
+
+                {/* Email Field */}
+                <div className="flex flex-wrap -mx-3 ">
+                  <div className="w-full px-3 mb-6">
+                    <label
+                      className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                      htmlFor="grid-email"
+                    >
+                      Email
+                    </label>
+                    <input
+                      className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
+                      id="grid-email"
+                      type="text"
+                      placeholder={userInfo.email}
+                      disabled
+                    />
+                  </div>
+                </div>
+                {/* Reset Password Button */}
+                <div className="flex flex-wrap -mx-3 ">
+                  <div className="w-full px-3 mb-6">
+                    <label
+                      className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                      htmlFor="grid-category"
+                    >
+                      Password
+                    </label>
+                    <button
+                      className="appearance-none block w-full bg-nf_green text-white border  rounded py-3 px-4 mb-3 leading-tight hover:bg-nf_dark_blue"
+                      onClick={() => {
+                        handleResetPassword();
+                      }}
+                    >
+                      Reset Password
+                    </button>
+                  </div>
                 </div>
               </div>
               {/* Contact Number Field */}
@@ -518,79 +681,7 @@ export default function UserShow(props: any) {
                   <WarningMessage text={errors.inputProvince?.message} />
                 )}
               </div>
-            </div>
-            <div>
-              <div className="h-full">
-                <div className="h-1/2">
-                  <div className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
-                    User Image
-                  </div>
 
-                  <div className="flex flex-col w-auto h-auto p-10 bg-gray-100 text-gray-800">
-                    <div className="grid  grid-cols-2 gap-x-6 gap-y-12 w-full mt-6">
-                      {image ? (
-                        <div className="h-96 w-96 border-2 items-center rounded-md  bg-gray-300 border-gray-400 border-dotted">
-                          <div className="flex cursor-pointer bg-white  w-auto justify-center">
-                            <button
-                              onClick={() => {
-                                removeIndividualImage();
-                              }}
-                              className="flex rounded-full bg-white text-black "
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="16"
-                                height="16"
-                                fill="currentColor"
-                                className="bi bi-x-circle m-auto"
-                                viewBox="0 0 16 16"
-                              >
-                                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
-                                <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
-                              </svg>
-                              <span className="px-2">Remove</span>
-                            </button>
-                          </div>
-
-                          <Image
-                            className="m-auto object-cover"
-                            src={
-                              image.name ? URL.createObjectURL(image) : image
-                            }
-                            alt={
-                              image.name ? URL.createObjectURL(image) : image
-                            }
-                            width="1024"
-                            height="1024"
-                          />
-                        </div>
-                      ) : (
-                        <div className="h-96 w-96 border-2 items-center rounded-md  bg-gray-300 border-gray-400 border-dotted ">
-                          <input
-                            type="file"
-                            onChange={(event) => handleIndividualFile(event)}
-                            className="h-96 w-96 bg-green-200 opacity-0 z-10 absolute cursor-pointer"
-                            name="files[]"
-                          />
-                          <div className="flex justify-center items-center ">
-                            <div className="h-full w-full flex flex-col text-center m-auto">
-                              <span className="text-[12px] mb-2">{`Upload an image`}</span>
-
-                              <Image
-                                className="m-auto object-cover "
-                                src={no_image}
-                                alt="no_image"
-                                width="1024"
-                                height="1024"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
               <div>
                 <input
                   type="button"
@@ -605,23 +696,25 @@ export default function UserShow(props: any) {
                 />
               </div>
             </div>
-          </div>
-          {orders && orders.length > 0 ? (
-            <div className="mt-10">
-              <div className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 mt-2">
-                Order Summary
-              </div>
-              <div className="p-2 ml-4">
-                <TableComponent
-                  headers={orderHeaders}
-                  contentKeys={orderKeys}
-                  content={orders}
-                  type={"order"}
-                  isAdmin={false}
-                ></TableComponent>
-              </div>
+            <div>
+              {orders && orders.length > 0 ? (
+                <div className="mt-10">
+                  <div className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 mt-2">
+                    Orders Summary
+                  </div>
+                  <div className="p-2 ml-4">
+                    <TableComponent
+                      headers={orderHeaders}
+                      contentKeys={orderKeys}
+                      content={orders}
+                      type={"order"}
+                      isAdmin={false}
+                    ></TableComponent>
+                  </div>
+                </div>
+              ) : null}
             </div>
-          ) : null}
+          </div>
         </div>
       </form>
     </>
