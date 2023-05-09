@@ -137,7 +137,7 @@ export default function ContactUs() {
                 </form>
               </div>
             </div>
-            <div className="w-full px-4 lg:w-1/2 xl:w-6/12">
+            <div className="mt-12 w-full px-4 lg:w-1/2 xl:w-6/12">
               <div className="mb-12 max-w-[570px] lg:mb-0">
                 <div className="mb-8 flex w-full max-w-[370px]">
                   <div className="bg-nf_green text-nf_yellow mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded  sm:h-[70px] sm:max-w-[70px]">
@@ -156,11 +156,14 @@ export default function ContactUs() {
                     <h4 className="text-black mb-1 text-xl font-bold">
                       Our Location
                     </h4>
-                    <p className="text-black bg-white ">Olongapo City</p>
+                    <p className="text-black bg-white ">
+                      Stall 4, Vision 2010 Bldg., #27 Rizal St., Dinalupihan,
+                      Bataan
+                    </p>
                   </div>
                 </div>
-                {/* <div className="mb-8 flex w-full max-w-[370px]">
-                  <div className="bg-primary text-primary mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded bg-opacity-5 sm:h-[70px] sm:max-w-[70px]">
+                <div className="mb-8 flex w-full max-w-[370px]">
+                  <div className="bg-nf_green text-nf_yellow mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded  sm:h-[70px] sm:max-w-[70px]">
                     <svg
                       width="24"
                       height="26"
@@ -173,14 +176,14 @@ export default function ContactUs() {
                     </svg>
                   </div>
                   <div className="w-full">
-                    <h4 className="text-dark mb-1 text-xl font-bold">
+                    <h4 className="text-black mb-1 text-xl font-bold">
                       Phone Number
                     </h4>
-                    <p className="text-black bg-white ">(+62)81 414 257 9980</p>
+                    <p className="text-black bg-white ">(0928) 765 2222</p>
                   </div>
                 </div>
                 <div className="mb-8 flex w-full max-w-[370px]">
-                  <div className="bg-primary text-primary mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded bg-opacity-5 sm:h-[70px] sm:max-w-[70px]">
+                  <div className="bg-nf_green text-nf_yellow mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded  sm:h-[70px] sm:max-w-[70px]">
                     <svg
                       width="28"
                       height="19"
@@ -191,12 +194,12 @@ export default function ContactUs() {
                     </svg>
                   </div>
                   <div className="w-full">
-                    <h4 className="text-dark mb-1 text-xl font-bold">
-                      Email Address
+                    <h4 className="text-black mb-1 text-xl font-bold">
+                      Independent Herbalife Nutrition Member
                     </h4>
-                    <p className="text-black bg-white ">info@yourdomain.com</p>
+                    <p className="text-black bg-white ">Melanie M. Laxamana</p>
                   </div>
-                </div> */}
+                </div>
               </div>
             </div>
           </div>
