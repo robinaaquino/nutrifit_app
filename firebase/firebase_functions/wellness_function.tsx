@@ -331,7 +331,7 @@ export const addWellnessSurveyResult = async (
   return resultObject;
 };
 
-export const updateResultFunction = async (
+export const updateWellnessSurveyResultFunction = async (
   wellnessSurveyResult: Constants.WellnessOverallResults,
   wellnessSurveyResultId: string
 ) => {
