@@ -14,7 +14,7 @@ export default function ProductCard({
   productName: string;
   productPrice: number;
   productId: string;
-  handleAddToCart: any;
+  handleAddToCart?: any;
   product: any;
 }) {
   const router = useRouter();
@@ -49,23 +49,26 @@ export default function ProductCard({
 
         <div className="flex items-center justify-between mt-3">
           <div>
-            <span className="font-medium text-xl">{productName}</span>
+            <span className="font-medium text-xl text-black">
+              {productName}
+            </span>
             <a className="flex items-center" href="#">
-              {/* <span className="text-xs font-medium text-gray-600">by</span>
-              <span className="text-xs font-medium ml-1 text-indigo-500">
-                Store Name
-              </span> */}
               <span className="flex items-center h-8 text-black text-lg rounded">
                 Php {productPrice}
               </span>
             </a>
           </div>
-          <button
-            className="flex items-center h-8  text-white px-2 rounded bg-nf_green hover:bg-nf_dark_blue text-lg"
-            onClick={() => handleAddToCart(product, 1)}
-          >
-            Add to cart
-          </button>
+          {handleAddToCart ? (
+            <button
+              className="flex items-center h-8  text-white px-2 ml-4 rounded bg-nf_green hover:bg-nf_dark_blue text-lg"
+              onClick={() =>
+                handleAddToCart ? handleAddToCart(product, 1) : null
+              }
+            >
+              Add to cart
+            </button>
+          ) : null}
+
           {/* <div className="flex items-center justify-between px-3 py-2">
             <button className="px-2 py-1 text-xs font-semibold text-white uppercase transition-colors duration-300 transform m-auto bg-nf_green hover:bg-nf_dark_blue">
               Add to cart

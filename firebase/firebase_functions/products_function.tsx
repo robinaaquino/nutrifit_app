@@ -50,9 +50,10 @@ export const getAllProductsFunction = async () => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all products",
       errorMessage: parseError(e),
     };
@@ -116,9 +117,10 @@ export const getAllProductsWithFilterFunction = async (filter: any) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all products with filter",
       errorMessage: parseError(e),
     };
@@ -176,9 +178,10 @@ export const getAllProductsWithSearchFunction = async (searchString: any) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all products with search string",
       errorMessage: parseError(e),
     };
@@ -217,9 +220,10 @@ export const getProductViaIdFunction = async (id: string) => {
       };
     }
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: data,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting product information",
       errorMessage: parseError(e),
     };
@@ -275,9 +279,10 @@ export const addProductFunction = async (
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: "",
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in adding product",
       errorMessage: parseError(e),
     };
@@ -344,6 +349,7 @@ export const updateProductFunction = async (
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
       isSuccess: false,
@@ -396,6 +402,7 @@ export const deleteProductFunction = async (
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
       isSuccess: false,
@@ -440,9 +447,10 @@ export const getBestSellingProducts = async () => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting best selling products",
       errorMessage: parseError(e),
     };

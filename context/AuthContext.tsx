@@ -12,13 +12,19 @@ import nookies from "nookies";
 import no_image from "../public/no_image.png";
 
 import { useState } from "react";
-import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_function";
+import {
+  getUserFunction,
+  isUserAuthorizedFunction,
+  getUserViaEmailFunction,
+  addUserFunction,
+} from "@/firebase/firebase_functions/users_function";
 import {
   getCartViaIdFunction,
   addToCartFunction,
   removeFromCartFunction,
 } from "@/firebase/firebase_functions/cart_function";
 import { getImageInProduct } from "@/firebase/helpers";
+import { useRouter } from "next/navigation";
 
 const auth = getAuth(app);
 
@@ -48,6 +54,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
   const [notification, setNotification] = useState<string>("");
   const [notificationText, setNotificationText] = useState<string>("");
   const [cart, setCart] = useState<any>(null);
+  const router = useRouter();
 
   const success = (text: string) => {
     window.scroll(0, 0);
@@ -293,18 +300,35 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
   };
 
   useEffect(() => {
-    const unsubscribe = onIdTokenChanged(auth, async (user) => {
-      console.log("Entered on ID Token Change");
-      if (!user) {
+    const unsubscribe = onIdTokenChanged(auth, async (userInfo) => {
+      if (!userInfo) {
         setUser("");
         setAuthorized(false);
         nookies.set(undefined, "token", "", { path: "/" });
       } else {
-        const token = await user.getIdToken();
-        setUser(user.uid);
+        const token = await userInfo.getIdToken();
+        setUser(userInfo.uid);
         nookies.set(undefined, "token", token, { path: "/" });
-        const authorization = await isUserAuthorizedFunction(user.uid);
+        const authorization = await isUserAuthorizedFunction(userInfo.uid);
         setAuthorized(authorization.result);
+
+        //check if user already has account
+        const getUserViaEmailResult = await getUserViaEmailFunction(
+          userInfo.email || ""
+        );
+        if (!getUserViaEmailResult.isSuccess) {
+          const addResult = await addUserFunction({
+            email: userInfo.email || "",
+            id: userInfo.uid,
+          });
+
+          if (addResult.isSuccess) {
+            success("Successful in logging in");
+            router.push("/");
+          } else {
+            error(addResult.resultText);
+          }
+        }
       }
       setLoading(false);
     });

@@ -1,7 +1,7 @@
 import TableRowText from "./TableRowText";
 import TableRowHeader from "./TableRowHeader";
 import { useContext, useState, useEffect } from "react";
-import { returnKeyByValue } from "../../firebase/helpers";
+import { returnKeyByValue, formatDate } from "../../firebase/helpers";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useAuthContext, AuthContext } from "@/context/AuthContext";
@@ -9,6 +9,7 @@ import { deleteProductFunction } from "@/firebase/firebase_functions/products_fu
 import { deleteOrderFunction } from "@/firebase/firebase_functions/orders_functions";
 import { deleteUserFunction } from "@/firebase/firebase_functions/users_function";
 import { deleteMessageFunction } from "@/firebase/firebase_functions/messages_functions";
+import { deleteWellnessSurveyResult } from "@/firebase/firebase_functions/wellness_function";
 
 export default function TableComponent({
   headers,
@@ -108,12 +109,12 @@ export default function TableComponent({
 
     if (result.isSuccess) {
       authContextObject.success(result.resultText);
-      let previousOrderList = itemList;
+      let previousItemList = itemList;
 
       for (let i = 0; i < itemList.length; i++) {
         if (order.id == itemList[i].id) {
-          previousOrderList.splice(i, 1);
-          setItemList(previousOrderList);
+          previousItemList.splice(i, 1);
+          setItemList(previousItemList);
           break;
         }
       }
@@ -129,12 +130,12 @@ export default function TableComponent({
 
     if (result.isSuccess) {
       authContextObject.success(result.resultText);
-      let previousOrderList = itemList;
+      let previousItemList = itemList;
 
       for (let i = 0; i < itemList.length; i++) {
         if (user.id == itemList[i].id) {
-          previousOrderList.splice(i, 1);
-          setItemList(previousOrderList);
+          previousItemList.splice(i, 1);
+          setItemList(previousItemList);
           break;
         }
       }
@@ -150,15 +151,36 @@ export default function TableComponent({
 
     if (result.isSuccess) {
       authContextObject.success(result.resultText);
-      let previousOrderList = itemList;
+      let previousItemList = itemList;
 
       for (let i = 0; i < itemList.length; i++) {
         if (message.id == itemList[i].id) {
-          previousOrderList.splice(i, 1);
-          setItemList(previousOrderList);
+          previousItemList.splice(i, 1);
+          setItemList(previousItemList);
           break;
         }
       }
+      onPageChange(currentPage);
+    } else {
+      authContextObject.error(result.resultText);
+    }
+  };
+
+  const deleteWellnessResult = async (result: any) => {
+    const deleteWellnessObject = await deleteWellnessSurveyResult(result.id);
+
+    if (deleteWellnessObject.isSuccess) {
+      authContextObject.success(deleteWellnessObject.resultText);
+      let previousItemList = itemList;
+
+      for (let i = 0; i < itemList.length; i++) {
+        if (result.id == itemList[i].id) {
+          previousItemList.splice(i, 1);
+          setItemList(previousItemList);
+          break;
+        }
+      }
+
       onPageChange(currentPage);
     } else {
       authContextObject.error(result.resultText);
@@ -186,7 +208,14 @@ export default function TableComponent({
                 <div className="overflow-hidden border bg-nf_dark_blue ">
                   <table className="min-w-full divide-y divide-nf_dark_blue table-auto">
                     <thead className="bg-nf_green">
-                      <tr className="w-full">
+                      <tr className="w-auto">
+                        {isAdmin ? (
+                          <TableRowHeader
+                            canSort={false}
+                            text="Actions"
+                            handleClick={() => {}}
+                          />
+                        ) : null}
                         {headers.map((e) => {
                           return (
                             <>
@@ -200,14 +229,6 @@ export default function TableComponent({
                             </>
                           );
                         })}
-
-                        {isAdmin ? (
-                          <TableRowHeader
-                            canSort={false}
-                            text="Actions"
-                            handleClick={() => {}}
-                          />
-                        ) : null}
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-nf_dark_blue ">
@@ -215,29 +236,8 @@ export default function TableComponent({
                         return (
                           <>
                             <tr className="">
-                              {contentKeys.map((key, index) => {
-                                var currentText;
-                                if (key == "first_name" || key == "last_name") {
-                                  currentText =
-                                    currentElement["shipping_details"][key];
-                                } else {
-                                  currentText = currentElement[key];
-                                }
-
-                                return (
-                                  <>
-                                    <TableRowText
-                                      key={index}
-                                      text={currentText}
-                                      type={type}
-                                      tableKey={key}
-                                      isAdmin={isAdmin}
-                                    />
-                                  </>
-                                );
-                              })}
                               {isAdmin ? (
-                                <td className="flex">
+                                <td className="flex mt-2 mx-2">
                                   <button
                                     className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue"
                                     onClick={() => {
@@ -257,13 +257,17 @@ export default function TableComponent({
                                         router.push(
                                           `/admin/message/${currentElement.id}`
                                         );
+                                      } else if (type == "wellness") {
+                                        router.push(
+                                          `/admin/wellness/${currentElement.id}`
+                                        );
                                       }
                                     }}
                                   >
                                     Edit
                                   </button>
                                   <button
-                                    className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue ml-2"
+                                    className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-red-500 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue ml-2"
                                     onClick={() => {
                                       if (type == "product") {
                                         deleteProduct(currentElement);
@@ -273,6 +277,8 @@ export default function TableComponent({
                                         deleteUser(currentElement);
                                       } else if (type == "message") {
                                         deleteMessage(currentElement);
+                                      } else if (type == "wellness") {
+                                        deleteWellnessResult(currentElement);
                                       }
                                     }}
                                   >
@@ -280,6 +286,55 @@ export default function TableComponent({
                                   </button>
                                 </td>
                               ) : null}
+                              {contentKeys.map((key, index) => {
+                                var currentText;
+                                if (key == "first_name" || key == "last_name") {
+                                  currentText =
+                                    currentElement["shipping_details"][key];
+                                } else if (
+                                  key == "created_at" ||
+                                  key == "updated_at" ||
+                                  key == "date_cleared"
+                                ) {
+                                  currentText = formatDate(currentElement[key]);
+                                } else if (key == "date") {
+                                  if (
+                                    currentElement[
+                                      "wellness_trainer_information"
+                                    ][key]
+                                  ) {
+                                    currentText = formatDate(
+                                      currentElement[
+                                        "wellness_trainer_information"
+                                      ][key]
+                                    );
+                                  } else {
+                                    currentText = currentElement[key];
+                                  }
+                                } else if (key == "reviewed_by_admin") {
+                                  currentText = currentElement[key]
+                                    ? "Reviewed"
+                                    : "Unreviewed";
+                                } else if (key == "program") {
+                                  currentText = currentElement[key]
+                                    ? currentElement[key]
+                                    : "No assigned program";
+                                } else {
+                                  currentText = currentElement[key];
+                                }
+
+                                return (
+                                  <>
+                                    <TableRowText
+                                      key={index}
+                                      text={currentText}
+                                      type={type}
+                                      tableKey={key}
+                                      isAdmin={isAdmin}
+                                    />
+                                  </>
+                                );
+                              })}
                             </tr>
                           </>
                         );

@@ -18,7 +18,7 @@ export default function TableRowText({
     <>
       {tableKey == "id" ? (
         <td
-          className="px-4 py-4 text-sm font-medium whitespace-nowrap cursor-pointer underline"
+          className="px-4 py-4 text-sm w-auto font-medium whitespace-nowrap cursor-pointer underline text-center"
           key={key}
         >
           <div>
@@ -37,7 +37,7 @@ export default function TableRowText({
           </div>
         </td>
       ) : (
-        <td className="px-4 py-4 text-sm font-medium whitespace-nowrap ">
+        <td className="px-4 py-4 text-sm w-auto font-medium whitespace-nowrap text-center">
           <div>
             <h2 className="font-medium text-black ">{text ? text : ""}</h2>
           </div>

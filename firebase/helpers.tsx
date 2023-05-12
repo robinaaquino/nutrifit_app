@@ -1,4 +1,5 @@
 import no_image from "../public/no_image.png";
+import format from "date-fns/format";
 
 export function parseError(e: unknown) {
   let errorMessage: string = "Unknown error while adding product";
@@ -78,4 +79,13 @@ export function computeSubtotalInCart(cart: any) {
     }
   }
   return sum;
+}
+
+export function formatDate(date: string) {
+  try {
+    const dateObject = new Date(date);
+    return format(dateObject, "MM/dd/yyyy p");
+  } catch (e: unknown) {
+    return date;
+  }
 }

@@ -6,77 +6,81 @@ import SearchBar from "@/components/universal/search_bar";
 import TableComponent from "@/components/admin/TableComponent";
 
 import {
-  getAllOrdersFunction,
-  getAllOrdersWithFilterFunction,
-  getAllOrdersWithSearchFunction,
-} from "@/firebase/firebase_functions/orders_functions";
-import { OrdersDatabaseType } from "@/firebase/constants";
+  getAllWellnessSurveyResultsFunction,
+  getAllWellnessSurveyResultsWithFilterFunction,
+  getAllWellnessSurveyResultsWithSearchFunction,
+} from "@/firebase/firebase_functions/wellness_function";
+import { WellnessOverallResults } from "@/firebase/constants";
 import { getUserFunction } from "@/firebase/firebase_functions/users_function";
 
 import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function AdminOrder(props: any) {
-  const [orders, setOrders] = useState<OrdersDatabaseType[]>([]);
+export default function AdminWellness(props: any) {
+  const [wellnessSurveyResults, setWellnessSurveyResults] = useState<
+    WellnessOverallResults[]
+  >([]);
   const { error } = useAuthContext();
   const router = useRouter();
 
   const tableHeaders: string[] = [
     "ID",
-    "Email",
-    "First name",
-    "Last name",
-    "Total price",
-    "Status",
-    "Delivery mode",
-    "Date ordered",
-    "Date cleared",
+    "Name",
+    "Contact Number",
+    "Reviewed by Admin",
+    "Program",
+    "Height",
+    "Weight",
+    "Age",
+    "Date submitted",
   ];
 
   const tableContentKeys: string[] = [
     "id",
-    "email",
-    "first_name",
-    "last_name",
-    "total_price",
-    "status",
-    "delivery_mode",
-    "created_at",
-    "date_cleared",
+    "name",
+    "contact_number",
+    "reviewed_by_admin",
+    "program",
+    "height",
+    "weight",
+    "age",
+    "date",
   ];
 
-  async function fetchAllOrders() {
-    const result = await getAllOrdersFunction();
+  async function fetchAllWellnessSurveyResults() {
+    const result = await getAllWellnessSurveyResultsFunction();
     console.log(result);
 
     if (!result.isSuccess) {
       error(result.resultText);
     } else {
-      setOrders(result.result);
+      setWellnessSurveyResults(result.result);
     }
   }
 
   async function handleSearch(searchString: any) {
-    const result = await getAllOrdersWithSearchFunction(searchString);
+    const result = await getAllWellnessSurveyResultsWithSearchFunction(
+      searchString
+    );
     if (!result.isSuccess) {
       error(result.resultText);
     } else {
-      setOrders(result.result);
+      setWellnessSurveyResults(result.result);
     }
   }
 
   async function handleFilters(filter: any) {
-    const result = await getAllOrdersWithFilterFunction(filter);
+    const result = await getAllWellnessSurveyResultsWithFilterFunction(filter);
     if (!result.isSuccess) {
       error(result.resultText);
     } else {
-      setOrders(result.result);
+      setWellnessSurveyResults(result.result);
     }
   }
 
   useEffect(() => {
-    fetchAllOrders();
+    fetchAllWellnessSurveyResults();
   }, []);
 
   if (props.isError) {
@@ -91,10 +95,15 @@ export default function AdminOrder(props: any) {
         <div className="sm:flex sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-x-3">
-              <h2 className="text-lg font-medium text-black ">Orders</h2>
+              <h2 className="text-lg font-medium text-black ">
+                Wellness Survey Results
+              </h2>
 
               <span className="px-3 py-1 text-xs text-white bg-nf_green rounded-full">
-                {orders.length} {orders.length == 1 ? "order" : "orders"}
+                {wellnessSurveyResults.length}{" "}
+                {wellnessSurveyResults.length == 1
+                  ? "wellness survey result"
+                  : "wellness survey results"}
               </span>
             </div>
           </div>
@@ -103,10 +112,8 @@ export default function AdminOrder(props: any) {
             <SearchBar handleSearch={handleSearch} />
             <Filter
               handleFilters={handleFilters}
-              // isProductFilter={true}
-              resetFilter={fetchAllOrders}
-              isOrderFilter={true}
-              // isCustomerFilter={true}
+              resetFilter={fetchAllWellnessSurveyResults}
+              isWellnessFilter={true}
             />
           </div>
         </div>
@@ -114,8 +121,8 @@ export default function AdminOrder(props: any) {
         <TableComponent
           headers={tableHeaders}
           contentKeys={tableContentKeys}
-          content={orders}
-          type="order"
+          content={wellnessSurveyResults}
+          type="wellness"
           isAdmin={true}
         />
       </div>

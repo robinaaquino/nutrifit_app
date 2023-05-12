@@ -49,9 +49,10 @@ export const getAllMessagesFunction = async () => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all messages",
       errorMessage: parseError(e),
     };
@@ -94,9 +95,10 @@ export const getAllMessagesWithFilterFunction = async (filter: any) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all messages with filter",
       errorMessage: parseError(e),
     };
@@ -155,9 +157,10 @@ export const getAllMessagesWithSearchFunction = async (searchString: any) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all messages with search string",
       errorMessage: parseError(e),
     };
@@ -190,9 +193,10 @@ export const addMessageFunction = async (message: any) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: "",
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in sending message",
       errorMessage: parseError(e),
     };
@@ -231,9 +235,10 @@ export const getMessageFunction = async (id: string) => {
       };
     }
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: data,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting message information",
       errorMessage: parseError(e),
     };
@@ -270,6 +275,7 @@ export const updateMessageFunction = async (
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: {},
       isSuccess: false,
@@ -299,6 +305,7 @@ export const deleteMessageFunction = async (messageId: string) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: {},
       isSuccess: false,

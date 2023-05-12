@@ -1,44 +1,93 @@
 "use client";
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { logInWithEmailAndPassword } from "@/firebase/firebase_functions/auth";
 import { useRouter } from "next/navigation";
 import { signInWithGoogle } from "@/firebase/firebase_functions/auth";
 import Image from "next/image";
-import { AuthContext } from "@/context/AuthContext";
+import { AuthContext, useAuthContext } from "@/context/AuthContext";
 import Link from "next/link";
 import { getAuth } from "firebase/auth";
 import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { useForm } from "react-hook-form";
+import WarningMessage from "@/components/forms/WarningMessage";
+import SocialMediaLogin from "@/components/common/SocialMediaLogin";
 
 export default function Login() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const router = useRouter();
-  const authContextObject = useContext(AuthContext);
-  const auth = getAuth();
+  const { user, success, error } = useAuthContext();
+  const [capsLock, setCapsLock] = useState(false);
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      inputEmail: "",
+      inputPassword: "",
+    },
+  });
 
-  const handleForm = async (e: any) =>
+  const checkCapsLock = (event: any) => {
+    if (event.getModifierState("CapsLock")) {
+      setCapsLock(true);
+    } else {
+      setCapsLock(false);
+    }
+    console.log(capsLock);
+    console.log("MLEM");
+  };
+
+  const changePasswordVisibility = () => {
+    var passwordElement: HTMLScriptElement | null = document.getElementById(
+      "password"
+    ) as HTMLScriptElement;
+    if (passwordElement.type == "password") {
+      passwordElement.type = "text";
+      setPasswordVisible(true);
+    } else {
+      passwordElement.type = "password";
+      setPasswordVisible(false);
+    }
+    console.log(passwordVisible);
+  };
+
+  const handleForm = async (data: any, e: any) =>
     // event: any
     {
       e.preventDefault();
-      const result = await logInWithEmailAndPassword(email, password);
+      const { inputEmail, inputPassword } = data;
+      const result = await logInWithEmailAndPassword(inputEmail, inputPassword);
 
       if (result.isSuccess) {
         const getUserResult = await getUserFunction(result.result);
 
         if (getUserResult.isSuccess) {
-          authContextObject.success(result.resultText);
-          // authContextObject.setUserAndAuthorization(
-          //   result.result,
-          //   getUserResult.result.role == "admin" ? true : false
-          // );
+          success(result.resultText);
           router.push("/");
         }
       } else {
-        authContextObject.error(result.resultText);
+        error(result.resultText);
       }
     };
 
-  useEffect(() => {}, []);
+  const handleFormGoogle = async () =>
+    // event: any
+    {
+      await signInWithGoogle();
+      success("Successful in logging in");
+      router.push("/");
+    };
+
+  useEffect(() => {
+    if (user) {
+      router.push("/");
+      success("Successfully logged in");
+    }
+  }, [user]);
   return (
     <>
       <div className="container mx-auto bg-[#F4F7FF] py-20 lg:py-[120px] p-10">
@@ -48,102 +97,130 @@ export default function Login() {
               <h2 className="mt-6 mb-10 text-center text-3xl font-bold tracking-tight text-gray-900">
                 Log in
               </h2>
-              <form onSubmit={handleForm}>
+              <form onSubmit={handleSubmit(handleForm)}>
                 <div className="mb-6">
                   <input
+                    id="email"
                     type="text"
-                    placeholder="Email"
-                    className="bordder-[#E9EDF4] w-full rounded-md border bg-[#FCFDFE] py-3 px-5 text-base text-body-color placeholder-[#ACB6BE] outline-none focus:border-primary focus-visible:shadow-none"
-                    required={true}
-                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Type your email..."
+                    className="w-full rounded-md bg-gray-200 py-3 px-5 text-base text-black placeholder-gray-500 outline-none border-none  focus:border-nf_green focus-visible:shadow-none"
+                    {...register("inputEmail", {
+                      required: "Email address is required",
+                      pattern: {
+                        value:
+                          /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:.[a-zA-Z0-9-]+)*$/,
+                        message: "Please, enter a valid email address",
+                      },
+                      onChange: (e) => setEmail(e.target.value),
+                    })}
+                    aria-invalid={errors.inputEmail ? "true" : "false"}
                   />
+                  {errors.inputEmail && (
+                    <WarningMessage text={errors.inputEmail?.message} />
+                  )}
                 </div>
                 <div className="mb-6">
-                  <input
-                    type="password"
-                    placeholder="Password"
-                    className="bordder-[#E9EDF4] w-full rounded-md border bg-[#FCFDFE] py-3 px-5 text-base text-body-color placeholder-[#ACB6BE] outline-none focus:border-primary focus-visible:shadow-none"
-                    required={true}
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
+                  <div className="relative">
+                    <input
+                      id="password"
+                      type="password"
+                      placeholder="Type your password..."
+                      className="w-full rounded-md bg-gray-200 py-3 px-5 text-base text-black placeholder-gray-500 outline-none border-none  focus:border-nf_green focus-visible:shadow-none"
+                      {...register("inputPassword", {
+                        required: "Password is required",
+                        minLength: {
+                          value: 8,
+                          message:
+                            "Password should have a minimum of 8 characters",
+                        },
+                        onChange: (e: any) => setPassword(e.target.value),
+                      })}
+                      onKeyUp={(e: any) => checkCapsLock(e)}
+                      aria-invalid={errors.inputPassword ? "true" : "false"}
+                    />
+                    <div className="absolute right-0 top-0">
+                      <button
+                        type="button"
+                        onClick={() => changePasswordVisibility()}
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="currentColor"
+                          className={
+                            passwordVisible
+                              ? " bi bi-eye mr-12 mt-3 cursor-pointer text-black"
+                              : "bi bi-eye mr-12 mt-3 cursor-pointer"
+                          }
+                          viewBox="0 0 16 16"
+                        >
+                          {passwordVisible ? (
+                            <>
+                              <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
+                              <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
+                            </>
+                          ) : (
+                            <>
+                              <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z" />
+                              <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z" />
+                              <path d="M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z" />
+                            </>
+                          )}
+                        </svg>
+                      </button>
+
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="currentColor"
+                        className={
+                          capsLock
+                            ? "bi bi-capslock absolute top-0 right-0 mr-3 mt-3 text-black"
+                            : "bi bi-capslock absolute top-0 right-0 mr-3 mt-3"
+                        }
+                        viewBox="0 0 16 16"
+                      >
+                        {capsLock ? (
+                          <path d="M7.27 1.047a1 1 0 0 1 1.46 0l6.345 6.77c.6.638.146 1.683-.73 1.683H11.5v1a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-1H1.654C.78 9.5.326 8.455.924 7.816L7.27 1.047zM4.5 13.5a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-1z" />
+                        ) : (
+                          <path
+                            fill-rule="evenodd"
+                            d="M7.27 1.047a1 1 0 0 1 1.46 0l6.345 6.77c.6.638.146 1.683-.73 1.683H11.5v1a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-1H1.654C.78 9.5.326 8.455.924 7.816L7.27 1.047zM14.346 8.5 8 1.731 1.654 8.5H4.5a1 1 0 0 1 1 1v1h5v-1a1 1 0 0 1 1-1h2.846zm-9.846 5a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1h-5a1 1 0 0 1-1-1v-1zm6 0h-5v1h5v-1z"
+                          />
+                        )}
+                      </svg>
+                    </div>
+                  </div>
+
+                  {errors.inputPassword && (
+                    <WarningMessage text={errors.inputPassword?.message} />
+                  )}
                 </div>
                 <div className="mb-10">
                   <input
                     type="submit"
                     value="Sign In"
-                    className="bordder-primary w-full cursor-pointer rounded-md border bg-nf_green py-3 px-5 text-base text-white transition hover:bg-nf_dark_green"
+                    className="border-primary w-full cursor-pointer rounded-md border bg-nf_green py-3 px-5 text-base text-white transition hover:bg-nf_dark_green"
                   />
                 </div>
               </form>
-              <p className="mb-6 text-base text-[#adadad]">Connect With</p>
-              <ul className="-mx-2 mb-12 flex justify-between">
-                {/* <li className="w-full px-2">
-                  <a
-                    href="javascript:void(0)"
-                    className="flex h-11 items-center justify-center rounded-md bg-[#4064AC] hover:bg-opacity-90"
-                  >
-                    <svg
-                      width="10"
-                      height="20"
-                      viewBox="0 0 10 20"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M9.29878 8H7.74898H7.19548V7.35484V5.35484V4.70968H7.74898H8.91133C9.21575 4.70968 9.46483 4.45161 9.46483 4.06452V0.645161C9.46483 0.290323 9.24343 0 8.91133 0H6.89106C4.70474 0 3.18262 1.80645 3.18262 4.48387V7.29032V7.93548H2.62912H0.747223C0.359774 7.93548 0 8.29032 0 8.80645V11.129C0 11.5806 0.304424 12 0.747223 12H2.57377H3.12727V12.6452V19.129C3.12727 19.5806 3.43169 20 3.87449 20H6.47593C6.64198 20 6.78036 19.9032 6.89106 19.7742C7.00176 19.6452 7.08478 19.4194 7.08478 19.2258V12.6774V12.0323H7.66596H8.91133C9.2711 12.0323 9.54785 11.7742 9.6032 11.3871V11.3548V11.3226L9.99065 9.09677C10.0183 8.87097 9.99065 8.6129 9.8246 8.35484C9.76925 8.19355 9.52018 8.03226 9.29878 8Z"
-                        fill="white"
-                      />
-                    </svg>
-                  </a>
-                </li>
-                <li className="w-full px-2">
-                  <a
-                    href="javascript:void(0)"
-                    className="flex h-11 items-center justify-center rounded-md bg-[#1C9CEA] hover:bg-opacity-90"
-                  >
-                    <svg
-                      width="22"
-                      height="16"
-                      viewBox="0 0 22 16"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M19.5516 2.75538L20.9 1.25245C21.2903 0.845401 21.3968 0.53229 21.4323 0.375734C20.3677 0.939335 19.3742 1.1272 18.7355 1.1272H18.4871L18.3452 1.00196C17.4935 0.344423 16.429 0 15.2935 0C12.8097 0 10.8581 1.81605 10.8581 3.91389C10.8581 4.03914 10.8581 4.22701 10.8935 4.35225L11 4.97847L10.2548 4.94716C5.7129 4.82192 1.9871 1.37769 1.38387 0.782779C0.390323 2.34834 0.958064 3.85127 1.56129 4.79061L2.76774 6.54403L0.851613 5.6047C0.887097 6.91977 1.45484 7.95303 2.55484 8.7045L3.5129 9.33072L2.55484 9.67515C3.15806 11.272 4.50645 11.9296 5.5 12.18L6.8129 12.4932L5.57097 13.2446C3.58387 14.4971 1.1 14.4031 0 14.3092C2.23548 15.6869 4.89677 16 6.74194 16C8.12581 16 9.15484 15.8748 9.40322 15.7808C19.3387 13.7143 19.8 5.8865 19.8 4.32094V4.10176L20.0129 3.97652C21.2194 2.97456 21.7161 2.44227 22 2.12916C21.8935 2.16047 21.7516 2.22309 21.6097 2.2544L19.5516 2.75538Z"
-                        fill="white"
-                      />
-                    </svg>
-                  </a>
-                </li> */}
-                <li className="w-full px-2">
-                  <button
-                    onClick={() => signInWithGoogle()}
-                    className="flex h-11 items-center justify-center rounded-md bg-[#D64937] hover:bg-opacity-90 w-full"
-                  >
-                    <svg
-                      width="18"
-                      height="18"
-                      viewBox="0 0 18 18"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M17.8477 8.17132H9.29628V10.643H15.4342C15.1065 14.0743 12.2461 15.5574 9.47506 15.5574C5.95916 15.5574 2.8306 12.8821 2.8306 9.01461C2.8306 5.29251 5.81018 2.47185 9.47506 2.47185C12.2759 2.47185 13.9742 4.24567 13.9742 4.24567L15.7024 2.47185C15.7024 2.47185 13.3783 0.000145544 9.35587 0.000145544C4.05223 -0.0289334 0 4.30383 0 8.98553C0 13.5218 3.81386 18 9.44526 18C14.4212 18 17.9967 14.7141 17.9967 9.79974C18.0264 8.78198 17.8477 8.17132 17.8477 8.17132Z"
-                        fill="white"
-                      />
-                    </svg>
-                  </button>
-                </li>
-              </ul>
-              <a
-                href="javascript:void(0)"
-                className="mb-2 inline-block text-base text-[#adadad] hover:text-primary hover:underline"
-              >
-                Forget Password?
-              </a>
+              <SocialMediaLogin addDivider={true} />
+              <p className="text-base text-[#adadad]">
+                Forgot password?
+                <Link
+                  href="/resetPassword"
+                  className="text-primary hover:underline"
+                >
+                  {" "}
+                  Reset here
+                </Link>
+              </p>
               <p className="text-base text-[#adadad]">
                 Not a member yet?
                 <Link href="/signup" className="text-primary hover:underline">
+                  {" "}
                   Sign Up
                 </Link>
               </p>
@@ -152,65 +229,5 @@ export default function Login() {
         </div>
       </div>
     </>
-    // <div
-    //   className="m-auto my-24 w-1/3 h-1/3 divide-y-4 space-y-1 bg-white
-    //   "
-    // >
-    //   <div className="w-full max-w-xs">
-    //     <h1 className="text-2xl font-bold leading-7 text-black sm:truncate sm:text-3xl sm:tracking-tight">
-    //       Login
-    //     </h1>
-    //     <form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-    //       <div className="mb-4">
-    //         <label
-    //           className="block text-black text-sm font-bold mb-2"
-    //           htmlFor="email"
-    //         >
-    //           Email
-    //         </label>
-    //         <input
-    //           className="shadow appearance-none border rounded w-full py-2 px-3 text-white bg-nf_green leading-tight"
-    //           id="email"
-    //           type="text"
-    //           required
-    //           maxLength={255}
-    //           onChange={(e) => setEmail(e.target.value)}
-    //         />
-    //       </div>
-    //       <div className="mb-6">
-    //         <label
-    //           className="block text-black text-sm font-bold mb-2"
-    //           htmlFor="password"
-    //         >
-    //           Password
-    //         </label>
-    //         <input
-    //           className="shadow appearance-none border rounded w-full py-2 px-3 text-white bg-nf_green mb-3 leading-tight"
-    //           id="password"
-    //           type="password"
-    //           required
-    //           minLength={6}
-    //           maxLength={255}
-    //           onChange={(e) => setPassword(e.target.value)}
-    //         />
-    //       </div>
-    //       <div className="flex items-center justify-between">
-    //         <button
-    //           className="bg-blue-500 hover:bg-blue-700 text-white bg-nf_green font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-    //           type="submit"
-    //           onClick={() => handleForm()}
-    //         >
-    //           Sign In
-    //         </button>
-    //         <a
-    //           className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
-    //           href="/forgot_password"
-    //         >
-    //           Forgot Password?
-    //         </a>
-    //       </div>
-    //     </form>
-    //   </div>
-    // </div>
   );
 }

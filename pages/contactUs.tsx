@@ -1,20 +1,35 @@
 import { useState, useEffect } from "react";
 import { addMessageFunction } from "@/firebase/firebase_functions/messages_functions";
 import { useAuthContext } from "@/context/AuthContext";
+import { useForm } from "react-hook-form";
+import WarningMessage from "@/components/forms/WarningMessage";
 
 export default function ContactUs() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const { success, error } = useAuthContext();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      inputName: "",
+      inputEmail: "",
+      inputMessage: "",
+    },
+  });
 
-  const handleForm = async (e: any) => {
+  const handleForm = async (data: any, e: any) => {
     e.preventDefault();
+    const { inputName, inputEmail, inputMessage } = data;
 
     const result = await addMessageFunction({
-      name,
-      email,
-      message,
+      inputName,
+      inputEmail,
+      inputMessage,
     });
 
     if (result.isSuccess) {
@@ -41,7 +56,7 @@ export default function ContactUs() {
                 <span className="text-black mb-4 block  font-semibold">
                   Contact Us
                 </span>
-                <form>
+                <form onSubmit={handleSubmit(handleForm)}>
                   <div className="mb-6">
                     <label
                       className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
@@ -53,8 +68,15 @@ export default function ContactUs() {
                       type="text"
                       placeholder="Type your name..."
                       className="text-black bg-white border-[f0f0f0] focus:border-primary w-full rounded border py-3 px-[14px]  outline-none focus-visible:shadow-none"
-                      onChange={(e) => setName(e.target.value)}
+                      {...register("inputName", {
+                        required: "Name is required",
+                        onChange: (e) => setName(e.target.value),
+                      })}
+                      aria-invalid={errors.inputName ? "true" : "false"}
                     />
+                    {errors.inputName && (
+                      <WarningMessage text={errors.inputName?.message} />
+                    )}
                   </div>
                   <div className="mb-6">
                     <label
@@ -67,9 +89,22 @@ export default function ContactUs() {
                       type="email"
                       placeholder="Type your email address..."
                       className="text-black bg-white border-[f0f0f0] focus:border-primary w-full rounded border py-3 px-[14px]  outline-none focus-visible:shadow-none"
-                      onChange={(e) => setEmail(e.target.value)}
+                      {...register("inputEmail", {
+                        required: "Email address is required",
+                        pattern: {
+                          value:
+                            /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:.[a-zA-Z0-9-]+)*$/,
+                          message:
+                            "Follow the correct email format. An example is email@email.com",
+                        },
+                        onChange: (e) => setEmail(e.target.value),
+                      })}
+                      aria-invalid={errors.inputEmail ? "true" : "false"}
                     />
                   </div>
+                  {errors.inputEmail && (
+                    <WarningMessage text={errors.inputEmail?.message} />
+                  )}
                   <div className="mb-6">
                     <label
                       className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
@@ -81,14 +116,20 @@ export default function ContactUs() {
                       rows={6}
                       placeholder="Type your message..."
                       className="text-black bg-white border-[f0f0f0] focus:border-primary w-full resize-none rounded border py-3 px-[14px]  outline-none focus-visible:shadow-none"
-                      onChange={(e) => setMessage(e.target.value)}
+                      {...register("inputMessage", {
+                        required: "Message is required",
+                        onChange: (e) => setName(e.target.value),
+                      })}
+                      aria-invalid={errors.inputMessage ? "true" : "false"}
                     ></textarea>
+                    {errors.inputMessage && (
+                      <WarningMessage text={errors.inputMessage?.message} />
+                    )}
                   </div>
                   <div>
                     <button
                       type="submit"
                       className=" w-1/2 cursor-pointer rounded-md border bg-nf_green py-3 px-5 text-base text-white transition hover:bg-nf_dark_green"
-                      onClick={(e: any) => handleForm(e)}
                     >
                       Send Message
                     </button>
@@ -96,7 +137,7 @@ export default function ContactUs() {
                 </form>
               </div>
             </div>
-            <div className="w-full px-4 lg:w-1/2 xl:w-6/12">
+            <div className="mt-12 w-full px-4 lg:w-1/2 xl:w-6/12">
               <div className="mb-12 max-w-[570px] lg:mb-0">
                 <div className="mb-8 flex w-full max-w-[370px]">
                   <div className="bg-nf_green text-nf_yellow mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded  sm:h-[70px] sm:max-w-[70px]">
@@ -115,11 +156,14 @@ export default function ContactUs() {
                     <h4 className="text-black mb-1 text-xl font-bold">
                       Our Location
                     </h4>
-                    <p className="text-black bg-white ">Olongapo City</p>
+                    <p className="text-black bg-white ">
+                      Stall 4, Vision 2010 Bldg., #27 Rizal St., Dinalupihan,
+                      Bataan
+                    </p>
                   </div>
                 </div>
-                {/* <div className="mb-8 flex w-full max-w-[370px]">
-                  <div className="bg-primary text-primary mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded bg-opacity-5 sm:h-[70px] sm:max-w-[70px]">
+                <div className="mb-8 flex w-full max-w-[370px]">
+                  <div className="bg-nf_green text-nf_yellow mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded  sm:h-[70px] sm:max-w-[70px]">
                     <svg
                       width="24"
                       height="26"
@@ -132,14 +176,14 @@ export default function ContactUs() {
                     </svg>
                   </div>
                   <div className="w-full">
-                    <h4 className="text-dark mb-1 text-xl font-bold">
+                    <h4 className="text-black mb-1 text-xl font-bold">
                       Phone Number
                     </h4>
-                    <p className="text-black bg-white ">(+62)81 414 257 9980</p>
+                    <p className="text-black bg-white ">(0928) 765 2222</p>
                   </div>
                 </div>
                 <div className="mb-8 flex w-full max-w-[370px]">
-                  <div className="bg-primary text-primary mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded bg-opacity-5 sm:h-[70px] sm:max-w-[70px]">
+                  <div className="bg-nf_green text-nf_yellow mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded  sm:h-[70px] sm:max-w-[70px]">
                     <svg
                       width="28"
                       height="19"
@@ -150,12 +194,12 @@ export default function ContactUs() {
                     </svg>
                   </div>
                   <div className="w-full">
-                    <h4 className="text-dark mb-1 text-xl font-bold">
-                      Email Address
+                    <h4 className="text-black mb-1 text-xl font-bold">
+                      Independent Herbalife Nutrition Member
                     </h4>
-                    <p className="text-black bg-white ">info@yourdomain.com</p>
+                    <p className="text-black bg-white ">Melanie M. Laxamana</p>
                   </div>
-                </div> */}
+                </div>
               </div>
             </div>
           </div>

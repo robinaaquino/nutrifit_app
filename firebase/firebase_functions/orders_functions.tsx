@@ -22,6 +22,7 @@ import {
 } from "firebase/storage";
 import { v4 } from "uuid";
 import { getProductViaIdFunction } from "./products_function";
+import { getUserFunction } from "./users_function";
 
 export const getAllOrdersFunction = async () => {
   let resultObject: FunctionResult = {
@@ -44,6 +45,23 @@ export const getAllOrdersFunction = async () => {
       });
     });
 
+    for (let i = 0; i < datas.length; i++) {
+      let currentData = datas[i];
+      if (currentData.user_id) {
+        const userDataResult = await getUserFunction(currentData.user_id);
+        if (userDataResult.isSuccess) {
+          currentData["email"] = userDataResult.result.email;
+        }
+      } else {
+        currentData["email"] = "Guest";
+      }
+
+      if (currentData.shipping_details) {
+        currentData["first_name"] = currentData.shipping_details.first_name;
+        currentData["last_name"] = currentData.shipping_details.last_name;
+      }
+    }
+
     resultObject = {
       result: datas,
       isSuccess: true,
@@ -51,9 +69,10 @@ export const getAllOrdersFunction = async () => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all orders",
       errorMessage: parseError(e),
     };
@@ -92,9 +111,10 @@ export const getAllOrdersViaIdFunction = async (userId: string) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all orders for user",
       errorMessage: parseError(e),
     };
@@ -142,6 +162,23 @@ export const getAllOrdersWithFilterFunction = async (filter: any) => {
       });
     });
 
+    for (let i = 0; i < datas.length; i++) {
+      let currentData = datas[i];
+      if (currentData.user_id) {
+        const userDataResult = await getUserFunction(currentData.user_id);
+        if (userDataResult.isSuccess) {
+          currentData["email"] = userDataResult.result.email;
+        }
+      } else {
+        currentData["email"] = "Guest";
+      }
+
+      if (currentData.shipping_details) {
+        currentData["first_name"] = currentData.shipping_details.first_name;
+        currentData["last_name"] = currentData.shipping_details.last_name;
+      }
+    }
+
     resultObject = {
       result: datas,
       isSuccess: true,
@@ -149,9 +186,10 @@ export const getAllOrdersWithFilterFunction = async (filter: any) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all orders with filter",
       errorMessage: parseError(e),
     };
@@ -183,17 +221,46 @@ export const getAllOrdersWithSearchFunction = async (searchString: any) => {
 
     const orders = result.result;
 
+    for (let i = 0; i < orders.length; i++) {
+      let currentData = orders[i];
+      if (currentData.user_id) {
+        const userDataResult = await getUserFunction(currentData.user_id);
+        if (userDataResult.isSuccess) {
+          currentData["email"] = userDataResult.result.email;
+        }
+      } else {
+        currentData["email"] = "Guest";
+      }
+
+      if (currentData.shipping_details) {
+        currentData["first_name"] = currentData.shipping_details.first_name;
+        currentData["last_name"] = currentData.shipping_details.last_name;
+      }
+    }
+    console.log("orders", orders);
+
     const individualStrings = searchString.toLowerCase().split(" ");
     for (let i = 0; i < orders.length; i++) {
       let matchedString = false;
       for (let j = 0; j < individualStrings.length; j++) {
         let regexExpression = `^.*` + individualStrings[j] + `.*$`;
         if (
-          orders[i].user_id.toLowerCase().match(regexExpression) ||
+          orders[i].email.toLowerCase().match(regexExpression) ||
           orders[i].total_price.toString().match(regexExpression) ||
           orders[i].delivery_mode.toLowerCase().match(regexExpression) ||
           orders[i].status.toLowerCase().match(regexExpression) ||
           orders[i].id.toLowerCase().match(regexExpression)
+        ) {
+          matchedString = true;
+          break;
+        } else if (
+          (orders[i].shipping_details &&
+            orders[i].shipping_details.first_name
+              .toLowerCase()
+              .match(regexExpression)) ||
+          orders[i].shipping_details.last_name
+            .toLowerCase()
+            .match(regexExpression)
         ) {
           matchedString = true;
           break;
@@ -211,9 +278,10 @@ export const getAllOrdersWithSearchFunction = async (searchString: any) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: datas,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting all orders with search string",
       errorMessage: parseError(e),
     };
@@ -252,6 +320,7 @@ export const getOrderViaIdFunction = async (id: string) => {
       };
     }
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: data,
       isSuccess: false,
@@ -315,9 +384,10 @@ export const addOrderFunction = async (order: Constants.OrdersDatabaseType) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: "",
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in adding order",
       errorMessage: parseError(e),
     };
@@ -395,6 +465,7 @@ export const updateOrderFunction = async (
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: "",
       isSuccess: false,
@@ -424,6 +495,7 @@ export const deleteOrderFunction = async (orderId: string) => {
       errorMessage: "",
     };
   } catch (e: unknown) {
+    console.log(e);
     resultObject = {
       result: {},
       isSuccess: false,

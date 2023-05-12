@@ -1,18 +1,28 @@
 export default function Button({
   type,
   text,
+  round,
+  headline,
   handleClick,
 }: {
-  type: string;
+  type?: string;
   text: string;
-  handleClick: any;
+  round?: boolean;
+  headline?: boolean;
+  handleClick?: any;
 }) {
   return (
     <>
       <div>
         <button
-          onClick={() => handleClick()}
-          className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue"
+          onClick={() => (handleClick ? handleClick() : null)}
+          className={
+            `items-center justify-center w-1/2    text-white transition-colors duration-200 bg-nf_green shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue font-source` +
+            (round ? ` rounded-full` : ` rounded-lg`) +
+            (headline
+              ? ` font-bold uppercase tracking-wider py-4 px-8`
+              : ` text-sm tracking-wide px-5 py-2`)
+          }
         >
           {type == "add" ? (
             <svg

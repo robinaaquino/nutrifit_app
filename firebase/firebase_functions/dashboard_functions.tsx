@@ -165,7 +165,7 @@ export const getAllAdminAnalytics = async () => {
   } catch (e) {
     resultObject = {
       result: resultOfAdminAnalytics,
-      isSuccess: true,
+      isSuccess: false,
       resultText: "Failed in getting sales per category",
       errorMessage: parseError(e),
     };
