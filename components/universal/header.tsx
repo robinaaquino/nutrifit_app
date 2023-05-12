@@ -131,6 +131,9 @@ export default function Header() {
                   className="dropdown-content menu p-2 shadow bg-nf_green rounded-box "
                 >
                   <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
+                    <Link href={"/wellness/add"}>Wellness Survey</Link>
+                  </li>
+                  <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
                     <Link href="/login">Login</Link>
                   </li>
                   <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
