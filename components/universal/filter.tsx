@@ -79,7 +79,7 @@ export default function Filter({
     } else if (isWellnessFilter) {
       const filterObject = {
         program: filterProgram,
-        reviewedByAdmin: filterReviewedByAdmin,
+        reviewed_by_admin: filterReviewedByAdmin,
       };
       handleFilters(filterObject);
     }

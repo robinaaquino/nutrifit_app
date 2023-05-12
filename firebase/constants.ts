@@ -192,6 +192,7 @@ export enum WellnessRemarks {
 }
 
 export interface WellnessOverallResults {
+  id?: string;
   user_id?: string;
   wellness_survey: [];
   name: string;
@@ -201,7 +202,7 @@ export interface WellnessOverallResults {
   age: number;
   weight: number;
 
-  reviewedByAdmin?: boolean;
+  reviewed_by_admin?: boolean;
   wellness_trainer_information?: WellnessTrainerInformationType;
   wellness_remarks?: WellnessRemarksType;
   program?: WellnessRemarks;

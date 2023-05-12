@@ -79,8 +79,10 @@ export const getAllWellnessSurveyResultsWithFilterFunction = async (
       resultQuery.push(where("program", "==", filter.program));
     }
 
-    if (filter.reviewedByAdmin != "") {
-      resultQuery.push(where("reviewedByAdmin", "==", filter.reviewedByAdmin));
+    if (filter.reviewed_by_admin != "") {
+      resultQuery.push(
+        where("reviewed_by_admin", "==", filter.reviewed_by_admin)
+      );
     }
 
     const resultReference = query(collection(db, "results"), ...resultQuery);
@@ -273,7 +275,7 @@ export const addWellnessSurveyResult = async (
       age: wellnessSurveyResult.age ? wellnessSurveyResult.age : 0,
       weight: wellnessSurveyResult.weight ? wellnessSurveyResult.weight : 0,
 
-      reviewedByAdmin: false,
+      reviewed_by_admin: false,
       wellness_trainer_information:
         wellnessSurveyResult.wellness_trainer_information
           ? wellnessSurveyResult.wellness_trainer_information
@@ -362,7 +364,7 @@ export const updateResultFunction = async (
       age: wellnessSurveyResult.age ? wellnessSurveyResult.age : 0,
       weight: wellnessSurveyResult.weight ? wellnessSurveyResult.weight : 0,
 
-      reviewedByAdmin: true,
+      reviewed_by_admin: true,
       wellness_trainer_information:
         wellnessSurveyResult.wellness_trainer_information
           ? wellnessSurveyResult.wellness_trainer_information
