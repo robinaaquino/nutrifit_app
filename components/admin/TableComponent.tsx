@@ -9,6 +9,7 @@ import { deleteProductFunction } from "@/firebase/firebase_functions/products_fu
 import { deleteOrderFunction } from "@/firebase/firebase_functions/orders_functions";
 import { deleteUserFunction } from "@/firebase/firebase_functions/users_function";
 import { deleteMessageFunction } from "@/firebase/firebase_functions/messages_functions";
+import { deleteWellnessSurveyResult } from "@/firebase/firebase_functions/wellness_function";
 
 export default function TableComponent({
   headers,
@@ -108,12 +109,12 @@ export default function TableComponent({
 
     if (result.isSuccess) {
       authContextObject.success(result.resultText);
-      let previousOrderList = itemList;
+      let previousItemList = itemList;
 
       for (let i = 0; i < itemList.length; i++) {
         if (order.id == itemList[i].id) {
-          previousOrderList.splice(i, 1);
-          setItemList(previousOrderList);
+          previousItemList.splice(i, 1);
+          setItemList(previousItemList);
           break;
         }
       }
@@ -129,12 +130,12 @@ export default function TableComponent({
 
     if (result.isSuccess) {
       authContextObject.success(result.resultText);
-      let previousOrderList = itemList;
+      let previousItemList = itemList;
 
       for (let i = 0; i < itemList.length; i++) {
         if (user.id == itemList[i].id) {
-          previousOrderList.splice(i, 1);
-          setItemList(previousOrderList);
+          previousItemList.splice(i, 1);
+          setItemList(previousItemList);
           break;
         }
       }
@@ -150,15 +151,36 @@ export default function TableComponent({
 
     if (result.isSuccess) {
       authContextObject.success(result.resultText);
-      let previousOrderList = itemList;
+      let previousItemList = itemList;
 
       for (let i = 0; i < itemList.length; i++) {
         if (message.id == itemList[i].id) {
-          previousOrderList.splice(i, 1);
-          setItemList(previousOrderList);
+          previousItemList.splice(i, 1);
+          setItemList(previousItemList);
           break;
         }
       }
+      onPageChange(currentPage);
+    } else {
+      authContextObject.error(result.resultText);
+    }
+  };
+
+  const deleteWellnessResult = async (result: any) => {
+    const deleteWellnessObject = await deleteWellnessSurveyResult(result.id);
+
+    if (deleteWellnessObject.isSuccess) {
+      authContextObject.success(deleteWellnessObject.resultText);
+      let previousItemList = itemList;
+
+      for (let i = 0; i < itemList.length; i++) {
+        if (result.id == itemList[i].id) {
+          previousItemList.splice(i, 1);
+          setItemList(previousItemList);
+          break;
+        }
+      }
+
       onPageChange(currentPage);
     } else {
       authContextObject.error(result.resultText);
@@ -235,6 +257,10 @@ export default function TableComponent({
                                         router.push(
                                           `/admin/message/${currentElement.id}`
                                         );
+                                      } else if (type == "wellness") {
+                                        router.push(
+                                          `/admin/wellness/${currentElement.id}`
+                                        );
                                       }
                                     }}
                                   >
@@ -251,6 +277,8 @@ export default function TableComponent({
                                         deleteUser(currentElement);
                                       } else if (type == "message") {
                                         deleteMessage(currentElement);
+                                      } else if (type == "wellness") {
+                                        deleteWellnessResult(currentElement);
                                       }
                                     }}
                                   >
@@ -266,7 +294,8 @@ export default function TableComponent({
                                 } else if (
                                   key == "created_at" ||
                                   key == "updated_at" ||
-                                  key == "date_cleared"
+                                  key == "date_cleared" ||
+                                  key == "date"
                                 ) {
                                   currentText = formatDate(currentElement[key]);
                                 } else {
