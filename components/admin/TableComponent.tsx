@@ -298,11 +298,19 @@ export default function TableComponent({
                                 ) {
                                   currentText = formatDate(currentElement[key]);
                                 } else if (key == "date") {
-                                  currentText = formatDate(
+                                  if (
                                     currentElement[
                                       "wellness_trainer_information"
                                     ][key]
-                                  );
+                                  ) {
+                                    currentText = formatDate(
+                                      currentElement[
+                                        "wellness_trainer_information"
+                                      ][key]
+                                    );
+                                  } else {
+                                    currentText = currentElement[key];
+                                  }
                                 } else if (key == "reviewed_by_admin") {
                                   currentText = currentElement[key]
                                     ? "Reviewed"
