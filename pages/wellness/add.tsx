@@ -293,7 +293,7 @@ export default function WellnessSurvey(props: any) {
           {Object.keys(WellnessQuestions).map((key: string) => {
             return (
               <>
-                <div className="flex items-center mb-2">
+                <div className="flex items-center mb-2 text-black">
                   <input
                     id={key}
                     type="checkbox"
@@ -543,9 +543,9 @@ export async function getServerSideProps(context: any) {
     user: "",
     userInfo: null,
     message: "",
-    isError: true,
-    errorMessage: "Unauthorized access",
-    redirect: "/login",
+    isError: false,
+    errorMessage: "",
+    redirect: "",
   };
 
   try {
