@@ -68,8 +68,8 @@ export default function Home(props: any) {
     }
   }
 
-  function navigateToProduct() {
-    router.push("/product");
+  function navigateToSurvey() {
+    router.push("/wellness/add");
   }
 
   async function fetchBestProducts() {
@@ -114,7 +114,7 @@ export default function Home(props: any) {
             text="Get started"
             round={true}
             headline={true}
-            handleClick={navigateToProduct}
+            handleClick={navigateToSurvey}
           />
         </div>
       </div>
