@@ -149,6 +149,9 @@ export const getAllWellnessSurveyResultsWithSearchFunction = async (
       for (let j = 0; j < individualStrings.length; j++) {
         let regexExpression = `^.*` + individualStrings[j] + `.*$`;
         if (
+          results[i].name.toLowerCase().match(regexExpression) ||
+          results[i].contact_number.toLowerCase().match(regexExpression) ||
+          results[i].reviewed_by_admin.toLowerCase().match(regexExpression) ||
           results[i].program.toLowerCase().match(regexExpression) ||
           results[i].meal_plan.toLowerCase().match(regexExpression) ||
           results[i].gender.toLowerCase().match(regexExpression)
