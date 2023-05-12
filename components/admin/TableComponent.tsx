@@ -294,10 +294,23 @@ export default function TableComponent({
                                 } else if (
                                   key == "created_at" ||
                                   key == "updated_at" ||
-                                  key == "date_cleared" ||
-                                  key == "date"
+                                  key == "date_cleared"
                                 ) {
                                   currentText = formatDate(currentElement[key]);
+                                } else if (key == "date") {
+                                  currentText = formatDate(
+                                    currentElement[
+                                      "wellness_trainer_information"
+                                    ][key]
+                                  );
+                                } else if (key == "reviewed_by_admin") {
+                                  currentText = currentElement[key]
+                                    ? "Reviewed"
+                                    : "Unreviewed";
+                                } else if (key == "program") {
+                                  currentText = currentElement[key]
+                                    ? currentElement[key]
+                                    : "No assigned program";
                                 } else {
                                   currentText = currentElement[key];
                                 }
