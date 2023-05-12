@@ -4,6 +4,7 @@ import {
   ProductCategoryEnum,
   OrderStatusEnum,
   PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY,
+  WellnessRemarks,
 } from "../../firebase/constants";
 import RadioButton from "../forms/RadioButton";
 
@@ -14,6 +15,7 @@ export default function Filter({
   isOrderFilter,
   isCustomerFilter,
   isMessageFilter,
+  isWellnessFilter,
 }: {
   handleFilters: any;
   resetFilter: any;
@@ -21,6 +23,7 @@ export default function Filter({
   isOrderFilter?: boolean;
   isCustomerFilter?: boolean;
   isMessageFilter?: boolean;
+  isWellnessFilter?: boolean;
 }) {
   const [filterCategory, setFilterCategory] = useState<string>("");
   const [filterMinPrice, setFilterMinPrice] = useState<number>(0);
@@ -28,6 +31,10 @@ export default function Filter({
   const [filterInStock, setFilterInStock] = useState<boolean>(true);
   const [filterStatus, setFilterStatus] = useState<string>("");
   const [filterRole, setFilterRole] = useState<string>("");
+
+  const [filterProgram, setFilterProgram] = useState<string>("");
+  const [filterReviewedByAdmin, setFilterReviewedByAdmin] =
+    useState<boolean>(false);
 
   function showFilters() {
     var fSection = document.getElementById("filterSection");
@@ -58,7 +65,6 @@ export default function Filter({
         //add delivery mode
         //add payment method
       };
-      console.log("filter object order:", filterObject);
       handleFilters(filterObject);
     } else if (isCustomerFilter) {
       const filterObject = {
@@ -68,6 +74,12 @@ export default function Filter({
     } else if (isMessageFilter) {
       const filterObject = {
         status: filterStatus,
+      };
+      handleFilters(filterObject);
+    } else if (isWellnessFilter) {
+      const filterObject = {
+        program: filterProgram,
+        reviewedByAdmin: filterReviewedByAdmin,
       };
       handleFilters(filterObject);
     }
@@ -406,6 +418,67 @@ export default function Filter({
                                     value={"replied"}
                                     label={"Replied"}
                                     handleInput={setFilterStatus}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </>
+                        ) : isWellnessFilter ? (
+                          <>
+                            <div>
+                              {/* Program Filter */}
+                              <div className="pr-2 pt-2">
+                                <div className="flex text-black">
+                                  <p className="leading-5 text-sm font-bold">
+                                    Program
+                                  </p>
+                                </div>
+                                <div className="flex pt-2">
+                                  <RadioButton
+                                    name={"programType"}
+                                    id={"gain"}
+                                    value={WellnessRemarks.GAIN}
+                                    label={WellnessRemarks.GAIN}
+                                    handleInput={setFilterProgram}
+                                  />
+                                  <RadioButton
+                                    name={"programType"}
+                                    id={"maintenance"}
+                                    value={WellnessRemarks.MAINTENANCE}
+                                    label={WellnessRemarks.MAINTENANCE}
+                                    handleInput={setFilterProgram}
+                                  />
+                                  <RadioButton
+                                    name={"programType"}
+                                    id={"loss"}
+                                    value={WellnessRemarks.LOSS}
+                                    label={WellnessRemarks.LOSS}
+                                    handleInput={setFilterProgram}
+                                  />
+                                </div>
+                              </div>
+                              {/* Reviewed By Admin Filter */}
+                              <div className="pr-2 pt-2">
+                                <div className="flex text-black">
+                                  <p className="leading-5 text-sm font-bold">
+                                    Reviewed By Admin
+                                  </p>
+                                </div>
+                                <div className="flex pt-2">
+                                  <RadioButton
+                                    name={"status"}
+                                    id={"reviewed"}
+                                    value={"true"}
+                                    label={"Reviewed"}
+                                    handleInput={setFilterReviewedByAdmin}
+                                  />
+
+                                  <RadioButton
+                                    name={"status"}
+                                    id={"not_reviewed"}
+                                    value={"false"}
+                                    label={"Not reviewed"}
+                                    handleInput={setFilterReviewedByAdmin}
                                   />
                                 </div>
                               </div>
