@@ -122,7 +122,7 @@ export default function AdminWellness(props: any) {
           headers={tableHeaders}
           contentKeys={tableContentKeys}
           content={wellnessSurveyResults}
-          type="order"
+          type="wellness"
           isAdmin={true}
         />
       </div>
