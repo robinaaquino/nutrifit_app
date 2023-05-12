@@ -470,6 +470,7 @@ export default function Filter({
                                     id={"reviewed"}
                                     value={"true"}
                                     label={"Reviewed"}
+                                    isBoolean={true}
                                     handleInput={setFilterReviewedByAdmin}
                                   />
 
@@ -478,6 +479,7 @@ export default function Filter({
                                     id={"not_reviewed"}
                                     value={"false"}
                                     label={"Not reviewed"}
+                                    isBoolean={true}
                                     handleInput={setFilterReviewedByAdmin}
                                   />
                                 </div>
