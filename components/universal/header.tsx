@@ -146,7 +146,7 @@ export default function Header() {
                     <Link href={"/user/" + user}>Profile</Link>
                   </li>
                   <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
-                    <Link href={"/wellness/add" + user}>Wellness Survey</Link>
+                    <Link href={"/wellness/add"}>Wellness Survey</Link>
                   </li>
                   <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
                     <button
