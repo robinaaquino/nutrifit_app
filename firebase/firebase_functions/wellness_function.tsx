@@ -62,6 +62,50 @@ export const getAllWellnessSurveyResultsFunction = async () => {
   return resultObject;
 };
 
+export const getAllWellnessSurveyResultsViaIdFunction = async (
+  userId: string
+) => {
+  let resultObject: FunctionResult = {
+    result: "",
+    isSuccess: false,
+    resultText: "",
+    errorMessage: "",
+  };
+  let datas: any[] = [];
+
+  try {
+    const docs = await getDocs(collection(db, "results"));
+
+    docs.forEach((doc) => {
+      const id = doc.id;
+      const data = doc.data();
+      if (data.user_id == userId) {
+        datas.push({
+          id,
+          ...data,
+        });
+      }
+    });
+
+    resultObject = {
+      result: datas,
+      isSuccess: true,
+      resultText: "Successful in getting all wellness survey results for user",
+      errorMessage: "",
+    };
+  } catch (e: unknown) {
+    console.log(e);
+    resultObject = {
+      result: datas,
+      isSuccess: false,
+      resultText: "Failed in getting all wellness survey results for user",
+      errorMessage: parseError(e),
+    };
+  }
+
+  return resultObject;
+};
+
 export const getAllWellnessSurveyResultsWithFilterFunction = async (
   filter: any
 ) => {

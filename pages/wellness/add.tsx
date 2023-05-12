@@ -107,11 +107,11 @@ export default function WellnessSurvey(props: any) {
   };
 
   useEffect(() => {
-    if (props.userInfo) {
-      if (props.userInfo.uid) {
-        setUserId(props.userInfo.uid);
-      }
+    if (props.user) {
+      setUserId(props.user);
+    }
 
+    if (props.userInfo) {
       if (props.userInfo.shipping_details) {
         if (
           props.userInfo.shipping_details.first_name &&
@@ -293,7 +293,7 @@ export default function WellnessSurvey(props: any) {
           {Object.keys(WellnessQuestions).map((key: string) => {
             return (
               <>
-                <div className="flex text-black items-center mb-2">
+                <div className="flex items-center mb-2">
                   <input
                     id={key}
                     type="checkbox"

@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { User } from "firebase/auth";
 import { resetPassword } from "@/firebase/firebase_functions/auth";
 import { getAllOrdersViaIdFunction } from "@/firebase/firebase_functions/orders_functions";
+import { getAllWellnessSurveyResultsViaIdFunction } from "@/firebase/firebase_functions/wellness_function";
 import TableComponent from "@/components/admin/TableComponent";
 
 import { useForm } from "react-hook-form";
@@ -50,6 +51,10 @@ export default function UserShow(props: any) {
   const [orders, setOrders] = useState([]);
   const orderHeaders = ["ID", "Status", "Date ordered", "Total Price"];
   const orderKeys = ["id", "status", "created_at", "total_price"];
+
+  const [wellnessSurveyResult, setWellnessSurveyResults] = useState([]);
+  const wellnessSurveyResultHeaders = ["ID", "Status", "Program"];
+  const wellnessSurveyResultKeys = ["id", "reviewed_by_admin", "program"];
 
   const {
     register,
@@ -174,6 +179,17 @@ export default function UserShow(props: any) {
       setOrders(result.result);
     } else {
       error("result.errorMessage");
+    }
+
+    const surveyResults = await getAllWellnessSurveyResultsViaIdFunction(
+      idInput
+    );
+
+    console.log("survye", surveyResults);
+    if (surveyResults.isSuccess) {
+      setWellnessSurveyResults(surveyResults.result);
+    } else {
+      error("surveyResults.errorMessage");
     }
   }
 
@@ -708,6 +724,23 @@ export default function UserShow(props: any) {
                       contentKeys={orderKeys}
                       content={orders}
                       type={"order"}
+                      isAdmin={false}
+                    ></TableComponent>
+                  </div>
+                </div>
+              ) : null}
+
+              {wellnessSurveyResult && wellnessSurveyResult.length > 0 ? (
+                <div className="mt-10">
+                  <div className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 mt-2">
+                    Survey Results Summary
+                  </div>
+                  <div className="p-2 ml-4">
+                    <TableComponent
+                      headers={wellnessSurveyResultHeaders}
+                      contentKeys={wellnessSurveyResultKeys}
+                      content={wellnessSurveyResult}
+                      type={"wellness"}
                       isAdmin={false}
                     ></TableComponent>
                   </div>
