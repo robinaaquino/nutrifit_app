@@ -82,6 +82,10 @@ export function computeSubtotalInCart(cart: any) {
 }
 
 export function formatDate(date: string) {
-  const dateObject = new Date(date);
-  return format(dateObject, "MM/dd/yyyy p");
+  try {
+    const dateObject = new Date(date);
+    return format(dateObject, "MM/dd/yyyy p");
+  } catch (e: unknown) {
+    return date;
+  }
 }
