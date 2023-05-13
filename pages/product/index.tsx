@@ -4,7 +4,7 @@ import {
   getAllProductsFunction,
   getAllProductsWithFilterFunction,
   getAllProductsWithSearchFunction,
-} from "@/firebase/firebase_functions/products_function";
+} from "@/firebase/firebase_functions/products_functions";
 import { ProductsDatabaseType } from "@/firebase/constants";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";

@@ -13,7 +13,7 @@ import {
   ProductsDatabaseType,
 } from "@/firebase/constants";
 import nookies from "nookies";
-import { getBestSellingProducts } from "@/firebase/firebase_functions/products_function";
+import { getBestSellingProducts } from "@/firebase/firebase_functions/products_functions";
 
 import admin from "../firebase/admin-config";
 

@@ -21,8 +21,8 @@ import {
   deleteObject,
 } from "firebase/storage";
 import { v4 } from "uuid";
-import { getProductViaIdFunction } from "./products_function";
-import { getUserFunction } from "./users_function";
+import { getProductViaIdFunction } from "./products_functions";
+import { getUserFunction } from "./users_functions";
 
 export const getAllOrdersFunction = async () => {
   let resultObject: FunctionResult = {

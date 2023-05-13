@@ -6,12 +6,12 @@ import {
   PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY,
   ProductsDatabaseType,
 } from "../../../firebase/constants";
-import { addProductFunction } from "@/firebase/firebase_functions/products_function";
+import { addProductFunction } from "@/firebase/firebase_functions/products_functions";
 import { useRouter } from "next/navigation";
 import { useAuthContext, AuthContext } from "@/context/AuthContext";
 import nookies from "nookies";
 import admin from "../../../firebase/admin-config";
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 
 import { useForm } from "react-hook-form";
 import WarningMessage from "@/components/forms/WarningMessage";

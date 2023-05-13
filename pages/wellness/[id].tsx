@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useAuthContext } from "@/context/AuthContext";
 import nookies from "nookies";
 import admin from "../../firebase/admin-config";
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 
 import { useForm } from "react-hook-form";
 import WarningMessage from "@/components/forms/WarningMessage";
@@ -13,7 +13,7 @@ import { WellnessQuestions, WellnessRemarks } from "../../firebase/constants";
 import {
   addWellnessSurveyResult,
   getWellnessSurveyResultsViaIdFunction,
-} from "@/firebase/firebase_functions/wellness_function";
+} from "@/firebase/firebase_functions/wellness_functions";
 
 export default function WellnessSurveyShow(props: any) {
   const router = useRouter();

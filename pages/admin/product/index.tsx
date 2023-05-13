@@ -4,13 +4,13 @@ import {
   getAllProductsFunction,
   getAllProductsWithFilterFunction,
   getAllProductsWithSearchFunction,
-} from "@/firebase/firebase_functions/products_function";
+} from "@/firebase/firebase_functions/products_functions";
 import { ProductsDatabaseType } from "@/firebase/constants";
 import { AuthContext, useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import nookies from "nookies";
 import admin from "../../../firebase/admin-config";
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 import Filter from "@/components/universal/filter";
 import SearchBar from "@/components/universal/search_bar";
 

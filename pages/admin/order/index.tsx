@@ -11,7 +11,7 @@ import {
   getAllOrdersWithSearchFunction,
 } from "@/firebase/firebase_functions/orders_functions";
 import { OrdersDatabaseType } from "@/firebase/constants";
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 
 import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";

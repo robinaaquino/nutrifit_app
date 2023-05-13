@@ -1,5 +1,5 @@
-import { getAllUsersFunction } from '../firebase_functions/users_function';
+import { getAllUsersFunction } from "../firebase_functions/users_functions";
 
-export const getAllUsers = async() => {
+export const getAllUsers = async () => {
   return await getAllUsersFunction();
-}
+};

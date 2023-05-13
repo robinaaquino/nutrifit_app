@@ -1,7 +1,7 @@
 import nookies from "nookies";
 import admin from "@/firebase/admin-config";
 
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 
 import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
@@ -10,7 +10,7 @@ import { getAllAdminAnalytics } from "@/firebase/firebase_functions/dashboard_fu
 import TableComponent from "@/components/admin/TableComponent";
 import CardStats from "@/components/admin/dashboard/CardStats";
 import CarouselProduct from "@/components/admin/dashboard/CarouselProduct";
-import { getBestSellingProducts } from "@/firebase/firebase_functions/products_function";
+import { getBestSellingProducts } from "@/firebase/firebase_functions/products_functions";
 
 export default function AdminDashboard(props: any) {
   const { error } = useAuthContext();

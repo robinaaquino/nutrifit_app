@@ -1,17 +1,17 @@
 import { useContext, useState, useEffect } from "react";
 import { WellnessOverallResults } from "../../firebase/constants";
-import { addProductFunction } from "@/firebase/firebase_functions/products_function";
+import { addProductFunction } from "@/firebase/firebase_functions/products_functions";
 import { useRouter } from "next/navigation";
 import { useAuthContext, AuthContext } from "@/context/AuthContext";
 import nookies from "nookies";
 import admin from "../../firebase/admin-config";
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 
 import { useForm } from "react-hook-form";
 import WarningMessage from "@/components/forms/WarningMessage";
 import { WellnessQuestions } from "../../firebase/constants";
 
-import { addWellnessSurveyResult } from "@/firebase/firebase_functions/wellness_function";
+import { addWellnessSurveyResult } from "@/firebase/firebase_functions/wellness_functions";
 
 export default function WellnessSurvey(props: any) {
   const [userId, setUserId] = useState<string>("");

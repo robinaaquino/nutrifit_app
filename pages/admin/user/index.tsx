@@ -9,9 +9,9 @@ import {
   getAllUsersFunction,
   getAllUsersWithFilterFunction,
   getAllUsersWithSearchFunction,
-} from "@/firebase/firebase_functions/users_function";
+} from "@/firebase/firebase_functions/users_functions";
 import { UsersDatabaseType } from "@/firebase/constants";
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 
 import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";

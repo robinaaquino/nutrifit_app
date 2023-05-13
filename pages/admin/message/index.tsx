@@ -6,7 +6,7 @@ import SearchBar from "@/components/universal/search_bar";
 import TableComponent from "@/components/admin/TableComponent";
 
 import { UsersDatabaseType } from "@/firebase/constants";
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 import {
   getAllMessagesFunction,
   getAllMessagesWithFilterFunction,

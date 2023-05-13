@@ -9,9 +9,9 @@ import {
   getAllWellnessSurveyResultsFunction,
   getAllWellnessSurveyResultsWithFilterFunction,
   getAllWellnessSurveyResultsWithSearchFunction,
-} from "@/firebase/firebase_functions/wellness_function";
+} from "@/firebase/firebase_functions/wellness_functions";
 import { WellnessOverallResults } from "@/firebase/constants";
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 
 import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";

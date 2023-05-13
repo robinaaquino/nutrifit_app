@@ -5,9 +5,9 @@ import admin from "../firebase/admin-config";
 import {
   getCartViaIdFunction,
   clearCartFunction,
-} from "@/firebase/firebase_functions/cart_function";
+} from "@/firebase/firebase_functions/cart_functions";
 import Image from "next/image";
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 import {
   OrdersDatabaseType,
   PaymentMethodEnum,

@@ -10,7 +10,7 @@ import {
 } from "@/firebase/constants";
 import Image from "next/image";
 import admin from "@/firebase/admin-config";
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 import { updateOrderFunction } from "@/firebase/firebase_functions/orders_functions";
 import RadioButton from "@/components/forms/RadioButton";
 

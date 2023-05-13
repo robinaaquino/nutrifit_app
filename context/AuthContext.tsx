@@ -1,28 +1,19 @@
 import React, { ReactNode, createContext, useContext, useEffect } from "react";
-import {
-  onAuthStateChanged,
-  getAuth,
-  signOut,
-  onIdTokenChanged,
-  getIdToken,
-} from "firebase/auth";
+import { getAuth, signOut, onIdTokenChanged } from "firebase/auth";
 import app from "@/firebase/config";
 import * as Constants from "../firebase/constants";
 import nookies from "nookies";
-import no_image from "../public/no_image.png";
 
 import { useState } from "react";
 import {
-  getUserFunction,
   isUserAuthorizedFunction,
   getUserViaEmailFunction,
   addUserFunction,
-} from "@/firebase/firebase_functions/users_function";
+} from "@/firebase/firebase_functions/users_functions";
 import {
-  getCartViaIdFunction,
   addToCartFunction,
   removeFromCartFunction,
-} from "@/firebase/firebase_functions/cart_function";
+} from "@/firebase/firebase_functions/cart_functions";
 import { getImageInProduct } from "@/firebase/helpers";
 import { useRouter } from "next/navigation";
 

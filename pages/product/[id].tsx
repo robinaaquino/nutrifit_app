@@ -9,7 +9,7 @@ import {
   addProductFunction,
   getProductViaIdFunction,
   updateProductFunction,
-} from "@/firebase/firebase_functions/products_function";
+} from "@/firebase/firebase_functions/products_functions";
 import { useAuthContext } from "@/context/AuthContext";
 import no_image from "../../public/no_image.png";
 import Image from "next/image";

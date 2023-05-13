@@ -10,10 +10,10 @@ import {
   addProductFunction,
   getProductViaIdFunction,
   updateProductFunction,
-} from "@/firebase/firebase_functions/products_function";
+} from "@/firebase/firebase_functions/products_functions";
 import Image from "next/image";
 import no_image from "../../../public/no_image.png";
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 import nookies from "nookies";
 import admin from "../../../firebase/admin-config";
 

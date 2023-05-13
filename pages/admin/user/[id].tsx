@@ -3,7 +3,7 @@ import admin from "@/firebase/admin-config";
 import {
   getUserFunction,
   updateUserFunction,
-} from "@/firebase/firebase_functions/users_function";
+} from "@/firebase/firebase_functions/users_functions";
 import { useAuthContext } from "@/context/AuthContext";
 import no_image from "../../../public/no_image.png";
 import Image from "next/image";
@@ -11,7 +11,7 @@ import { UsersDatabaseType, RoleEnum } from "@/firebase/constants";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { User } from "firebase/auth";
-import { resetPassword } from "@/firebase/firebase_functions/auth";
+import { resetPassword } from "@/firebase/firebase_functions/auth_functions";
 import { getAllOrdersViaIdFunction } from "@/firebase/firebase_functions/orders_functions";
 import TableComponent from "@/components/admin/TableComponent";
 

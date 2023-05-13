@@ -1,13 +1,13 @@
 "use client";
 import React, { useEffect, useContext, useState } from "react";
-import { logInWithEmailAndPassword } from "@/firebase/firebase_functions/auth";
+import { logInWithEmailAndPassword } from "@/firebase/firebase_functions/auth_functions";
 import { useRouter } from "next/navigation";
-import { signInWithGoogle } from "@/firebase/firebase_functions/auth";
+import { signInWithGoogle } from "@/firebase/firebase_functions/auth_functions";
 import Image from "next/image";
 import { AuthContext, useAuthContext } from "@/context/AuthContext";
 import Link from "next/link";
 import { getAuth } from "firebase/auth";
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 import { useForm } from "react-hook-form";
 import WarningMessage from "@/components/forms/WarningMessage";
 import SocialMediaLogin from "@/components/common/SocialMediaLogin";

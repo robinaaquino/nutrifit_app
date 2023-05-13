@@ -1,9 +1,9 @@
 "use client";
 import React, { useContext } from "react";
-import { signUp } from "@/firebase/firebase_functions/auth";
+import { signUp } from "@/firebase/firebase_functions/auth_functions";
 import { useRouter } from "next/navigation";
 import { AuthContext, useAuthContext } from "@/context/AuthContext";
-import { addUserFunction } from "@/firebase/firebase_functions/users_function";
+import { addUserFunction } from "@/firebase/firebase_functions/users_functions";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import WarningMessage from "@/components/forms/WarningMessage";
