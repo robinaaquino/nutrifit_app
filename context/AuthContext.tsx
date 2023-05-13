@@ -259,7 +259,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
       if (contextResult == false || cookieResult == false) {
         error("Duplicate product in cart");
       } else {
-        success("Sucessful in adding product to cart");
+        success("Successful in adding product to cart");
       }
     }
   };
@@ -271,14 +271,14 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
       if (removeFromCartResult.isSuccess) {
         removeProductFromContextCart(product);
         removeProductFromCookiesCart(product);
-        success("Sucessful in removing product from cart");
+        success("Successful in removing product from cart");
       } else {
         error(removeFromCartResult.errorMessage);
       }
     } else {
       removeProductFromContextCart(product);
       removeProductFromCookiesCart(product);
-      success("Sucessful in removing product from cart");
+      success("Successful in removing product from cart");
     }
   };
 
