@@ -55,7 +55,7 @@ export default function InputComponent({
     <>
       {type == "password" ? (
         <>
-          <div className="mb-6">
+          <div className="mb-6 px-3">
             <div className="relative">
               {label ? (
                 <label
@@ -139,7 +139,7 @@ export default function InputComponent({
         </>
       ) : (
         <>
-          <div className="mb-6">
+          <div className="mb-6 px-3">
             {label ? (
               <label
                 className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 text-left"
