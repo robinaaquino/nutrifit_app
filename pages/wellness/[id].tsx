@@ -15,6 +15,8 @@ import {
   getWellnessSurveyResultsViaIdFunction,
 } from "@/firebase/firebase_functions/wellness_functions";
 
+import InputComponent from "@/components/forms/input/InputComponent";
+
 export default function WellnessSurveyShow(props: any) {
   const router = useRouter();
   const { id } = router.query;
@@ -137,15 +139,6 @@ export default function WellnessSurveyShow(props: any) {
         water: inputWater,
       },
     };
-
-    // const addResultResult = await addWellnessSurveyResult(resultObject);
-
-    // if (addResultResult.isSuccess) {
-    //   success(addResultResult.resultText);
-    //   router.push("/");
-    // } else {
-    //   error(addResultResult.resultText);
-    // }
   };
 
   async function fetchWellnessSurveyResult() {
@@ -159,6 +152,7 @@ export default function WellnessSurveyShow(props: any) {
     }
 
     const result = await getWellnessSurveyResultsViaIdFunction(idInput);
+    console.log(result);
 
     if (!result.isSuccess) {
       error(result.resultText);
@@ -212,6 +206,7 @@ export default function WellnessSurveyShow(props: any) {
       setWeightStatus(
         wellnessSurveyResultObject.wellness_remarks.weight_status
       );
+      console.log(wellnessSurveyResultObject.wellness_remarks.weight_status);
       setWeightStatusNumber(
         wellnessSurveyResultObject.wellness_remarks.weight_status_number
       );
@@ -231,7 +226,7 @@ export default function WellnessSurveyShow(props: any) {
 
   return (
     <>
-      <form onSubmit={handleSubmit(handleForm)}>
+      <form onSubmit={handleSubmit(handleForm)} className="w-1/2 mx-auto">
         <h2 className="mt-6 mb-10 text-center text-3xl font-bold tracking-tight text-gray-900">
           Wellness Survey
         </h2>
@@ -241,7 +236,24 @@ export default function WellnessSurveyShow(props: any) {
         {/* Personal Details */}
         <div>
           {/* Name */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"name"}
+            name={"inputName"}
+            label={"Name"}
+            type={"text"}
+            placeholder={"Type your name..."}
+            value={name}
+            register={register}
+            rules={{
+              required: "Name is required",
+              onChange: (e: any) => setName(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputName ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="name"
@@ -264,9 +276,26 @@ export default function WellnessSurveyShow(props: any) {
             {errors.inputName && (
               <WarningMessage text={errors.inputName?.message} />
             )}
-          </div>
+          </div> */}
           {/* Contact Number */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"contactNumber"}
+            name={"inputContactNumber"}
+            label={"Contact Number"}
+            type={"text"}
+            placeholder={"Type your contact number..."}
+            value={contactNumber}
+            register={register}
+            rules={{
+              required: "Contact number is required",
+              onChange: (e: any) => setContactNumber(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputContactNumber ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="contactNumber"
@@ -289,9 +318,26 @@ export default function WellnessSurveyShow(props: any) {
             {errors.inputContactNumber && (
               <WarningMessage text={errors.inputContactNumber?.message} />
             )}
-          </div>
+          </div> */}
           {/* Gender */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"gender"}
+            name={"inputGender"}
+            label={"Gender"}
+            type={"text"}
+            placeholder={"Type your gender..."}
+            value={gender}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setGender(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputGender ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="gender"
@@ -311,9 +357,26 @@ export default function WellnessSurveyShow(props: any) {
                 disabled: true,
               })}
             />
-          </div>
+          </div> */}
           {/* Age */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"age"}
+            name={"inputAge"}
+            label={"Age"}
+            type={"number"}
+            placeholder={"Type your age..."}
+            value={age}
+            register={register}
+            rules={{
+              required: "Age is required",
+              onChange: (e: any) => setAge(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputAge ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="age"
@@ -336,9 +399,26 @@ export default function WellnessSurveyShow(props: any) {
             {errors.inputAge && (
               <WarningMessage text={errors.inputAge?.message} />
             )}
-          </div>
+          </div> */}
           {/* Height */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"height"}
+            name={"inputHeight"}
+            label={"Height (meters)"}
+            type={"number"}
+            placeholder={"Type your height..."}
+            value={height}
+            register={register}
+            rules={{
+              required: "Height is required",
+              onChange: (e: any) => setHeight(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputHeight ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="height"
@@ -361,9 +441,26 @@ export default function WellnessSurveyShow(props: any) {
             {errors.inputHeight && (
               <WarningMessage text={errors.inputHeight?.message} />
             )}
-          </div>
+          </div> */}
           {/* Weight */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"weight"}
+            name={"inputWeight"}
+            label={"Weight (kilograms)"}
+            type={"number"}
+            placeholder={"Type your weight..."}
+            value={weight}
+            register={register}
+            rules={{
+              required: "Weight is required",
+              onChange: (e: any) => setWeight(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputWeight ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="weight"
@@ -386,7 +483,7 @@ export default function WellnessSurveyShow(props: any) {
             {errors.inputWeight && (
               <WarningMessage text={errors.inputWeight?.message} />
             )}
-          </div>
+          </div> */}
         </div>
         {/* Questions */}
         <h3 className="mt-5 mb-2 ml-2 text-2xl font-bold tracking-tight text-gray-900">
@@ -424,7 +521,24 @@ export default function WellnessSurveyShow(props: any) {
         {/* Wellness Trainer Information */}
         <div>
           {/* Date */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"date"}
+            name={"inputDate"}
+            label={"Date"}
+            type={"date"}
+            placeholder={"Type your date..."}
+            value={date}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setDate(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputDate ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="date"
@@ -446,10 +560,27 @@ export default function WellnessSurveyShow(props: any) {
             {errors.inputDate && (
               <WarningMessage text={errors.inputDate?.message} />
             )}
-          </div>
+          </div> */}
 
           {/* Fat */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"fat"}
+            name={"inputFat"}
+            label={"Fat %"}
+            type={"text"}
+            placeholder={"Type the fat %..."}
+            value={fat}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setFat(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputFat ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="fat"
@@ -472,10 +603,27 @@ export default function WellnessSurveyShow(props: any) {
             {errors.inputFat && (
               <WarningMessage text={errors.inputFat?.message} />
             )}
-          </div>
+          </div> */}
 
           {/* Visceral Fat */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"visceralFat"}
+            name={"inputVisceralFat"}
+            label={"Visceral Fat"}
+            type={"text"}
+            placeholder={"Type the visceral fat..."}
+            value={visceralFat}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setVisceralFat(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputVisceralFat ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="visceral_fat"
@@ -498,10 +646,27 @@ export default function WellnessSurveyShow(props: any) {
             {errors.inputVisceralFat && (
               <WarningMessage text={errors.inputVisceralFat?.message} />
             )}
-          </div>
+          </div> */}
 
           {/* Bone Mass */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"boneMass"}
+            name={"inputBoneMass"}
+            label={"Bone Mass"}
+            type={"text"}
+            placeholder={"Type the bone mass..."}
+            value={boneMass}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setBoneMass(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputBoneMass ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="bone_mass"
@@ -524,10 +689,27 @@ export default function WellnessSurveyShow(props: any) {
             {errors.inputBoneMass && (
               <WarningMessage text={errors.inputBoneMass?.message} />
             )}
-          </div>
+          </div> */}
 
           {/* Resting Metabolic Rate (Calories burned at rest) */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"restingMetabolicRate"}
+            name={"inputRestingMetabolicRate"}
+            label={"Resting Metabolic Rate {`(Calories burned at rest)`}"}
+            type={"text"}
+            placeholder={"Type the resting metabolic rate..."}
+            value={restingMetabolicRate}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setRestingMetabolicRate(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputRestingMetabolicRate ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="resting_metabolic_rate"
@@ -552,10 +734,27 @@ export default function WellnessSurveyShow(props: any) {
                 text={errors.inputRestingMetabolicRate?.message}
               />
             )}
-          </div>
+          </div> */}
 
           {/* Metabolic Age */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"metabolicAge"}
+            name={"inputMetabolicAge"}
+            label={"Metabolic Age"}
+            type={"text"}
+            placeholder={"Type the metabolic age..."}
+            value={metabolicAge}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setMetabolicAge(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputMetabolicAge ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="metabolic_age"
@@ -578,10 +777,27 @@ export default function WellnessSurveyShow(props: any) {
             {errors.inputMetabolicAge && (
               <WarningMessage text={errors.inputMetabolicAge?.message} />
             )}
-          </div>
+          </div> */}
 
           {/* Muscle Mass */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"muscleMass"}
+            name={"inputMuscleMass"}
+            label={"Muscle Mass"}
+            type={"text"}
+            placeholder={"Type the muscle mass..."}
+            value={muscleMass}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setMuscleMass(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputMuscleMass ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="muscle_mass"
@@ -604,10 +820,27 @@ export default function WellnessSurveyShow(props: any) {
             {errors.inputMuscleMass && (
               <WarningMessage text={errors.inputMuscleMass?.message} />
             )}
-          </div>
+          </div> */}
 
           {/* Physique Rating */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"physiqueRating"}
+            name={"inputPhysiqueRating"}
+            label={"Physique Rating"}
+            type={"text"}
+            placeholder={"Type the physique rating..."}
+            value={physiqueRating}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setPhysiqueRating(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputPhysiqueRating ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="physique_rating"
@@ -630,10 +863,27 @@ export default function WellnessSurveyShow(props: any) {
             {errors.inputPhysiqueRating && (
               <WarningMessage text={errors.inputPhysiqueRating?.message} />
             )}
-          </div>
+          </div> */}
 
           {/* Water % */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"water"}
+            name={"inputWater"}
+            label={"Water %"}
+            type={"text"}
+            placeholder={"Type the water %..."}
+            value={water}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setWater(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputWater ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="water"
@@ -656,7 +906,7 @@ export default function WellnessSurveyShow(props: any) {
             {errors.inputWater && (
               <WarningMessage text={errors.inputWater?.message} />
             )}
-          </div>
+          </div> */}
         </div>
 
         {/* Wellness Remarks */}
@@ -664,7 +914,29 @@ export default function WellnessSurveyShow(props: any) {
           Wellness Remarks
         </h3>
         <div>
-          <div className="w-full px-3 mb-6">
+          {/* Admin Review Status */}
+          <InputComponent
+            id={"reviewedByAdmin"}
+            name={"inputReviewedByAdmin"}
+            label={"Admin Review Status"}
+            type={"text"}
+            placeholder={""}
+            value={
+              reviewedByAdmin
+                ? "Reviewed by admin"
+                : "Pending review from admin"
+            }
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setReviewedByAdmin(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputReviewedByAdmin ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="status"
@@ -687,10 +959,27 @@ export default function WellnessSurveyShow(props: any) {
               })}
               aria-invalid={errors.inputReviewedByAdmin ? "true" : "false"}
             />
-          </div>
+          </div> */}
 
           {/* Present Weight % */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"presentWeight"}
+            name={"inputPresentWeight"}
+            label={"Present Weight"}
+            type={"text"}
+            placeholder={"Type the present weight..."}
+            value={presentWeight}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setPresentWeight(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputPresentWeight ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="present_weight"
@@ -713,10 +1002,27 @@ export default function WellnessSurveyShow(props: any) {
             {errors.inputPresentWeight && (
               <WarningMessage text={errors.inputPresentWeight?.message} />
             )}
-          </div>
+          </div> */}
 
           {/* Ideal Weight */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"idealWeight"}
+            name={"inputIdealWeight"}
+            label={"Ideal Weight"}
+            type={"text"}
+            placeholder={"Type the ideal weight..."}
+            value={idealWeight}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setIdealWeight(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputIdealWeight ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="ideal_weight"
@@ -739,8 +1045,9 @@ export default function WellnessSurveyShow(props: any) {
             {errors.inputIdealWeight && (
               <WarningMessage text={errors.inputIdealWeight?.message} />
             )}
-          </div>
+          </div> */}
 
+          {/* Weight */}
           <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
@@ -762,6 +1069,7 @@ export default function WellnessSurveyShow(props: any) {
                 value="excess"
                 key="excess"
                 selected={weightStatus == "excess" ? true : false}
+                // selected={true}
               >
                 Excess
               </option>
@@ -777,7 +1085,24 @@ export default function WellnessSurveyShow(props: any) {
           </div>
 
           {/* Weight Status Number */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"weightStatusNumber"}
+            name={"inputWeightStatusNumber"}
+            label={"Weight (in excess or lacking of)"}
+            type={"text"}
+            placeholder={"Type the weight in excess or lacking weight..."}
+            value={weightStatusNumber}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setWeightStatusNumber(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputWeightStatusNumber ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="weight_status_number"
@@ -800,10 +1125,27 @@ export default function WellnessSurveyShow(props: any) {
             {errors.inputWeightStatusNumber && (
               <WarningMessage text={errors.inputWeightStatusNumber?.message} />
             )}
-          </div>
+          </div> */}
 
           {/* Ideal Visceral */}
-          <div className="w-full px-3 mb-6">
+          <InputComponent
+            id={"idealVisceral"}
+            name={"inputIdealVisceral"}
+            label={"Ideal Visceral Fat"}
+            type={"text"}
+            placeholder={"Type the ideal visceral fat..."}
+            value={idealVisceral}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setIdealVisceral(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputIdealVisceral ? "true" : "false"}
+          />
+          {/* <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
               htmlFor="ideal_visceral"
@@ -826,7 +1168,7 @@ export default function WellnessSurveyShow(props: any) {
             {errors.inputIdealVisceral && (
               <WarningMessage text={errors.inputIdealVisceral?.message} />
             )}
-          </div>
+          </div> */}
         </div>
 
         <div>
