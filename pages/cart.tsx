@@ -131,7 +131,10 @@ export default function Cart(props: any) {
       };
 
       const orderDetails: OrdersDatabaseType = {
-        total_price: cartContents.subtotal_price,
+        total_price:
+          inputDeliveryMode == "delivery"
+            ? cartContents.subtotal_price + 200
+            : cartContents.subtotal_price,
         payment: {
           created_at: new Date().toString(),
           date_cleared: "",
@@ -149,6 +152,8 @@ export default function Cart(props: any) {
         delivery_mode: inputDeliveryMode,
         shipping_details: shipping_details,
       };
+
+      console.log(orderDetails);
 
       const result = await addOrderFunction(orderDetails);
 
@@ -341,7 +346,7 @@ export default function Cart(props: any) {
                       Delivery Mode
                     </label>
                     <RadioButton
-                      name={"deliveryMode"}
+                      name={"inputDeliveryMode"}
                       id={"delivery"}
                       register={register}
                       value={"delivery"}
@@ -352,7 +357,7 @@ export default function Cart(props: any) {
                       }
                     />
                     <RadioButton
-                      name={"deliveryMode"}
+                      name={"inputDeliveryMode"}
                       id={"pickup"}
                       value={"pickup"}
                       register={register}
