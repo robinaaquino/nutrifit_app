@@ -605,7 +605,7 @@ export default function WellnessSurvey(props: any) {
           <InputComponent
             id={"restingMetabolicRate"}
             name={"inputRestingMetabolicRate"}
-            label={"Resting Metabolic Rate {`(Calories burned at rest)`}"}
+            label={"Resting Metabolic Rate (Calories burned at rest)"}
             type={"text"}
             placeholder={"Type the resting metabolic rate..."}
             value={restingMetabolicRate}
