@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import nookies from "nookies";
 import admin from "../../../firebase/admin-config";
 import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
-import Filter from "@/components/universal/filter";
+import Filter from "@/components/filter/Filter";
 import SearchBar from "@/components/universal/search_bar";
 
 //clean getserversideprops calls for all admin routes

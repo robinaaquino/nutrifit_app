@@ -13,6 +13,8 @@ import admin from "@/firebase/admin-config";
 import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 import RadioButton from "@/components/forms/RadioButton";
 
+import { useForm } from "react-hook-form";
+
 export default function OrderShow(props: any) {
   const router = useRouter();
   const { id } = router.query;
@@ -46,6 +48,17 @@ export default function OrderShow(props: any) {
     },
   });
   const { error, user } = useAuthContext();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      inputDeliveryMode: "pickup",
+    },
+  });
 
   async function fetchOrder() {
     var idInput = "";
@@ -207,8 +220,9 @@ export default function OrderShow(props: any) {
                       Delivery Mode
                     </label>
                     <RadioButton
-                      name={"deliveryMode"}
+                      name={"inputDeliveryMode"}
                       id={"delivery"}
+                      register={register}
                       value={"delivery"}
                       label={"Delivery"}
                       checkedFunction={
@@ -216,7 +230,7 @@ export default function OrderShow(props: any) {
                       }
                     />
                     <RadioButton
-                      name={"deliveryMode"}
+                      name={"inputDeliveryMode"}
                       id={"pickup"}
                       value={"pickup"}
                       label={"Pick-up"}

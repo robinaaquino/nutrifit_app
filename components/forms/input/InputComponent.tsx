@@ -5,17 +5,17 @@ export default function InputComponent({
   id,
   name,
   label,
+  type,
   placeholder,
   value,
   register,
   rules,
   error,
-  type,
   disabled,
 }: {
   id: any;
-  name: any;
-  label: any;
+  name?: any;
+  label?: any;
   type: any;
   placeholder?: any;
   value?: any;
@@ -24,7 +24,8 @@ export default function InputComponent({
   error?: any;
   disabled?: any;
 }) {
-  const errorObject = error[name];
+  const errorObject =
+    error && Object.keys(error).includes(name) ? error[name] : null;
   const hasError = !!(error && errorObject);
   const [capsLock, setCapsLock] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -56,12 +57,15 @@ export default function InputComponent({
         <>
           <div className="mb-6">
             <div className="relative">
-              <label
-                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 text-left"
-                htmlFor={id}
-              >
-                {label}
-              </label>
+              {label ? (
+                <label
+                  className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 text-left"
+                  htmlFor={id}
+                >
+                  {label}
+                </label>
+              ) : null}
+
               <input
                 id={id}
                 name={name}
@@ -136,12 +140,14 @@ export default function InputComponent({
       ) : (
         <>
           <div className="mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 text-left"
-              htmlFor={id}
-            >
-              {label}
-            </label>
+            {label ? (
+              <label
+                className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2 text-left"
+                htmlFor={id}
+              >
+                {label}
+              </label>
+            ) : null}
             <input
               id={id}
               name={name}
@@ -154,8 +160,8 @@ export default function InputComponent({
               {...(register && register(name, rules))}
               className={
                 hasError
-                  ? `block appearance-none w-full bg-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500 border border-red-500`
-                  : `block appearance-none w-full bg-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500 border border-gray-200`
+                  ? `block appearance-none w-full bg-gray-200 text-gray-700 py-3 px-4 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500 border border-red-500`
+                  : `block appearance-none w-full bg-gray-200 text-gray-700 py-3 px-4 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500 border border-gray-200`
               }
             />
             {hasError && <WarningMessage text={errorObject.message} />}

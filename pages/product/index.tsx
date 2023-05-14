@@ -10,7 +10,7 @@ import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import nookies from "nookies";
 import admin from "../../firebase/admin-config";
-import Filter from "@/components/universal/filter";
+import Filter from "@/components/filter/Filter";
 
 export default function Catalog(props: any) {
   const [productList, setProductList] = useState<ProductsDatabaseType[]>([]);

@@ -332,6 +332,7 @@ export default function Cart(props: any) {
                     <RadioButton
                       name={"deliveryMode"}
                       id={"delivery"}
+                      register={register}
                       value={"delivery"}
                       handleInput={setDeliveryMode}
                       label={"Delivery"}

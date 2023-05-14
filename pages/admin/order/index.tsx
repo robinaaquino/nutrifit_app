@@ -1,7 +1,7 @@
 import nookies from "nookies";
 import admin from "@/firebase/admin-config";
 
-import Filter from "@/components/universal/filter";
+import Filter from "@/components/filter/Filter";
 import SearchBar from "@/components/universal/search_bar";
 import TableComponent from "@/components/admin/TableComponent";
 
