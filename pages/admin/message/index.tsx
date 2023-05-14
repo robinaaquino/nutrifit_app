@@ -2,7 +2,7 @@ import nookies from "nookies";
 import admin from "@/firebase/admin-config";
 
 import Filter from "@/components/filter/Filter";
-import SearchBar from "@/components/universal/search_bar";
+import SearchBar from "@/components/universal/SearchBar";
 import TableComponent from "@/components/admin/TableComponent";
 
 import { UsersDatabaseType } from "@/firebase/constants";

@@ -12,7 +12,7 @@ import nookies from "nookies";
 import admin from "../../../firebase/admin-config";
 import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 import Filter from "@/components/filter/Filter";
-import SearchBar from "@/components/universal/search_bar";
+import SearchBar from "@/components/universal/SearchBar";
 
 //clean getserversideprops calls for all admin routes
 export default function AdminProduct(props: any) {
