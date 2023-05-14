@@ -143,11 +143,11 @@ export const getAllOrdersWithFilterFunction = async (filter: any) => {
     }
 
     if (filter.minPrice != 0) {
-      orderQuery.push(where("total_price", ">", filter.minPrice));
+      orderQuery.push(where("total_price", ">=", filter.minPrice));
     }
 
     if (filter.maxPrice != 0) {
-      orderQuery.push(where("total_price", "<", filter.maxPrice));
+      orderQuery.push(where("total_price", "<=", filter.maxPrice));
     }
 
     const orderReference = query(collection(db, "orders"), ...orderQuery);

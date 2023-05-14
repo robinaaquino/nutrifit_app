@@ -78,11 +78,11 @@ export const getAllProductsWithFilterFunction = async (filter: any) => {
     }
 
     if (filter.minPrice != 0) {
-      productQuery.push(where("price", ">", filter.minPrice));
+      productQuery.push(where("price", ">=", filter.minPrice));
     }
 
     if (filter.maxPrice != 0) {
-      productQuery.push(where("price", "<", filter.maxPrice));
+      productQuery.push(where("price", "<=", filter.maxPrice));
     }
 
     const productReference = query(collection(db, "products"), ...productQuery);
