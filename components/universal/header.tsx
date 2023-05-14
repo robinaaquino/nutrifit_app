@@ -2,21 +2,23 @@ import React from "react";
 import SearchBar from "./SearchBar";
 import { logout, useAuthContext } from "@/context/AuthContext";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useRouter as nextRouter } from "next/router";
+import { useRouter, usePathname, useParams } from "next/navigation";
 import nookies from "nookies";
 
 export default function Header() {
   const { user, cart, isAuthorized, reset } = useAuthContext();
-  const { pathname } = nextRouter();
+  const pathname = usePathname();
+  const params = useParams();
   const router = useRouter();
+  const additionalParams = new URLSearchParams(params);
 
   function handleSearch(text: string) {
     nookies.set(undefined, "search", text, { path: "/" });
+    additionalParams.set("search", text);
     if (pathname == "/product") {
-      router.replace("/product");
+      router.replace(`/product?${additionalParams}`);
     } else {
-      router.push("/product");
+      router.push(`/product?${additionalParams}`);
     }
   }
 
