@@ -333,7 +333,7 @@ export default function Filter({
                           ) : null}
                         </div>
                         <div className=" py-3 flex flex-row-reverse px-6">
-                          <InputSubmit label="Apply filters" />
+                          <InputSubmit label="Apply filters" type="multiple" />
                           {/* <button
                           type="submit"
                           className="inline-flex w-full justify-center rounded-md bg-nf_green px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-nf_dark_blue sm:ml-3 sm:w-auto"
