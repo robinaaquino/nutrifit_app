@@ -53,6 +53,7 @@ export default function Cart(props: any) {
   });
 
   const [cartContents, setCartContents] = useState<any>(null);
+  const [cartProducts, setCartProducts] = useState<any[]>([]);
   const {
     deleteCartInCookiesAndContext,
     cart,
@@ -60,6 +61,7 @@ export default function Cart(props: any) {
     error,
     success,
     user,
+    clear,
   } = useAuthContext();
   const router = useRouter();
 
@@ -67,22 +69,26 @@ export default function Cart(props: any) {
     if (props.cart) {
       //if cart exists in cookies
       setCartContents(props.cart);
-    } else {
-      if (cart) {
-        //check cart in context
-        setCartContents(cart);
-      } else {
-        let newCart: any = {
-          created_at: new Date().toString(),
-          products: [],
-          subtotal_price: 0,
-          updated_at: new Date().toString(),
-          user_id: null,
-        };
-
-        setCartContents(newCart);
-      }
+      setCartProducts(props.cart.products);
     }
+    // else {
+    //   if (cart) {
+    //     //check cart in context
+    //     setCartContents(cart);
+    //     setCartProducts(products);
+    //   } else {
+    //     let newCart: any = {
+    //       created_at: new Date().toString(),
+    //       products: [],
+    //       subtotal_price: 0,
+    //       updated_at: new Date().toString(),
+    //       user_id: null,
+    //     };
+
+    //     setCartContents(newCart);
+    //     setCartProducts([]);
+    //   }
+    // }
   }
 
   function handleRemoveFromCart(product: any) {
@@ -92,11 +98,15 @@ export default function Cart(props: any) {
         previousCart.products.splice(i, 1);
       }
     }
+    previousCart.products = previousCart.products.slice();
     previousCart.subtotal_price =
       previousCart.subtotal_price - product.price * product.quantity;
     previousCart.updated_at = new Date().toString();
-    setCartContents(previousCart);
     removeFromCart(product);
+
+    setCartContents(previousCart);
+    setCartProducts(previousCart.products);
+    console.log("prev", previousCart);
   }
 
   const handleFormForPayment = async (data: any, e: any) => {
@@ -168,6 +178,7 @@ export default function Cart(props: any) {
   };
 
   useEffect(() => {
+    clear();
     fetchCarts();
   }, []);
 
@@ -344,6 +355,7 @@ export default function Cart(props: any) {
                       name={"deliveryMode"}
                       id={"pickup"}
                       value={"pickup"}
+                      register={register}
                       handleInput={setDeliveryMode}
                       label={"Pick-up"}
                       checkedFunction={deliveryMode == "pickup" ? true : false}
@@ -417,10 +429,8 @@ export default function Cart(props: any) {
               <h2 className="text-xl font-bold text-black">Order Summary</h2>
               <div className="mt-8">
                 <div className="flex flex-col space-y-4">
-                  {cartContents &&
-                  cartContents.products &&
-                  cartContents.products.length > 0 ? (
-                    cartContents.products.map((e: any) => {
+                  {cartProducts && cartProducts.length > 0 ? (
+                    cartProducts.map((e: any) => {
                       const imageLink = e.image.src ? e.image.src : e.image;
                       return (
                         <>
@@ -550,7 +560,7 @@ export default function Cart(props: any) {
                     : 0}
                 </h2>
               </div>
-              <div className="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0">
+              <div className="flex items-center w-full py-4 text-sm font-semibold lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0">
                 Subtotal
                 <span className="ml-2">
                   Php{" "}
@@ -559,6 +569,13 @@ export default function Cart(props: any) {
                     : 0}
                 </span>
               </div>
+              {deliveryMode == "delivery" ? (
+                <div className="flex items-center w-full text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading ">
+                  Shipping Price
+                  <span className="ml-2">Php 200</span>
+                </div>
+              ) : null}
+
               {/* <div className="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0">
                 Shipping Tax<span className="ml-2">$10</span>
               </div> */}
@@ -566,9 +583,13 @@ export default function Cart(props: any) {
                 Total
                 <span className="ml-2">
                   Php{" "}
-                  {cartContents?.subtotal_price
+                  {deliveryMode == "pickup"
                     ? cartContents?.subtotal_price
-                    : 0}
+                      ? cartContents?.subtotal_price
+                      : 0
+                    : cartContents?.subtotal_price
+                    ? cartContents?.subtotal_price + 200
+                    : 200}
                 </span>
               </div>
             </div>
