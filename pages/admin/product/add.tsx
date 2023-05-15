@@ -46,8 +46,8 @@ export default function AdminAddProduct(props: any) {
     defaultValues: {
       inputCategory: "",
       inputProductDescription: "",
-      inputPrice: "",
-      inputQuantity: "",
+      inputPrice: 0,
+      inputQuantity: 0,
       inputProductName: "",
     },
   });
@@ -67,8 +67,8 @@ export default function AdminAddProduct(props: any) {
       const productObject: ProductsDatabaseType = {
         category: inputCategory,
         description: inputProductDescription,
-        price: inputPrice,
-        quantity_left: inputQuantity,
+        price: parseInt(inputPrice),
+        quantity_left: parseInt(inputQuantity),
         name: inputProductName,
         images: files,
       };
