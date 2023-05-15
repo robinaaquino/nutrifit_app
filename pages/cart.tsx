@@ -25,6 +25,7 @@ import InputSubmit from "@/components/forms/input/InputSubmit";
 import InputButton from "@/components/forms/input/InputButton";
 import Label from "@/components/forms/Label";
 import Link from "next/link";
+import HeadingTwo from "@/components/forms/HeadingTwo";
 
 export default function Cart(props: any) {
   const [firstName, setFirstName] = useState("");
@@ -210,10 +211,8 @@ export default function Cart(props: any) {
               className="justify-center w-full mx-auto"
               onSubmit={handleSubmit(handleFormForPayment)}
             >
-              <div className="">
-                <h2 className="mb-4 font-bold md:text-xl text-heading text-black">
-                  Contact Details
-                </h2>
+              <div className="bg-gray-50 rounded-lg p-2 mb-2">
+                <HeadingTwo label={"Contact Details"} />
                 {/* First Name and Last Name */}
                 <div className="grid grid-cols-2">
                   <InputComponent
@@ -334,7 +333,8 @@ export default function Cart(props: any) {
 
               {/* Shipping Address */}
               {deliveryMode == "delivery" ? (
-                <div>
+                <div className="bg-gray-50 rounded-lg p-2">
+                  <HeadingTwo label={"Shipping Address"} />
                   {/* Address */}
                   <div className="mt-4">
                     <InputComponent
