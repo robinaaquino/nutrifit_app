@@ -187,7 +187,7 @@ export default function Filter({
     });
 
     additionalParams.set("search", "");
-    router.replace(`/product?${additionalParams}`);
+    // router.replace(`/product?${additionalParams}`);
     nookies.set(undefined, "search", "", { path: "/" });
   }
 
