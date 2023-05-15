@@ -373,19 +373,26 @@ export const getAllUsersWithSearchFunction = async (searchString: any) => {
         let regexExpression = `^.*` + individualStrings[j] + `.*$`;
         if (
           users[i].email.toLowerCase().match(regexExpression) ||
-          users[i].shipping_details?.first_name
-            .toString()
-            .match(regexExpression) ||
-          users[i].shipping_details?.last_name
-            .toString()
-            .match(regexExpression) ||
-          users[i].shipping_details?.address
-            .toString()
-            .match(regexExpression) ||
-          users[i].shipping_details?.province
-            .toString()
-            .match(regexExpression) ||
-          users[i].shipping_details?.city.toString().match(regexExpression) ||
+          (users[i].shipping_details?.first_name &&
+            users[i].shipping_details?.first_name
+              .toString()
+              .match(regexExpression)) ||
+          (users[i].shipping_details?.last_name &&
+            users[i].shipping_details?.last_name
+              .toString()
+              .match(regexExpression)) ||
+          (users[i].shipping_details?.address &&
+            users[i].shipping_details?.address
+              .toString()
+              .match(regexExpression)) ||
+          (users[i].shipping_details?.province &&
+            users[i].shipping_details?.province
+              .toString()
+              .match(regexExpression)) ||
+          (users[i].shipping_details?.city &&
+            users[i].shipping_details?.city
+              .toString()
+              .match(regexExpression)) ||
           users[i].role.toLowerCase().match(regexExpression)
         ) {
           matchedString = true;
