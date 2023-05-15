@@ -128,11 +128,11 @@ export default function Cart(props: any) {
     } = data;
     if (cartContents != null && cartContents.products.length > 0) {
       const shipping_details = {
-        address: inputAddress,
+        address: deliveryMode == "delivery" ? inputAddress : "",
         first_name: inputFirstName,
         last_name: inputLastName,
-        city: inputCity,
-        province: inputProvince,
+        city: deliveryMode == "delivery" ? inputCity : "",
+        province: deliveryMode == "delivery" ? inputProvince : "",
         contact_number: inputContactNumber,
       };
 
