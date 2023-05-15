@@ -3,6 +3,7 @@ import { addMessageFunction } from "@/firebase/firebase_functions/messages_funct
 import { useAuthContext } from "@/context/AuthContext";
 import { useForm } from "react-hook-form";
 import WarningMessage from "@/components/forms/WarningMessage";
+import HeadingOne from "@/components/forms/HeadingOne";
 
 export default function ContactUs() {
   const [name, setName] = useState("");
@@ -50,9 +51,10 @@ export default function ContactUs() {
           <div className="-mx-4 flex flex-wrap lg:justify-between">
             <div className="w-full px-4 lg:w-1/2 xl:w-5/12">
               <div className="relative rounded-lg bg-white p-8 shadow-lg sm:p-12">
-                <h2 className="text-black text-[32px] font-bold uppercase sm:text-[40px] lg:text-[36px] xl:text-[40px]">
-                  Got any questions or concerns?
-                </h2>
+                <HeadingOne
+                  label="Got any questions or concerns?"
+                  id="contactUsHeading"
+                />
                 <span className="text-black mb-4 block  font-semibold">
                   Contact Us
                 </span>

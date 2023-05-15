@@ -19,6 +19,8 @@ import TableComponent from "@/components/admin/TableComponent";
 import { useForm } from "react-hook-form";
 import WarningMessage from "@/components/forms/WarningMessage";
 
+import HeadingOne from "@/components/forms/HeadingOne";
+
 export default function UserShow(props: any) {
   const router = useRouter();
   const { id } = router.query;
@@ -346,6 +348,7 @@ export default function UserShow(props: any) {
     <>
       <form onSubmit={handleSubmit(handleForm)}>
         <div className="container mx-auto py-20 p-10 h-full w-full">
+          <HeadingOne label={"User Profile"} id="userProfile" />
           <div className="grid grid-cols-2 gap-4 m-2 h-full">
             <div>
               <div className="grid grid-cols-2 gap-x-6 gap-y-12 w-full mt-6">
