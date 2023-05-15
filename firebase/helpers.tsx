@@ -1,5 +1,6 @@
 import no_image from "../public/no_image.png";
 import format from "date-fns/format";
+import { ErrorCodes } from "./constants";
 
 export function parseError(e: unknown) {
   let errorMessage: string = "Unknown error while adding product";
@@ -7,6 +8,14 @@ export function parseError(e: unknown) {
     errorMessage = e;
   } else if (e instanceof Error) {
     errorMessage = e.message;
+  }
+
+  for (const [key, value] of Object.entries(ErrorCodes)) {
+    let regexExp = `^.*` + key + `.*$`;
+    if (errorMessage.toLowerCase().match(regexExp)) {
+      errorMessage = value;
+      break;
+    }
   }
 
   return errorMessage;

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import no_image from "../../public/no_image.png";
 import { useRouter } from "next/router";
+import InputButton from "../forms/input/InputButton";
 
 export default function ProductCard({
   productImage,
@@ -18,6 +19,10 @@ export default function ProductCard({
   product: any;
 }) {
   const router = useRouter();
+
+  function handleClick() {
+    handleAddToCart ? handleAddToCart(product, 1) : null;
+  }
   return (
     <>
       <div>
@@ -59,15 +64,20 @@ export default function ProductCard({
             </a>
           </div>
           {handleAddToCart ? (
-            <button
-              className="flex items-center h-8  text-white px-2 ml-4 rounded bg-nf_green hover:bg-nf_dark_blue text-lg"
-              onClick={() =>
-                handleAddToCart ? handleAddToCart(product, 1) : null
-              }
-            >
-              Add to cart
-            </button>
-          ) : null}
+            <InputButton
+              label={"Add to cart"}
+              handleClick={handleClick}
+              type="multiple"
+            />
+          ) : // <button
+          //   className="w-40 flex items-center h-8  text-white px-2 ml-4 rounded bg-nf_green hover:bg-nf_dark_blue text-lg"
+          //   onClick={() =>
+          //     handleAddToCart ? handleAddToCart(product, 1) : null
+          //   }
+          // >
+          //   Add to cart
+          // </button>
+          null}
 
           {/* <div className="flex items-center justify-between px-3 py-2">
             <button className="px-2 py-1 text-xs font-semibold text-white uppercase transition-colors duration-300 transform m-auto bg-nf_green hover:bg-nf_dark_blue">

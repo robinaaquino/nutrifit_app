@@ -8,6 +8,8 @@ import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/router";
 import nookies from "nookies";
 
+import HeadingTwo from "@/components/forms/HeadingTwo";
+
 export default function ContactUs() {
   const router = useRouter();
   const { id } = router.query;
@@ -81,7 +83,8 @@ export default function ContactUs() {
     <>
       <section className="relative z-10 overflow-hidden bg-white py-20 lg:py-[120px]">
         <div className="container mx-auto">
-          <div className="-mx-4 flex flex-wrap lg:justify-between">
+          <HeadingTwo label={"Message Details"} />
+          <div className="pt-4 -mx-4 flex flex-wrap lg:justify-between">
             <div className="w-full px-4 lg:w-1/2 xl:w-5/12">
               <div className="relative rounded-lg bg-white p-8 shadow-lg sm:p-12">
                 <form>

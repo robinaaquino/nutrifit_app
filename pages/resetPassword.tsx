@@ -1,4 +1,4 @@
-import { resetPassword } from "@/firebase/firebase_functions/auth";
+import { resetPassword } from "@/firebase/firebase_functions/auth_functions";
 import { useState } from "react";
 import { useAuthContext } from "@/context/AuthContext";
 import { useForm } from "react-hook-form";

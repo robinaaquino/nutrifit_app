@@ -4,13 +4,13 @@ import {
   getAllProductsFunction,
   getAllProductsWithFilterFunction,
   getAllProductsWithSearchFunction,
-} from "@/firebase/firebase_functions/products_function";
+} from "@/firebase/firebase_functions/products_functions";
 import { ProductsDatabaseType } from "@/firebase/constants";
 import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import nookies from "nookies";
 import admin from "../../firebase/admin-config";
-import Filter from "@/components/universal/filter";
+import Filter from "@/components/filter/Filter";
 
 export default function Catalog(props: any) {
   const [productList, setProductList] = useState<ProductsDatabaseType[]>([]);

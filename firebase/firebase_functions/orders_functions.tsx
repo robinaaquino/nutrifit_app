@@ -21,8 +21,8 @@ import {
   deleteObject,
 } from "firebase/storage";
 import { v4 } from "uuid";
-import { getProductViaIdFunction } from "./products_function";
-import { getUserFunction } from "./users_function";
+import { getProductViaIdFunction } from "./products_functions";
+import { getUserFunction } from "./users_functions";
 
 export const getAllOrdersFunction = async () => {
   let resultObject: FunctionResult = {
@@ -143,11 +143,11 @@ export const getAllOrdersWithFilterFunction = async (filter: any) => {
     }
 
     if (filter.minPrice != 0) {
-      orderQuery.push(where("total_price", ">", filter.minPrice));
+      orderQuery.push(where("total_price", ">=", filter.minPrice));
     }
 
     if (filter.maxPrice != 0) {
-      orderQuery.push(where("total_price", "<", filter.maxPrice));
+      orderQuery.push(where("total_price", "<=", filter.maxPrice));
     }
 
     const orderReference = query(collection(db, "orders"), ...orderQuery);

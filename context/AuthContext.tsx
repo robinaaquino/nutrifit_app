@@ -1,28 +1,19 @@
 import React, { ReactNode, createContext, useContext, useEffect } from "react";
-import {
-  onAuthStateChanged,
-  getAuth,
-  signOut,
-  onIdTokenChanged,
-  getIdToken,
-} from "firebase/auth";
+import { getAuth, signOut, onIdTokenChanged } from "firebase/auth";
 import app from "@/firebase/config";
 import * as Constants from "../firebase/constants";
 import nookies from "nookies";
-import no_image from "../public/no_image.png";
 
 import { useState } from "react";
 import {
-  getUserFunction,
   isUserAuthorizedFunction,
   getUserViaEmailFunction,
   addUserFunction,
-} from "@/firebase/firebase_functions/users_function";
+} from "@/firebase/firebase_functions/users_functions";
 import {
-  getCartViaIdFunction,
   addToCartFunction,
   removeFromCartFunction,
-} from "@/firebase/firebase_functions/cart_function";
+} from "@/firebase/firebase_functions/cart_functions";
 import { getImageInProduct } from "@/firebase/helpers";
 import { useRouter } from "next/navigation";
 
@@ -89,10 +80,10 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
   const isProductInArray = (product: any, products: any) => {
     for (let i = 0; i < products.length; i++) {
       if (product.id == products[i].id) {
-        return true;
+        return i;
       }
     }
-    return false;
+    return -1;
   };
 
   const addProductToContextCart = (product: any, quantity: any) => {
@@ -118,8 +109,15 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
     } else {
       var cartObject = cart;
 
-      if (isProductInArray(product, cartObject.products)) {
-        return false;
+      const productIndex = isProductInArray(product, cartObject.products);
+
+      if (productIndex != -1) {
+        cartObject.products[productIndex].quantity =
+          cartObject.products[productIndex].quantity + quantity;
+        cartObject.subtotal_price =
+          cartObject.subtotal_price + product.price * quantity;
+        cartObject.updated_at = new Date().toString();
+        return true;
       } else {
         cartObject.products = [...cartObject.products, productToBeAddedToCart];
         cartObject.subtotal_price =
@@ -172,8 +170,22 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
     if (cookies.cart) {
       var cartObjectFromCookies = JSON.parse(cookies.cart);
 
-      if (isProductInArray(product, cartObjectFromCookies.products)) {
-        return false;
+      const productIndex = isProductInArray(
+        product,
+        cartObjectFromCookies.products
+      );
+
+      if (productIndex != -1) {
+        cartObjectFromCookies.products[productIndex].quantity =
+          cartObjectFromCookies.products[productIndex].quantity + quantity;
+        cartObjectFromCookies.subtotal_price =
+          cartObjectFromCookies.subtotal_price + product.price * quantity;
+        cartObjectFromCookies.updated_at = new Date().toString();
+
+        nookies.set(undefined, "cart", JSON.stringify(cartObjectFromCookies), {
+          path: "/",
+        });
+        return true;
       } else {
         let previousProducts = cartObjectFromCookies.products;
         previousProducts.push(productToBeAddedToCart);
@@ -184,6 +196,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         nookies.set(undefined, "cart", JSON.stringify(cartObjectFromCookies), {
           path: "/",
         });
+
         return true;
       }
     } else {
@@ -265,11 +278,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         quantity
       );
 
-      if (contextResult == false || cookieResult == false) {
-        error("Duplicate product in cart");
-      } else {
-        success("Sucessful in adding product to cart");
-      }
+      success("Successful in adding product to cart");
     }
   };
 
@@ -280,14 +289,14 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
       if (removeFromCartResult.isSuccess) {
         removeProductFromContextCart(product);
         removeProductFromCookiesCart(product);
-        success("Sucessful in removing product from cart");
+        success("Successful in removing product from cart");
       } else {
         error(removeFromCartResult.errorMessage);
       }
     } else {
       removeProductFromContextCart(product);
       removeProductFromCookiesCart(product);
-      success("Sucessful in removing product from cart");
+      success("Successful in removing product from cart");
     }
   };
 

@@ -123,11 +123,13 @@ export const getAllWellnessSurveyResultsWithFilterFunction = async (
       resultQuery.push(where("program", "==", filter.program));
     }
 
-    if (filter.reviewed_by_admin != "") {
+    if (filter.reviewed_by_admin == true || filter.reviewed_by_admin == false) {
       resultQuery.push(
         where("reviewed_by_admin", "==", filter.reviewed_by_admin)
       );
     }
+
+    console.log(resultQuery);
 
     const resultReference = query(collection(db, "results"), ...resultQuery);
 

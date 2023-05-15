@@ -3,7 +3,7 @@ import admin from "@/firebase/admin-config";
 import {
   getUserFunction,
   updateUserFunction,
-} from "@/firebase/firebase_functions/users_function";
+} from "@/firebase/firebase_functions/users_functions";
 import { useAuthContext } from "@/context/AuthContext";
 import no_image from "../../public/no_image.png";
 import Image from "next/image";
@@ -11,13 +11,15 @@ import { UsersDatabaseType, RoleEnum } from "@/firebase/constants";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { User } from "firebase/auth";
-import { resetPassword } from "@/firebase/firebase_functions/auth";
+import { resetPassword } from "@/firebase/firebase_functions/auth_functions";
 import { getAllOrdersViaIdFunction } from "@/firebase/firebase_functions/orders_functions";
-import { getAllWellnessSurveyResultsViaIdFunction } from "@/firebase/firebase_functions/wellness_function";
+import { getAllWellnessSurveyResultsViaIdFunction } from "@/firebase/firebase_functions/wellness_functions";
 import TableComponent from "@/components/admin/TableComponent";
 
 import { useForm } from "react-hook-form";
 import WarningMessage from "@/components/forms/WarningMessage";
+
+import HeadingOne from "@/components/forms/HeadingOne";
 
 export default function UserShow(props: any) {
   const router = useRouter();
@@ -346,6 +348,7 @@ export default function UserShow(props: any) {
     <>
       <form onSubmit={handleSubmit(handleForm)}>
         <div className="container mx-auto py-20 p-10 h-full w-full">
+          <HeadingOne label={"User Profile"} id="userProfile" />
           <div className="grid grid-cols-2 gap-4 m-2 h-full">
             <div>
               <div className="grid grid-cols-2 gap-x-6 gap-y-12 w-full mt-6">
@@ -418,101 +421,9 @@ export default function UserShow(props: any) {
                     </div>
                   </div>
                 </div>
-                <div
-                  className="
-                hidden lg:block"
-                >
-                  <div className="flex flex-wrap -mx-3 ">
-                    {/* First Name */}
-                    <div className="w-full px-3 mb-6">
-                      <label
-                        className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                        htmlFor="grid-first-name"
-                      >
-                        First Name
-                      </label>
-                      <input
-                        className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-                        id="grid-first-name"
-                        type="text"
-                        placeholder={userInfo.shipping_details?.first_name}
-                        {...register("inputFirstName", {
-                          onChange: (e: any) => setFirstName(e.target.value),
-                        })}
-                        aria-invalid={errors.inputFirstName ? "true" : "false"}
-                      />
-                    </div>
-                    {errors.inputFirstName && (
-                      <WarningMessage text={errors.inputFirstName?.message} />
-                    )}
-                  </div>
-
-                  {/* Last Name */}
-                  <div className="flex space-x-0">
-                    <div className="w-full  mb-6">
-                      <label
-                        className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                        htmlFor="grid-last-name"
-                      >
-                        Last Name
-                      </label>
-                      <input
-                        className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-                        id="grid-last-name"
-                        type="text"
-                        placeholder={userInfo.shipping_details?.last_name}
-                        {...register("inputLastName", {
-                          onChange: (e: any) => setLastName(e.target.value),
-                        })}
-                        aria-invalid={errors.inputLastName ? "true" : "false"}
-                      />
-                    </div>
-                    {errors.inputLastName && (
-                      <WarningMessage text={errors.inputLastName?.message} />
-                    )}
-                  </div>
-
-                  {/* Email Field */}
-                  <div className="flex flex-wrap -mx-3 ">
-                    <div className="w-full px-3 mb-6">
-                      <label
-                        className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                        htmlFor="grid-email"
-                      >
-                        Email
-                      </label>
-                      <input
-                        className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-                        id="grid-email"
-                        type="text"
-                        placeholder={userInfo.email}
-                        disabled
-                      />
-                    </div>
-                  </div>
-                  {/* Reset Password Button */}
-                  <div className="flex flex-wrap -mx-3 ">
-                    <div className="w-full px-3 mb-6">
-                      <label
-                        className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                        htmlFor="grid-category"
-                      >
-                        Password
-                      </label>
-                      <button
-                        className="appearance-none block w-full bg-nf_green text-white border  rounded py-3 px-4 mb-3 leading-tight hover:bg-nf_dark_blue"
-                        onClick={() => {
-                          handleResetPassword();
-                        }}
-                      >
-                        Reset Password
-                      </button>
-                    </div>
-                  </div>
-                </div>
               </div>
               {/* */}
-              <div className="visible lg:hidden">
+              <div className="visible">
                 <div className="flex flex-wrap -mx-3 ">
                   {/* First Name */}
                   <div className="w-full px-3 mb-6">

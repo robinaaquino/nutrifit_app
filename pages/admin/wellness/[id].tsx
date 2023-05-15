@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useAuthContext } from "@/context/AuthContext";
 import nookies from "nookies";
 import admin from "../../../firebase/admin-config";
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 
 import { useForm } from "react-hook-form";
 import WarningMessage from "@/components/forms/WarningMessage";
@@ -16,7 +16,11 @@ import {
 import {
   getWellnessSurveyResultsViaIdFunction,
   updateWellnessSurveyResultFunction,
-} from "@/firebase/firebase_functions/wellness_function";
+} from "@/firebase/firebase_functions/wellness_functions";
+
+import InputComponent from "@/components/forms/input/InputComponent";
+import InputSubmit from "@/components/forms/input/InputSubmit";
+import InputButton from "@/components/forms/input/InputButton";
 
 export default function AdminWellnessSurveyShow(props: any) {
   const router = useRouter();
@@ -267,9 +271,7 @@ export default function AdminWellnessSurveyShow(props: any) {
     }
   }
 
-  const discardChanges = async (e: any) => {
-    e.preventDefault();
-
+  const discardChanges = async () => {
     setUserId(originalSurveyResult.user_id);
     setWellnessSurvey(originalSurveyResult.wellness_survey);
     setName(originalSurveyResult.name);
@@ -324,7 +326,7 @@ export default function AdminWellnessSurveyShow(props: any) {
 
   return (
     <>
-      <form onSubmit={handleSubmit(handleForm)}>
+      <form onSubmit={handleSubmit(handleForm)} className="w-1/2 mx-auto">
         <h2 className="mt-6 mb-10 text-center text-3xl font-bold tracking-tight text-gray-900">
           Wellness Survey
         </h2>
@@ -334,152 +336,113 @@ export default function AdminWellnessSurveyShow(props: any) {
         {/* Personal Details */}
         <div>
           {/* Name */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="name"
-            >
-              Name
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="name"
-              type="text"
-              placeholder={"Type your name..."}
-              value={name}
-              {...register("inputName", {
-                required: "Name is required",
-                onChange: (e: any) => setName(e.target.value),
-                disabled: true,
-              })}
-              aria-invalid={errors.inputName ? "true" : "false"}
-            />
-            {errors.inputName && (
-              <WarningMessage text={errors.inputName?.message} />
-            )}
-          </div>
+          <InputComponent
+            id={"name"}
+            name={"inputName"}
+            label={"Name"}
+            type={"text"}
+            placeholder={"Type your name..."}
+            value={name}
+            register={register}
+            rules={{
+              required: "Name is required",
+              onChange: (e: any) => setName(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputName ? "true" : "false"}
+          />
           {/* Contact Number */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="contactNumber"
-            >
-              Contact Number
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="name"
-              type="contactNumber"
-              value={contactNumber}
-              placeholder="Type your contact number..."
-              {...register("inputContactNumber", {
-                required: "Contact number is required",
-                onChange: (e: any) => setContactNumber(e.target.value),
-                disabled: true,
-              })}
-              aria-invalid={errors.inputContactNumber ? "true" : "false"}
-            />
-            {errors.inputContactNumber && (
-              <WarningMessage text={errors.inputContactNumber?.message} />
-            )}
-          </div>
+          <InputComponent
+            id={"contactNumber"}
+            name={"inputContactNumber"}
+            label={"Contact Number"}
+            type={"text"}
+            placeholder={"Type your contact number..."}
+            value={contactNumber}
+            register={register}
+            rules={{
+              required: "Contact number is required",
+              onChange: (e: any) => setContactNumber(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputContactNumber ? "true" : "false"}
+          />
           {/* Gender */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="gender"
-            >
-              Gender
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="gender"
-              type="text"
-              placeholder="Type your gender..."
-              value={gender}
-              {...(register("inputGender"),
-              {
-                required: false,
-                onChange: (e: any) => setGender(e.target.value),
-                disabled: true,
-              })}
-            />
-          </div>
+          <InputComponent
+            id={"gender"}
+            name={"inputGender"}
+            label={"Gender"}
+            type={"text"}
+            placeholder={"Type your gender..."}
+            value={gender}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setGender(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputGender ? "true" : "false"}
+          />
           {/* Age */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="age"
-            >
-              Age
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="age"
-              type="number"
-              value={age}
-              placeholder="Type your age..."
-              {...register("inputAge", {
-                required: "Age is required",
-                onChange: (e: any) => setAge(e.target.value),
-                disabled: true,
-              })}
-              aria-invalid={errors.inputAge ? "true" : "false"}
-            />
-            {errors.inputAge && (
-              <WarningMessage text={errors.inputAge?.message} />
-            )}
-          </div>
+          <InputComponent
+            id={"age"}
+            name={"inputAge"}
+            label={"Age"}
+            type={"number"}
+            placeholder={"Type your age..."}
+            value={age}
+            register={register}
+            rules={{
+              required: "Age is required",
+              onChange: (e: any) => setAge(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputAge ? "true" : "false"}
+          />
           {/* Height */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="height"
-            >
-              Height in meters
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="height"
-              type="number"
-              value={height}
-              placeholder="Type your height..."
-              {...register("inputHeight", {
-                required: "Height is required",
-                onChange: (e: any) => setHeight(e.target.value),
-                disabled: true,
-              })}
-              aria-invalid={errors.inputHeight ? "true" : "false"}
-            />
-            {errors.inputHeight && (
-              <WarningMessage text={errors.inputHeight?.message} />
-            )}
-          </div>
+          <InputComponent
+            id={"height"}
+            name={"inputHeight"}
+            label={"Height (meters)"}
+            type={"number"}
+            placeholder={"Type your height..."}
+            value={height}
+            register={register}
+            rules={{
+              required: "Height is required",
+              onChange: (e: any) => setHeight(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputHeight ? "true" : "false"}
+          />
           {/* Weight */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="weight"
-            >
-              Weight in kilograms
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="weight"
-              type="number"
-              value={weight}
-              placeholder="Type your weight..."
-              {...register("inputWeight", {
-                required: "Weight is required",
-                onChange: (e: any) => setWeight(e.target.value),
-                disabled: true,
-              })}
-              aria-invalid={errors.inputWeight ? "true" : "false"}
-            />
-            {errors.inputWeight && (
-              <WarningMessage text={errors.inputWeight?.message} />
-            )}
-          </div>
+          <InputComponent
+            id={"weight"}
+            name={"inputWeight"}
+            label={"Weight (kilograms)"}
+            type={"number"}
+            placeholder={"Type your weight..."}
+            value={weight}
+            register={register}
+            rules={{
+              required: "Weight is required",
+              onChange: (e: any) => setWeight(e.target.value),
+              disabled: true,
+            }}
+            error={errors}
+            disabled={true}
+            aria-invalid={errors.inputWeight ? "true" : "false"}
+          />
         </div>
         {/* Questions */}
         <h3 className="mt-5 mb-2 ml-2 text-2xl font-bold tracking-tight text-gray-900">
@@ -517,230 +480,157 @@ export default function AdminWellnessSurveyShow(props: any) {
         {/* Wellness Trainer Information */}
         <div>
           {/* Date */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="date"
-            >
-              Date
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="date_trainer_info"
-              type="date"
-              value={date}
-              {...register("inputDate", {
-                required: false,
-                onChange: (e: any) => setDate(e.target.value),
-              })}
-              aria-invalid={errors.inputDate ? "true" : "false"}
-            />
-            {errors.inputDate && (
-              <WarningMessage text={errors.inputDate?.message} />
-            )}
-          </div>
+          <InputComponent
+            id={"date"}
+            name={"inputDate"}
+            label={"Date"}
+            type={"date"}
+            placeholder={"Type your date..."}
+            value={date}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setDate(e.target.value),
+            }}
+            error={errors}
+            aria-invalid={errors.inputDate ? "true" : "false"}
+          />
 
           {/* Fat */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="fat"
-            >
-              Fat %
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="fat"
-              type="text"
-              placeholder="Type the fat %..."
-              value={fat}
-              {...register("inputFat", {
-                required: false,
-                onChange: (e: any) => setFat(e.target.value),
-              })}
-              aria-invalid={errors.inputFat ? "true" : "false"}
-            />
-            {errors.inputFat && (
-              <WarningMessage text={errors.inputFat?.message} />
-            )}
-          </div>
+          <InputComponent
+            id={"fat"}
+            name={"inputFat"}
+            label={"Fat %"}
+            type={"text"}
+            placeholder={"Type the fat %..."}
+            value={fat}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setFat(e.target.value),
+            }}
+            error={errors}
+            aria-invalid={errors.inputFat ? "true" : "false"}
+          />
 
           {/* Visceral Fat */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="visceral_fat"
-            >
-              Visceral Fat
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="visceral_fat"
-              type="text"
-              placeholder="Type the visceral fat..."
-              value={visceralFat}
-              {...register("inputVisceralFat", {
-                required: false,
-                onChange: (e: any) => setVisceralFat(e.target.value),
-              })}
-              aria-invalid={errors.inputVisceralFat ? "true" : "false"}
-            />
-            {errors.inputVisceralFat && (
-              <WarningMessage text={errors.inputVisceralFat?.message} />
-            )}
-          </div>
+          <InputComponent
+            id={"visceralFat"}
+            name={"inputVisceralFat"}
+            label={"Visceral Fat"}
+            type={"text"}
+            placeholder={"Type the visceral fat..."}
+            value={visceralFat}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setVisceralFat(e.target.value),
+            }}
+            error={errors}
+            aria-invalid={errors.inputVisceralFat ? "true" : "false"}
+          />
 
           {/* Bone Mass */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="bone_mass"
-            >
-              Bone Mass
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="bone_mass"
-              type="text"
-              placeholder="Type the bone mass..."
-              value={boneMass}
-              {...register("inputBoneMass", {
-                required: false,
-                onChange: (e: any) => setBoneMass(e.target.value),
-              })}
-              aria-invalid={errors.inputBoneMass ? "true" : "false"}
-            />
-            {errors.inputBoneMass && (
-              <WarningMessage text={errors.inputBoneMass?.message} />
-            )}
-          </div>
+          <InputComponent
+            id={"boneMass"}
+            name={"inputBoneMass"}
+            label={"Bone Mass"}
+            type={"text"}
+            placeholder={"Type the bone mass..."}
+            value={boneMass}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setBoneMass(e.target.value),
+            }}
+            error={errors}
+            aria-invalid={errors.inputBoneMass ? "true" : "false"}
+          />
 
           {/* Resting Metabolic Rate (Calories burned at rest) */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="resting_metabolic_rate"
-            >
-              Resting Metabolic Rate {`(Calories burned at rest)`}
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="resting_metabolic_rate"
-              type="text"
-              placeholder="Type the resting metabolic rate..."
-              value={restingMetabolicRate}
-              {...register("inputRestingMetabolicRate", {
-                required: false,
-                onChange: (e: any) => setRestingMetabolicRate(e.target.value),
-              })}
-              aria-invalid={errors.inputRestingMetabolicRate ? "true" : "false"}
-            />
-            {errors.inputRestingMetabolicRate && (
-              <WarningMessage
-                text={errors.inputRestingMetabolicRate?.message}
-              />
-            )}
-          </div>
+          <InputComponent
+            id={"restingMetabolicRate"}
+            name={"inputRestingMetabolicRate"}
+            label={"Resting Metabolic Rate {`(Calories burned at rest)`}"}
+            type={"text"}
+            placeholder={"Type the resting metabolic rate..."}
+            value={restingMetabolicRate}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setRestingMetabolicRate(e.target.value),
+            }}
+            error={errors}
+            aria-invalid={errors.inputRestingMetabolicRate ? "true" : "false"}
+          />
 
           {/* Metabolic Age */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="metabolic_age"
-            >
-              Metabolic Age
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="metabolic_age"
-              type="text"
-              placeholder="Type the metabolic age..."
-              value={metabolicAge}
-              {...register("inputMetabolicAge", {
-                required: false,
-                onChange: (e: any) => setMetabolicAge(e.target.value),
-              })}
-              aria-invalid={errors.inputMetabolicAge ? "true" : "false"}
-            />
-            {errors.inputMetabolicAge && (
-              <WarningMessage text={errors.inputMetabolicAge?.message} />
-            )}
-          </div>
+          <InputComponent
+            id={"metabolicAge"}
+            name={"inputMetabolicAge"}
+            label={"Metabolic Age"}
+            type={"text"}
+            placeholder={"Type the metabolic age..."}
+            value={metabolicAge}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setMetabolicAge(e.target.value),
+            }}
+            error={errors}
+            aria-invalid={errors.inputMetabolicAge ? "true" : "false"}
+          />
 
           {/* Muscle Mass */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="muscle_mass"
-            >
-              Muscle Mass
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="muscle_mass"
-              type="text"
-              placeholder="Type the muscle mass..."
-              value={muscleMass}
-              {...register("inputMuscleMass", {
-                required: false,
-                onChange: (e: any) => setMuscleMass(e.target.value),
-              })}
-              aria-invalid={errors.inputMuscleMass ? "true" : "false"}
-            />
-            {errors.inputMuscleMass && (
-              <WarningMessage text={errors.inputMuscleMass?.message} />
-            )}
-          </div>
+          <InputComponent
+            id={"muscleMass"}
+            name={"inputMuscleMass"}
+            label={"Muscle Mass"}
+            type={"text"}
+            placeholder={"Type the muscle mass..."}
+            value={muscleMass}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setMuscleMass(e.target.value),
+            }}
+            error={errors}
+            aria-invalid={errors.inputMuscleMass ? "true" : "false"}
+          />
 
           {/* Physique Rating */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="physique_rating"
-            >
-              Physique Rating
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="physique_rating"
-              type="text"
-              placeholder="Type the physique rating..."
-              value={physiqueRating}
-              {...register("inputPhysiqueRating", {
-                required: false,
-                onChange: (e: any) => setPhysiqueRating(e.target.value),
-              })}
-              aria-invalid={errors.inputPhysiqueRating ? "true" : "false"}
-            />
-            {errors.inputPhysiqueRating && (
-              <WarningMessage text={errors.inputPhysiqueRating?.message} />
-            )}
-          </div>
+          <InputComponent
+            id={"physiqueRating"}
+            name={"inputPhysiqueRating"}
+            label={"Physique Rating"}
+            type={"text"}
+            placeholder={"Type the physique rating..."}
+            value={physiqueRating}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setPhysiqueRating(e.target.value),
+            }}
+            error={errors}
+            aria-invalid={errors.inputPhysiqueRating ? "true" : "false"}
+          />
 
           {/* Water % */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="water"
-            >
-              Water %
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="water"
-              type="text"
-              placeholder="Type the water %..."
-              value={water}
-              {...register("inputWater", {
-                required: false,
-                onChange: (e: any) => setWater(e.target.value),
-              })}
-              aria-invalid={errors.inputWater ? "true" : "false"}
-            />
-            {errors.inputWater && (
-              <WarningMessage text={errors.inputWater?.message} />
-            )}
-          </div>
+          <InputComponent
+            id={"water"}
+            name={"inputWater"}
+            label={"Water %"}
+            type={"text"}
+            placeholder={"Type the water %..."}
+            value={water}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setWater(e.target.value),
+            }}
+            error={errors}
+            aria-invalid={errors.inputWater ? "true" : "false"}
+          />
         </div>
 
         {/* Wellness Remarks */}
@@ -748,91 +638,87 @@ export default function AdminWellnessSurveyShow(props: any) {
           Wellness Remarks
         </h3>
         <div>
+          {/* Admin Review Status */}
+          {/* <InputComponent
+            id={"reviewedByAdmin"}
+            name={"inputReviewedByAdmin"}
+            label={"Admin Review Status"}
+            type={"text"}
+            placeholder={""}
+            value={
+              reviewedByAdmin
+                ? "Reviewed by admin"
+                : "Pending review from admin"
+            }
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setReviewedByAdmin(e.target.value),
+            }}
+            error={errors}
+            aria-invalid={errors.inputReviewedByAdmin ? "true" : "false"}
+          /> */}
           <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="reviewed_by_admin"
+              htmlFor="weight_status"
             >
-              Admin Review Status
+              Reviewed by Admin
             </label>
-
             <select
               className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-              id="reviewed_by_admin"
+              id="weight_status"
               {...register("inputReviewedByAdmin", {
-                required: "Status is required",
-                onChange: (e: any) =>
-                  setReviewedByAdmin(e.target.value == "true" ? true : false),
+                required: false,
+                onChange: (e: any) => setReviewedByAdmin(e.target.value),
               })}
               aria-invalid={errors.inputReviewedByAdmin ? "true" : "false"}
             >
-              <option
-                value={"true"}
-                key="reviewed"
-                selected={reviewedByAdmin ? true : false}
-              >
-                Reviewed
+              <option value={"true"} key="excess" selected={reviewedByAdmin}>
+                Reviewed by admin
               </option>
 
-              <option
-                value={"false"}
-                key="unreviewed"
-                selected={reviewedByAdmin == false ? true : false}
-              >
-                Unreviewed
+              <option value={"false"} key="lack" selected={!reviewedByAdmin}>
+                Pending review from admin
               </option>
             </select>
           </div>
+
           {/* Present Weight % */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="present_weight"
-            >
-              Present Weight
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="present_weight"
-              type="number"
-              placeholder="Type the present weight"
-              value={presentWeight}
-              {...register("inputPresentWeight", {
-                required: false,
-                onChange: (e: any) => setPresentWeight(e.target.value),
-              })}
-              aria-invalid={errors.inputPresentWeight ? "true" : "false"}
-            />
-            {errors.inputPresentWeight && (
-              <WarningMessage text={errors.inputPresentWeight?.message} />
-            )}
-          </div>
+          <InputComponent
+            id={"presentWeight"}
+            name={"inputPresentWeight"}
+            label={"Present Weight"}
+            type={"text"}
+            placeholder={"Type the present weight..."}
+            value={presentWeight}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setPresentWeight(e.target.value),
+            }}
+            error={errors}
+            aria-invalid={errors.inputPresentWeight ? "true" : "false"}
+          />
 
           {/* Ideal Weight */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="ideal_weight"
-            >
-              Ideal Weight
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="ideal_weight"
-              type="number"
-              placeholder="Type the ideal weight..."
-              value={idealWeight}
-              {...register("inputIdealWeight", {
-                required: false,
-                onChange: (e: any) => setIdealWeight(e.target.value),
-              })}
-              aria-invalid={errors.inputIdealWeight ? "true" : "false"}
-            />
-            {errors.inputIdealWeight && (
-              <WarningMessage text={errors.inputIdealWeight?.message} />
-            )}
-          </div>
+          <InputComponent
+            id={"idealWeight"}
+            name={"inputIdealWeight"}
+            label={"Ideal Weight"}
+            type={"text"}
+            placeholder={"Type the ideal weight..."}
+            value={idealWeight}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setIdealWeight(e.target.value),
+            }}
+            error={errors}
+            aria-invalid={errors.inputIdealWeight ? "true" : "false"}
+          />
 
+          {/* Weight */}
           <div className="w-full px-3 mb-6">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
@@ -853,6 +739,7 @@ export default function AdminWellnessSurveyShow(props: any) {
                 value="excess"
                 key="excess"
                 selected={weightStatus == "excess" ? true : false}
+                // selected={true}
               >
                 Excess
               </option>
@@ -868,54 +755,38 @@ export default function AdminWellnessSurveyShow(props: any) {
           </div>
 
           {/* Weight Status Number */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="weight_status_number"
-            >
-              Weight
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="weight_status_number"
-              type="number"
-              placeholder="Type the weight value..."
-              value={weightStatusNumber}
-              {...register("inputWeightStatusNumber", {
-                required: false,
-                onChange: (e: any) => setWeightStatusNumber(e.target.value),
-              })}
-              aria-invalid={errors.inputWeightStatusNumber ? "true" : "false"}
-            />
-            {errors.inputWeightStatusNumber && (
-              <WarningMessage text={errors.inputWeightStatusNumber?.message} />
-            )}
-          </div>
+          <InputComponent
+            id={"weightStatusNumber"}
+            name={"inputWeightStatusNumber"}
+            label={"Weight (in excess or lacking of)"}
+            type={"text"}
+            placeholder={"Type the weight in excess or lacking weight..."}
+            value={weightStatusNumber}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setWeightStatusNumber(e.target.value),
+            }}
+            error={errors}
+            aria-invalid={errors.inputWeightStatusNumber ? "true" : "false"}
+          />
 
           {/* Ideal Visceral */}
-          <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="ideal_visceral"
-            >
-              Ideal Visceral
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="ideal_visceral"
-              type="number"
-              placeholder="Type the ideal visceral..."
-              value={idealVisceral}
-              {...register("inputIdealVisceral", {
-                required: false,
-                onChange: (e: any) => setIdealVisceral(e.target.value),
-              })}
-              aria-invalid={errors.inputIdealVisceral ? "true" : "false"}
-            />
-            {errors.inputIdealVisceral && (
-              <WarningMessage text={errors.inputIdealVisceral?.message} />
-            )}
-          </div>
+          <InputComponent
+            id={"idealVisceral"}
+            name={"inputIdealVisceral"}
+            label={"Ideal Visceral Fat"}
+            type={"text"}
+            placeholder={"Type the ideal visceral fat..."}
+            value={idealVisceral}
+            register={register}
+            rules={{
+              required: false,
+              onChange: (e: any) => setIdealVisceral(e.target.value),
+            }}
+            error={errors}
+            aria-invalid={errors.inputIdealVisceral ? "true" : "false"}
+          />
         </div>
 
         <div>
@@ -984,18 +855,14 @@ export default function AdminWellnessSurveyShow(props: any) {
             )}
           </div>
         </div>
-        <div className="text-center p-2">
-          <input
-            type="button"
-            value="Discard Changes"
-            className="cursor-pointer rounded-md border bg-nf_green py-3 px-5 text-base text-white transition hover:bg-nf_dark_green"
-            onClick={(e: any) => discardChanges(e)}
+        <div className="text-center pb-2">
+          <InputButton
+            label="Discard Changes"
+            handleClick={discardChanges}
+            type="multiple"
+            color="blank"
           />
-          <input
-            type="submit"
-            value="Edit Survey"
-            className="cursor-pointer rounded-md border bg-nf_green py-3 px-5 text-base text-white transition hover:bg-nf_dark_green"
-          />
+          <InputSubmit label="Save Changes" type="multiple" />
         </div>
 
         {/* Wellness Results */}

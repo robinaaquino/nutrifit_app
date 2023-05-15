@@ -7,6 +7,7 @@ export default function RadioButton({
   label,
   checkedFunction,
   disabled,
+  register,
 }: {
   name: string;
   id: string;
@@ -16,6 +17,7 @@ export default function RadioButton({
   isBoolean?: boolean;
   checkedFunction?: boolean;
   disabled?: boolean;
+  register?: any;
 }) {
   return (
     <>
@@ -25,13 +27,15 @@ export default function RadioButton({
           id={id}
           name={name}
           value={value}
-          onChange={(event) =>
-            handleInput
-              ? isBoolean
-                ? handleInput(event.target.value == "true" ? true : false)
-                : handleInput(event.target.value)
-              : null
-          }
+          {...(register &&
+            register(name, {
+              onChange: (e: any) =>
+                handleInput
+                  ? isBoolean
+                    ? handleInput(e.target.value == "true" ? true : false)
+                    : handleInput(e.target.value)
+                  : null,
+            }))}
           className={
             "form-radio text-black  bg-gray-200 border border-gray-500 checked:border-none checked:bg-black" +
             (disabled ? "" : "cursor-pointer")

@@ -4,16 +4,22 @@ import { getAllUsers } from "../firebase/services/users_services";
 import React, { useEffect, useContext, useState } from "react";
 import { redirect, useRouter } from "next/navigation";
 import { AuthContext, useAuthContext } from "@/context/AuthContext";
+
 import no_image from "../public/no_image.png";
+import digestive_health from "../public/digestive_health.jpg";
+import enhancers from "../public/enhancers.jpg";
+import heart_health from "../public/heart_health.jpg";
+import personalized_weight_management from "../public/personalized_weight_management.jpg";
+import sports_nutrition from "../public/sports_nutrition.jpg";
+import targeted_nutrition from "../public/targeted_nutrition.jpg";
+
 import landing_page from "../public/landing_page.jpg";
 import {
-  PRODUCT_CATEGORIES,
-  PRODUCT_CATEGORIES_PUBLIC_NAME,
   PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY,
   ProductsDatabaseType,
 } from "@/firebase/constants";
 import nookies from "nookies";
-import { getBestSellingProducts } from "@/firebase/firebase_functions/products_function";
+import { getBestSellingProducts } from "@/firebase/firebase_functions/products_functions";
 
 import admin from "../firebase/admin-config";
 
@@ -25,14 +31,19 @@ export default function Home(props: any) {
   // const authContextObject = useContext(AuthContext);
   const { user, success, error, addToCart } = useAuthContext();
   const landingPageCategories = [
-    PRODUCT_CATEGORIES.OUTER_NUTRITION_VITAMIN_MASK,
-    PRODUCT_CATEGORIES.INNER_NUTRITION_WEIGHT_MANAGEMENT_CORE_PRODUCTS,
-    PRODUCT_CATEGORIES.PRODUCT_PACKS,
-    PRODUCT_CATEGORIES.SHAKES,
+    ...PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.slice(0, 4),
   ];
   const [categoryIndex, setCategoryIndex] = useState(0);
   const numberOfShownCategories = 3;
   const [bestProducts, setBestProducts] = useState<any>([]);
+  const categoryImages = {
+    "Digestive Health": digestive_health,
+    Enhancers: enhancers,
+    "Heart Health": heart_health,
+    "Personalized Weight Management": personalized_weight_management,
+    "Sports Nutrition": sports_nutrition,
+    "Targeted Nutrition": targeted_nutrition,
+  };
 
   function returnCategoryName(index: number) {
     if (index >= PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.length) {
@@ -46,6 +57,17 @@ export default function Home(props: any) {
     } else {
       return PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY[index];
     }
+  }
+
+  function returnCategoryImage(index: number) {
+    const categoryName = returnCategoryName(index);
+    for (const [key, value] of Object.entries(categoryImages)) {
+      if (key == categoryName) {
+        return value;
+      }
+    }
+
+    return no_image;
   }
 
   function decrementCategoryIndex() {
@@ -102,7 +124,7 @@ export default function Home(props: any) {
     <>
       {/* <main></main> */}
       {/* Top of the Funnel */}
-      <div className="bg-nf_green bg-opacity-5 bg-cover bg-[url(../public/landing_page.jpg)] mb-6 ">
+      <div className="bg-nf_green bg-opacity-5 bg-fill bg-[url(../public/landing_page.jpg)] mb-6 ">
         <div className="bg-opacity-50 bg-black container w-full max-w-full text-center py-20 ">
           <h2 className="mb-6 text-4xl font-bold text-center text-white">
             Personalized meal plans?
@@ -182,7 +204,7 @@ export default function Home(props: any) {
                 return (
                   <>
                     <ProductCard
-                      productImage={e.image}
+                      productImage={e.images ? e.images[0] : null}
                       productName={e.name}
                       productPrice={e.price}
                       productId={e.id}
@@ -234,8 +256,8 @@ export default function Home(props: any) {
                 >
                   <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-white">
                     <Image
-                      className="h-full w-full object-cover object-center group-hover:opacity-75 max-w-64 max-h-64"
-                      src={no_image}
+                      className="h-full w-full object-fill object-center group-hover:opacity-75 max-w-64 max-h-64"
+                      src={returnCategoryImage(categoryIndex)}
                       alt="Sunset in the mountains"
                       width="256"
                       height="256"
@@ -262,8 +284,8 @@ export default function Home(props: any) {
                 >
                   <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-white max-w-64 max-h-64">
                     <Image
-                      className="h-full w-full object-cover object-center group-hover:opacity-75 "
-                      src={no_image}
+                      className="h-full w-full object-fill object-center group-hover:opacity-75 "
+                      src={returnCategoryImage(categoryIndex + 1)}
                       alt="Sunset in the mountains"
                       width="256"
                       height="256"
@@ -290,8 +312,8 @@ export default function Home(props: any) {
                 >
                   <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-white max-w-64 max-h-64">
                     <Image
-                      className="h-full w-full object-cover object-center group-hover:opacity-75 "
-                      src={no_image}
+                      className="h-full w-full object-fill object-center group-hover:opacity-75 "
+                      src={returnCategoryImage(categoryIndex + 2)}
                       alt="Sunset in the mountains"
                       width="256"
                       height="256"

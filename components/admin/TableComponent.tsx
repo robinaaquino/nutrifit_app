@@ -5,11 +5,11 @@ import { returnKeyByValue, formatDate } from "../../firebase/helpers";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useAuthContext, AuthContext } from "@/context/AuthContext";
-import { deleteProductFunction } from "@/firebase/firebase_functions/products_function";
+import { deleteProductFunction } from "@/firebase/firebase_functions/products_functions";
 import { deleteOrderFunction } from "@/firebase/firebase_functions/orders_functions";
-import { deleteUserFunction } from "@/firebase/firebase_functions/users_function";
+import { deleteUserFunction } from "@/firebase/firebase_functions/users_functions";
 import { deleteMessageFunction } from "@/firebase/firebase_functions/messages_functions";
-import { deleteWellnessSurveyResult } from "@/firebase/firebase_functions/wellness_function";
+import { deleteWellnessSurveyResult } from "@/firebase/firebase_functions/wellness_functions";
 
 export default function TableComponent({
   headers,

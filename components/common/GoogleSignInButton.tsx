@@ -1,4 +1,4 @@
-import { signInWithGoogle } from "@/firebase/firebase_functions/auth";
+import { signInWithGoogle } from "@/firebase/firebase_functions/auth_functions";
 import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 

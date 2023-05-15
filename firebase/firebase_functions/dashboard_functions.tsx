@@ -2,11 +2,11 @@ import {
   FunctionResult,
   PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY,
 } from "../constants";
-import { getAllProductsFunction } from "./products_function";
+import { getAllProductsFunction } from "./products_functions";
 import { parseError } from "../helpers";
 import { resourceLimits } from "worker_threads";
 import { getAllOrdersFunction } from "./orders_functions";
-import { getAllUsersFunction } from "./users_function";
+import { getAllUsersFunction } from "./users_functions";
 
 export const getAllAdminAnalytics = async () => {
   let resultObject: FunctionResult = {

@@ -157,30 +157,35 @@ export const addToCartFunction = async (
       for (let i = 0; i < cartData.products.length; i++) {
         if (cartData.products[i].id == productToBeAddedToCart.id) {
           productAlreadyInCart = true;
+          cartData.products[i].quantity += productToBeAddedToCart.quantity;
+          cartData.subtotal_price +=
+            productToBeAddedToCart.quantity * productToBeAddedToCart.price;
           break;
         }
       }
 
-      if (productAlreadyInCart) {
-        resultObject = {
-          result: cartData,
-          isSuccess: false,
-          resultText: "Failed in adding product to cart",
-          errorMessage: "Duplicate product",
-        };
-      } else {
+      // if (productAlreadyInCart) {
+      //   resultObject = {
+      //     result: cartData,
+      //     isSuccess: false,
+      //     resultText: "Failed in adding product to cart",
+      //     errorMessage: "Duplicate product",
+      //   };
+      // } else {
+      if (!productAlreadyInCart) {
         cartData.products.push(productToBeAddedToCart);
         cartData.subtotal_price += productToBeAddedToCart.price * quantity;
-
-        await setDoc(cartReference, cartData, { merge: true });
-
-        resultObject = {
-          result: cartData,
-          isSuccess: true,
-          resultText: "Successful in adding product to cart",
-          errorMessage: "",
-        };
       }
+
+      await setDoc(cartReference, cartData, { merge: true });
+
+      resultObject = {
+        result: cartData,
+        isSuccess: true,
+        resultText: "Successful in adding product to cart",
+        errorMessage: "",
+      };
+      // }
     }
   } catch (e: unknown) {
     console.log(e);

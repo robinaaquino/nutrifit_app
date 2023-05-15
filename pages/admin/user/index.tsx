@@ -1,17 +1,17 @@
 import nookies from "nookies";
 import admin from "@/firebase/admin-config";
 
-import Filter from "@/components/universal/filter";
-import SearchBar from "@/components/universal/search_bar";
+import Filter from "@/components/filter/Filter";
+import SearchBar from "@/components/universal/SearchBar";
 import TableComponent from "@/components/admin/TableComponent";
 
 import {
   getAllUsersFunction,
   getAllUsersWithFilterFunction,
   getAllUsersWithSearchFunction,
-} from "@/firebase/firebase_functions/users_function";
+} from "@/firebase/firebase_functions/users_functions";
 import { UsersDatabaseType } from "@/firebase/constants";
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 
 import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";

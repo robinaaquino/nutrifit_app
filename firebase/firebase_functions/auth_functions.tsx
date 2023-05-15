@@ -8,6 +8,7 @@ import {
   sendPasswordResetEmail,
 } from "firebase/auth";
 import { FunctionResult } from "@/firebase/constants";
+import { parseError } from "../helpers";
 
 export const auth = getAuth(app);
 
@@ -75,7 +76,7 @@ export const logInWithEmailAndPassword = async (
       };
     })
     .catch((error: any) => {
-      const errorMessage = error.message;
+      const errorMessage = parseError(error);
 
       resultObject = {
         result: "",
@@ -107,7 +108,7 @@ export const signUp = async (email: string, password: string) => {
       };
     })
     .catch((error: any) => {
-      const errorMessage = error.message;
+      const errorMessage = parseError(error);
 
       resultObject = {
         result: "",

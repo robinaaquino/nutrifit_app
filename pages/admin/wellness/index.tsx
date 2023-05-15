@@ -1,17 +1,17 @@
 import nookies from "nookies";
 import admin from "@/firebase/admin-config";
 
-import Filter from "@/components/universal/filter";
-import SearchBar from "@/components/universal/search_bar";
+import Filter from "@/components/filter/Filter";
+import SearchBar from "@/components/universal/SearchBar";
 import TableComponent from "@/components/admin/TableComponent";
 
 import {
   getAllWellnessSurveyResultsFunction,
   getAllWellnessSurveyResultsWithFilterFunction,
   getAllWellnessSurveyResultsWithSearchFunction,
-} from "@/firebase/firebase_functions/wellness_function";
+} from "@/firebase/firebase_functions/wellness_functions";
 import { WellnessOverallResults } from "@/firebase/constants";
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 
 import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";

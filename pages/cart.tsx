@@ -5,9 +5,9 @@ import admin from "../firebase/admin-config";
 import {
   getCartViaIdFunction,
   clearCartFunction,
-} from "@/firebase/firebase_functions/cart_function";
+} from "@/firebase/firebase_functions/cart_functions";
 import Image from "next/image";
-import { getUserFunction } from "@/firebase/firebase_functions/users_function";
+import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 import {
   OrdersDatabaseType,
   PaymentMethodEnum,
@@ -19,6 +19,13 @@ import RadioButton from "@/components/forms/RadioButton";
 
 import { useForm } from "react-hook-form";
 import WarningMessage from "@/components/forms/WarningMessage";
+
+import InputComponent from "@/components/forms/input/InputComponent";
+import InputSubmit from "@/components/forms/input/InputSubmit";
+import InputButton from "@/components/forms/input/InputButton";
+import Label from "@/components/forms/Label";
+import Link from "next/link";
+import HeadingTwo from "@/components/forms/HeadingTwo";
 
 export default function Cart(props: any) {
   const [firstName, setFirstName] = useState("");
@@ -53,6 +60,7 @@ export default function Cart(props: any) {
   });
 
   const [cartContents, setCartContents] = useState<any>(null);
+  const [cartProducts, setCartProducts] = useState<any[]>([]);
   const {
     deleteCartInCookiesAndContext,
     cart,
@@ -60,6 +68,7 @@ export default function Cart(props: any) {
     error,
     success,
     user,
+    clear,
   } = useAuthContext();
   const router = useRouter();
 
@@ -67,22 +76,26 @@ export default function Cart(props: any) {
     if (props.cart) {
       //if cart exists in cookies
       setCartContents(props.cart);
-    } else {
-      if (cart) {
-        //check cart in context
-        setCartContents(cart);
-      } else {
-        let newCart: any = {
-          created_at: new Date().toString(),
-          products: [],
-          subtotal_price: 0,
-          updated_at: new Date().toString(),
-          user_id: null,
-        };
-
-        setCartContents(newCart);
-      }
+      setCartProducts(props.cart.products);
     }
+    // else {
+    //   if (cart) {
+    //     //check cart in context
+    //     setCartContents(cart);
+    //     setCartProducts(products);
+    //   } else {
+    //     let newCart: any = {
+    //       created_at: new Date().toString(),
+    //       products: [],
+    //       subtotal_price: 0,
+    //       updated_at: new Date().toString(),
+    //       user_id: null,
+    //     };
+
+    //     setCartContents(newCart);
+    //     setCartProducts([]);
+    //   }
+    // }
   }
 
   function handleRemoveFromCart(product: any) {
@@ -92,11 +105,15 @@ export default function Cart(props: any) {
         previousCart.products.splice(i, 1);
       }
     }
+    previousCart.products = previousCart.products.slice();
     previousCart.subtotal_price =
       previousCart.subtotal_price - product.price * product.quantity;
     previousCart.updated_at = new Date().toString();
-    setCartContents(previousCart);
     removeFromCart(product);
+
+    setCartContents(previousCart);
+    setCartProducts(previousCart.products);
+    console.log("prev", previousCart);
   }
 
   const handleFormForPayment = async (data: any, e: any) => {
@@ -112,16 +129,19 @@ export default function Cart(props: any) {
     } = data;
     if (cartContents != null && cartContents.products.length > 0) {
       const shipping_details = {
-        address: inputAddress,
+        address: deliveryMode == "delivery" ? inputAddress : "",
         first_name: inputFirstName,
         last_name: inputLastName,
-        city: inputCity,
-        province: inputProvince,
+        city: deliveryMode == "delivery" ? inputCity : "",
+        province: deliveryMode == "delivery" ? inputProvince : "",
         contact_number: inputContactNumber,
       };
 
       const orderDetails: OrdersDatabaseType = {
-        total_price: cartContents.subtotal_price,
+        total_price:
+          inputDeliveryMode == "delivery"
+            ? cartContents.subtotal_price + 200
+            : cartContents.subtotal_price,
         payment: {
           created_at: new Date().toString(),
           date_cleared: "",
@@ -139,6 +159,8 @@ export default function Cart(props: any) {
         delivery_mode: inputDeliveryMode,
         shipping_details: shipping_details,
       };
+
+      console.log(orderDetails);
 
       const result = await addOrderFunction(orderDetails);
 
@@ -167,7 +189,16 @@ export default function Cart(props: any) {
     e.preventDefault();
   };
 
+  function handlePaymentUponPickup() {
+    setPaymentMethod(PaymentMethodEnum.PAYMENT_UPON_PICK_UP);
+  }
+
+  function handleCashlessPayment() {
+    setPaymentMethod(PaymentMethodEnum.GCASH);
+  }
+
   useEffect(() => {
+    clear();
     fetchCarts();
   }, []);
 
@@ -176,16 +207,30 @@ export default function Cart(props: any) {
       <div className="container p-12 mx-auto">
         <div className="flex flex-col w-full px-0 mx-auto md:flex-row">
           <div className="flex flex-col w-2/5">
-            <h2 className="mb-4 font-bold md:text-xl text-heading text-black">
-              Shipping Address and Contact Details
-            </h2>
             <form
               className="justify-center w-full mx-auto"
               onSubmit={handleSubmit(handleFormForPayment)}
             >
-              <div className="">
-                <div className="space-x-0 lg:flex lg:space-x-4">
-                  <div className="w-full lg:w-1/2">
+              <div className="bg-gray-50 rounded-lg p-2 mb-2">
+                <HeadingTwo label={"Contact Details"} />
+                {/* First Name and Last Name */}
+                <div className="grid grid-cols-2">
+                  <InputComponent
+                    id={"firstName"}
+                    name={"inputFirstName"}
+                    label={"First Name"}
+                    type={"text"}
+                    placeholder={"Type your first name..."}
+                    value={firstName}
+                    register={register}
+                    rules={{
+                      required: "First name is required",
+                      onChange: (e: any) => setFirstName(e.target.value),
+                    }}
+                    error={errors}
+                    aria-invalid={errors.inputFirstName ? "true" : "false"}
+                  />
+                  {/* <div className="w-full lg:w-1/2">
                     <label
                       htmlFor="firstName"
                       className="block mb-3 text-sm font-semibold text-gray-500"
@@ -205,8 +250,23 @@ export default function Cart(props: any) {
                   </div>
                   {errors.inputFirstName && (
                     <WarningMessage text={errors.inputFirstName?.message} />
-                  )}
-                  <div className="w-full lg:w-1/2 ">
+                  )} */}
+                  <InputComponent
+                    id={"lastName"}
+                    name={"inputLastName"}
+                    label={"Last Name"}
+                    type={"text"}
+                    placeholder={"Type your last name..."}
+                    value={lastName}
+                    register={register}
+                    rules={{
+                      required: "Last name is required",
+                      onChange: (e: any) => setLastName(e.target.value),
+                    }}
+                    error={errors}
+                    aria-invalid={errors.inputLastName ? "true" : "false"}
+                  />
+                  {/* <div className="w-full lg:w-1/2 ">
                     <label
                       htmlFor="firstName"
                       className="block mb-3 text-sm font-semibold text-gray-500"
@@ -226,10 +286,26 @@ export default function Cart(props: any) {
                   </div>
                   {errors.inputLastName && (
                     <WarningMessage text={errors.inputLastName?.message} />
-                  )}
+                  )} */}
                 </div>
-                <div className="mt-4">
-                  <div className="w-full">
+                {/* Contact Number */}
+                <div className="">
+                  <InputComponent
+                    id={"contactNumber"}
+                    name={"inputContactNumber"}
+                    label={"Contact Number"}
+                    type={"text"}
+                    placeholder={"Type your contact number..."}
+                    value={contactNumber}
+                    register={register}
+                    rules={{
+                      required: "Contact number is required",
+                      onChange: (e: any) => setContactNumber(e.target.value),
+                    }}
+                    error={errors}
+                    aria-invalid={errors.inputContactNumber ? "true" : "false"}
+                  />
+                  {/* <div className="w-full">
                     <label
                       htmlFor="contactNumber"
                       className="block mb-3 text-sm font-semibold text-gray-500"
@@ -251,10 +327,32 @@ export default function Cart(props: any) {
                   </div>
                   {errors.inputContactNumber && (
                     <WarningMessage text={errors.inputContactNumber?.message} />
-                  )}
+                  )} */}
                 </div>
-                <div className="mt-4">
-                  <div className="w-full">
+              </div>
+
+              {/* Shipping Address */}
+              {deliveryMode == "delivery" ? (
+                <div className="bg-gray-50 rounded-lg p-2">
+                  <HeadingTwo label={"Shipping Address"} />
+                  {/* Address */}
+                  <div className="mt-4">
+                    <InputComponent
+                      id={"address"}
+                      name={"inputAddress"}
+                      label={"Address"}
+                      type={"text"}
+                      placeholder={"Type your address..."}
+                      value={address}
+                      register={register}
+                      rules={{
+                        required: "Address is required",
+                        onChange: (e: any) => setAddress(e.target.value),
+                      }}
+                      error={errors}
+                      aria-invalid={errors.inputAddress ? "true" : "false"}
+                    />
+                    {/* <div className="w-full">
                     <label
                       htmlFor="Address"
                       className="block mb-3 text-sm font-semibold text-gray-500"
@@ -275,10 +373,26 @@ export default function Cart(props: any) {
                     {errors.inputAddress && (
                       <WarningMessage text={errors.inputAddress?.message} />
                     )}
+                  </div> */}
                   </div>
-                </div>
-                <div className="space-x-0 lg:flex lg:space-x-4">
-                  <div className="w-full lg:w-1/2">
+                  {/* City  and Province*/}
+                  <div className="grid grid-cols-2">
+                    <InputComponent
+                      id={"city"}
+                      name={"inputCity"}
+                      label={"City"}
+                      type={"text"}
+                      placeholder={"Type your city..."}
+                      value={city}
+                      register={register}
+                      rules={{
+                        required: "City is required",
+                        onChange: (e: any) => setCity(e.target.value),
+                      }}
+                      error={errors}
+                      aria-invalid={errors.inputCity ? "true" : "false"}
+                    />
+                    {/* <div className="w-full lg:w-1/2">
                     <label
                       htmlFor="city"
                       className="block mb-3 text-sm font-semibold text-gray-500"
@@ -298,8 +412,23 @@ export default function Cart(props: any) {
                   </div>
                   {errors.inputCity && (
                     <WarningMessage text={errors.inputCity?.message} />
-                  )}
-                  <div className="w-full lg:w-1/2 ">
+                  )} */}
+                    <InputComponent
+                      id={"province"}
+                      name={"inputProvince"}
+                      label={"Province"}
+                      type={"text"}
+                      placeholder={"Type your province..."}
+                      value={province}
+                      register={register}
+                      rules={{
+                        required: "Province is required",
+                        onChange: (e: any) => setProvince(e.target.value),
+                      }}
+                      error={errors}
+                      aria-invalid={errors.inputProvince ? "true" : "false"}
+                    />
+                    {/* <div className="w-full lg:w-1/2 ">
                     <label
                       htmlFor="province"
                       className="block mb-3 text-sm font-semibold text-gray-500"
@@ -319,19 +448,19 @@ export default function Cart(props: any) {
                   </div>
                   {errors.inputProvince && (
                     <WarningMessage text={errors.inputProvince?.message} />
-                  )}
+                  )} */}
+                  </div>
                 </div>
+              ) : null}
+
+              <div>
                 <div className="space-x-0 lg:flex lg:space-x-4 mt-4">
-                  <div className="w-full lg:w-1/2">
-                    <label
-                      htmlFor="deliveryMode"
-                      className="block mb-3 text-sm font-semibold text-gray-500"
-                    >
-                      Delivery Mode
-                    </label>
+                  <div className="w-full lg:w-1/2 px-3">
+                    <Label label={"Delivery Mode"} id="deliveryMode" />
                     <RadioButton
-                      name={"deliveryMode"}
+                      name={"inputDeliveryMode"}
                       id={"delivery"}
+                      register={register}
                       value={"delivery"}
                       handleInput={setDeliveryMode}
                       label={"Delivery"}
@@ -340,9 +469,10 @@ export default function Cart(props: any) {
                       }
                     />
                     <RadioButton
-                      name={"deliveryMode"}
+                      name={"inputDeliveryMode"}
                       id={"pickup"}
                       value={"pickup"}
+                      register={register}
                       handleInput={setDeliveryMode}
                       label={"Pick-up"}
                       checkedFunction={deliveryMode == "pickup" ? true : false}
@@ -358,8 +488,23 @@ export default function Cart(props: any) {
                     </label>
                   </div> */}
                 </div>
+
                 <div className="relative pt-3 xl:pt-6">
-                  <label
+                  <InputComponent
+                    id={"notes"}
+                    name={"inputNotes"}
+                    label={"Notes (optional)"}
+                    type={"text"}
+                    placeholder={"Type your notes..."}
+                    value={notes}
+                    register={register}
+                    rules={{
+                      onChange: (e: any) => setNotes(e.target.value),
+                    }}
+                    error={errors}
+                    aria-invalid={errors.inputNotes ? "true" : "false"}
+                  />
+                  {/* <label
                     htmlFor="note"
                     className="block mb-3 text-sm font-semibold text-gray-500"
                   >
@@ -377,18 +522,26 @@ export default function Cart(props: any) {
                   ></textarea>
                   {errors.inputNotes && (
                     <WarningMessage text={errors.inputNotes?.message} />
-                  )}
+                  )} */}
                 </div>
                 <div className="mt-4">
                   {deliveryMode == "pickup" ? (
-                    <div>
-                      <button
+                    <>
+                      <InputSubmit
+                        label={"Process Payment"}
+                        handleClick={handleCashlessPayment}
+                      />
+                      {/* <button
                         type="submit"
                         className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900 disabled"
                       >
                         Process Payment
-                      </button>
-                      <button
+                      </button> */}
+                      <InputSubmit
+                        label={"Payment upon Pickup"}
+                        handleClick={handlePaymentUponPickup}
+                      />
+                      {/* <button
                         className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900 mt-2"
                         onClick={(e) => {
                           setPaymentMethod(
@@ -397,15 +550,19 @@ export default function Cart(props: any) {
                         }}
                       >
                         Payment Upon Pickup
-                      </button>
-                    </div>
+                      </button> */}
+                    </>
                   ) : (
-                    <button
-                      className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900 disabled"
-                      type="submit"
-                    >
-                      Process Payment
-                    </button>
+                    <InputSubmit
+                      label={"Process Payment"}
+                      handleClick={handleCashlessPayment}
+                    />
+                    // <button
+                    //   className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900 disabled"
+                    //   type="submit"
+                    // >
+                    //   Process Payment
+                    // </button>
                   )}
                 </div>
               </div>
@@ -416,10 +573,8 @@ export default function Cart(props: any) {
               <h2 className="text-xl font-bold text-black">Order Summary</h2>
               <div className="mt-8">
                 <div className="flex flex-col space-y-4">
-                  {cartContents &&
-                  cartContents.products &&
-                  cartContents.products.length > 0 ? (
-                    cartContents.products.map((e: any) => {
+                  {cartProducts && cartProducts.length > 0 ? (
+                    cartProducts.map((e: any) => {
                       const imageLink = e.image.src ? e.image.src : e.image;
                       return (
                         <>
@@ -434,15 +589,19 @@ export default function Cart(props: any) {
                               />
                             </div>
                             <div className="w-full">
-                              <h2 className="text-xl font-bold text-black">
-                                {e.name}
+                              <h2 className="text-xl font-bold text-black hover:text-blue-800 hover:underline">
+                                <Link href={`/product/${e.id}`}>{e.name}</Link>
                               </h2>
-                              <p className="text-sm">{e.description}</p>
-                              <span className="text-black">Price</span>
-                              <span className="ml-2">Php {e.price}</span>
+                              {/* <p className="text-sm">{e.description}</p> */}
+                              <span className=" font-bold">Price</span>
+                              <span className="ml-2 text-black font-bold">
+                                Php {e.price}
+                              </span>
                               <p></p>
-                              <span className="text-black">Quantity</span>{" "}
-                              <span className="ml-2">{e.quantity}</span>
+                              <span className=" font-bold">Quantity</span>{" "}
+                              <span className="ml-2 text-black font-bold">
+                                {e.quantity}
+                              </span>
                             </div>
                             <div>
                               <button
@@ -542,32 +701,57 @@ export default function Cart(props: any) {
                 </div>
               </div>
               <div className="flex p-4 mt-4">
-                <h2 className="text-xl font-bold">
+                <h2 className="text-xl font-bold ">
                   ITEMS:{" "}
-                  {cartContents && cartContents.products
-                    ? cartContents.products.length
-                    : 0}
+                  <span className="text-black">
+                    {cartContents && cartContents.products
+                      ? cartContents.products.length
+                      : 0}
+                  </span>
                 </h2>
               </div>
-              <div className="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0">
-                Subtotal
-                <span className="ml-2">
-                  Php{" "}
-                  {cartContents?.subtotal_price
-                    ? cartContents?.subtotal_price
-                    : 0}
-                </span>
-              </div>
+              {deliveryMode == "delivery" ? (
+                <>
+                  <div className="flex items-center w-full py-4 text-sm font-semibold px-3 text-heading last:border-b-0 last:text-base last:pb-0">
+                    Subtotal
+                    <span className="ml-2 text-black">
+                      Php{" "}
+                      {cartContents?.subtotal_price
+                        ? cartContents?.subtotal_price
+                        : 0}
+                    </span>
+                  </div>
+                  <div className="flex items-center w-full text-sm font-semibold border-b px-3 pb-3 border-gray-300 text-heading ">
+                    Shipping Price
+                    <span className="ml-2 text-black">Php 200</span>
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center w-full py-4 text-sm font-semibold lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0 border-b border-gray-300">
+                  Subtotal
+                  <span className="ml-2 text-black">
+                    Php{" "}
+                    {cartContents?.subtotal_price
+                      ? cartContents?.subtotal_price
+                      : 0}
+                  </span>
+                </div>
+              )}
+
               {/* <div className="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0">
                 Shipping Tax<span className="ml-2">$10</span>
               </div> */}
               <div className="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0">
                 Total
-                <span className="ml-2">
+                <span className="ml-2 text-black">
                   Php{" "}
-                  {cartContents?.subtotal_price
+                  {deliveryMode == "pickup"
                     ? cartContents?.subtotal_price
-                    : 0}
+                      ? cartContents?.subtotal_price
+                      : 0
+                    : cartContents?.subtotal_price
+                    ? cartContents?.subtotal_price + 200
+                    : 200}
                 </span>
               </div>
             </div>
