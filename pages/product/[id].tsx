@@ -446,7 +446,6 @@ export default function ProductShow(props: any) {
                   </div>
                   <div className="mb-6 "></div>
                   <div className="flex flex-wrap items-center mb-6">
-                    {/* TODO: MAKE + AND - FUNCTIONAL */}
                     <div className="mb-4 mr-4 lg:mb-0">
                       <div className="w-28">
                         <div className="relative flex flex-row w-full h-10 bg-transparent rounded-lg">
@@ -465,6 +464,7 @@ export default function ProductShow(props: any) {
                                   parseInt(parsedElement.value) - 1
                                 ).toString();
                               }
+                              setQuantity(parseInt(parsedElement.value));
                             }}
                           >
                             <span className="m-auto text-2xl font-thin">-</span>
@@ -493,6 +493,7 @@ export default function ProductShow(props: any) {
                                   parseInt(parsedElement.value) + 1
                                 ).toString();
                               }
+                              setQuantity(parseInt(parsedElement.value));
                             }}
                           >
                             <span className="m-auto text-2xl font-thin">+</span>
