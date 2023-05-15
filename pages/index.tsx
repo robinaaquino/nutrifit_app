@@ -13,6 +13,11 @@ import personalized_weight_management from "../public/personalized_weight_manage
 import sports_nutrition from "../public/sports_nutrition.jpg";
 import targeted_nutrition from "../public/targeted_nutrition.jpg";
 
+import oats from "../public/oats.jpg";
+import banana from "../public/banana.jpg";
+import rice from "../public/rice.jpg";
+import salmon from "../public/salmon.jpg";
+
 import landing_page from "../public/landing_page.jpg";
 import {
   PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY,
@@ -154,30 +159,10 @@ export default function Home(props: any) {
           </p>
         </div>
         <div className="grid grid-cols-4 grid-rows-1 gap-2 text-center items-center mb-6 text-black font-bitter">
-          <Image
-            src="/../public/oats.jpg"
-            alt="oats"
-            width={512}
-            height={1024}
-          ></Image>
-          <Image
-            src="/../public/banana.jpg"
-            alt="oats"
-            width={512}
-            height={1024}
-          ></Image>
-          <Image
-            src="/../public/rice.jpg"
-            alt="oats"
-            width={512}
-            height={1024}
-          ></Image>
-          <Image
-            src="/../public/salmon.jpg"
-            alt="oats"
-            width={512}
-            height={1024}
-          ></Image>
+          <Image src={oats} alt="oats" width={512} height={1024}></Image>
+          <Image src={banana} alt="oats" width={512} height={1024}></Image>
+          <Image src={rice} alt="oats" width={512} height={1024}></Image>
+          <Image src={salmon} alt="oats" width={512} height={1024}></Image>
           <span>Breakfast</span>
           <span>Snacks</span>
           <span>Lunch</span>
