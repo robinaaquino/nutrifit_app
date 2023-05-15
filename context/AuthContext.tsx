@@ -80,10 +80,10 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
   const isProductInArray = (product: any, products: any) => {
     for (let i = 0; i < products.length; i++) {
       if (product.id == products[i].id) {
-        return true;
+        return i;
       }
     }
-    return false;
+    return -1;
   };
 
   const addProductToContextCart = (product: any, quantity: any) => {
@@ -109,8 +109,15 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
     } else {
       var cartObject = cart;
 
-      if (isProductInArray(product, cartObject.products)) {
-        return false;
+      const productIndex = isProductInArray(product, cartObject.products);
+
+      if (productIndex != -1) {
+        cartObject.products[productIndex].quantity =
+          cartObject.products[productIndex].quantity + quantity;
+        cartObject.subtotal_price =
+          cartObject.subtotal_price + product.price * quantity;
+        cartObject.updated_at = new Date().toString();
+        return true;
       } else {
         cartObject.products = [...cartObject.products, productToBeAddedToCart];
         cartObject.subtotal_price =
@@ -163,8 +170,22 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
     if (cookies.cart) {
       var cartObjectFromCookies = JSON.parse(cookies.cart);
 
-      if (isProductInArray(product, cartObjectFromCookies.products)) {
-        return false;
+      const productIndex = isProductInArray(
+        product,
+        cartObjectFromCookies.products
+      );
+
+      if (productIndex != -1) {
+        cartObjectFromCookies.products[productIndex].quantity =
+          cartObjectFromCookies.products[productIndex].quantity + quantity;
+        cartObjectFromCookies.subtotal_price =
+          cartObjectFromCookies.subtotal_price + product.price * quantity;
+        cartObjectFromCookies.updated_at = new Date().toString();
+
+        nookies.set(undefined, "cart", JSON.stringify(cartObjectFromCookies), {
+          path: "/",
+        });
+        return true;
       } else {
         let previousProducts = cartObjectFromCookies.products;
         previousProducts.push(productToBeAddedToCart);
@@ -175,6 +196,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         nookies.set(undefined, "cart", JSON.stringify(cartObjectFromCookies), {
           path: "/",
         });
+
         return true;
       }
     } else {
@@ -256,11 +278,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         quantity
       );
 
-      if (contextResult == false || cookieResult == false) {
-        error("Duplicate product in cart");
-      } else {
-        success("Successful in adding product to cart");
-      }
+      success("Successful in adding product to cart");
     }
   };
 
