@@ -320,3 +320,29 @@ export interface CartsDatabaseType {
   updated_at?: string;
   user_id: string;
 }
+
+export const ErrorCodes = {
+  "email-already-in-use":
+    "The email address is already in use by another account.",
+  "invalid-user-token": "Error with user details. Try logging in again.",
+  "invalid-email": "The email address is not allowed",
+  "unauthorized-domain": "Error with URL domain. Please, contact the admin.",
+  "account-exists-with-different-credential":
+    "This account already exists. Login using this account.",
+  "network-request-failed":
+    "A network error has occurred. Please, contact the admin.",
+  "popup-blocked":
+    "Unable to establish a connection with the popup. It may have been blocked by the browser.",
+  "popup-closed-by-user":
+    "The popup has been closed by the user before finalizing the operation.",
+  "provider-already-linked": "User can only login by either Google or Email",
+  "quota-exceeded": "Error with project requests. Please, contact the admin.",
+  timeout: "The operation has timed out. Try again.",
+  "user-token-expired":
+    "Error with user token expiration. Try logging in again.",
+  "too-many-requests": "You have too many requests. Try again later.",
+  "user-not-found": "User does not exist. Sign up first.",
+  "user-disabled": "The user account has been disabled by an administrator.",
+  "Invalid document reference":
+    "Issues with document access. Please, contact the admin",
+};
