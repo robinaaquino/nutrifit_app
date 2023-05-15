@@ -17,6 +17,9 @@ import FilterCategory from "./FilterCategory";
 import FilterProgram from "./FilterProgram";
 import InputSubmit from "../forms/input/InputSubmit";
 
+import { useRouter, usePathname, useParams } from "next/navigation";
+import nookies from "nookies";
+
 export default function Filter({
   handleFilters,
   resetFilter,
@@ -62,6 +65,11 @@ export default function Filter({
   const [filterProgram, setFilterProgram] = useState<string>("");
   const [filterReviewedByAdmin, setFilterReviewedByAdmin] =
     useState<boolean>(false);
+
+  const pathname = usePathname();
+  const params = useParams();
+  const router = useRouter();
+  const additionalParams = new URLSearchParams(params);
 
   function showFilters() {
     var fSection = document.getElementById("filterSection");
@@ -183,6 +191,10 @@ export default function Filter({
         filterRadioButtonInput.checked = false;
       }
     });
+
+    additionalParams.set("search", "");
+    router.replace(`/product?${additionalParams}`);
+    nookies.set(undefined, "search", "", { path: "/" });
   }
 
   return (
@@ -190,6 +202,14 @@ export default function Filter({
       <div className="2xl:container 2xl:mx-auto">
         <div>
           <div>
+            <button
+              type="button"
+              className="flex items-center justify-center px-5 py-2 w-auto text-sm tracking-wide text-white transition-colors duration-200 bg-red-500 rounded-lg shrink-0 gap-x-2 hover:bg-nf_dark_blue float-right ml-2"
+              onClick={() => handleResetFilters()}
+              ml-2
+            >
+              Reset filters
+            </button>
             <button
               className="flex items-center justify-center px-5 py-2 w-auto text-sm tracking-wide text-white transition-colors duration-200 bg-nf_green rounded-lg shrink-0 gap-x-2 hover:bg-nf_dark_blue float-right"
               onClick={() => showFilters()}
@@ -341,13 +361,13 @@ export default function Filter({
                         >
                           Apply Filters
                         </button> */}
-                          <button
+                          {/* <button
                             type="button"
                             className="inline-flex w-full justify-center rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-800 sm:ml-3 sm:w-auto"
                             onClick={() => handleResetFilters()}
                           >
                             Reset filters
-                          </button>
+                          </button> */}
                           <button
                             type="button"
                             className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
