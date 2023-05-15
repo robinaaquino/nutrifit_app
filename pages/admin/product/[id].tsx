@@ -2,7 +2,6 @@ import { useRouter } from "next/router";
 import React, { useEffect, useState, useContext } from "react";
 import { useAuthContext, AuthContext } from "@/context/AuthContext";
 import {
-  PRODUCT_CATEGORIES_ARRAY,
   PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY,
   ProductsDatabaseType,
 } from "../../../firebase/constants";

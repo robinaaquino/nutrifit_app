@@ -1,7 +1,6 @@
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 import {
-  PRODUCT_CATEGORIES_ARRAY,
   PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY,
   ProductsDatabaseType,
 } from "../../firebase/constants";

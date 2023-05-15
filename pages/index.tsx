@@ -7,8 +7,6 @@ import { AuthContext, useAuthContext } from "@/context/AuthContext";
 import no_image from "../public/no_image.png";
 import landing_page from "../public/landing_page.jpg";
 import {
-  PRODUCT_CATEGORIES,
-  PRODUCT_CATEGORIES_PUBLIC_NAME,
   PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY,
   ProductsDatabaseType,
 } from "@/firebase/constants";
@@ -25,10 +23,7 @@ export default function Home(props: any) {
   // const authContextObject = useContext(AuthContext);
   const { user, success, error, addToCart } = useAuthContext();
   const landingPageCategories = [
-    PRODUCT_CATEGORIES.OUTER_NUTRITION_VITAMIN_MASK,
-    PRODUCT_CATEGORIES.INNER_NUTRITION_WEIGHT_MANAGEMENT_CORE_PRODUCTS,
-    PRODUCT_CATEGORIES.PRODUCT_PACKS,
-    PRODUCT_CATEGORIES.SHAKES,
+    ...PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.slice(0, 4),
   ];
   const [categoryIndex, setCategoryIndex] = useState(0);
   const numberOfShownCategories = 3;
