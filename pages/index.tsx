@@ -177,7 +177,7 @@ export default function Home(props: any) {
                 return (
                   <>
                     <ProductCard
-                      productImage={e.image}
+                      productImage={e.images ? e.images[0] : null}
                       productName={e.name}
                       productPrice={e.price}
                       productId={e.id}
