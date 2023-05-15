@@ -45,10 +45,10 @@ export default function Signup() {
           success(result.resultText);
           router.push("/");
         } else {
-          error(addResult.resultText);
+          error(addResult.errorMessage);
         }
       } else {
-        error(result.resultText);
+        error(result.errorMessage);
       }
     };
 
