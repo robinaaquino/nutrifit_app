@@ -25,7 +25,7 @@ export default function TableRowText({
             <h2
               className="font-medium text-blue-500 "
               onClick={() => {
-                if (isAdmin && type == "order") {
+                if (isAdmin && type == "message") {
                   router.push(`/admin/${type}/${text}`);
                 } else {
                   router.push(`/${type}/${text}`);
