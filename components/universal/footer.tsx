@@ -9,7 +9,10 @@ export default function Footer() {
           <div>
             <a href="#" className="flex items-end">
               <span className="font-inter text-lg text-white ml-3">
-                &copy; 2023 Nutrifit Wellness Hub All rights reserved
+                <span className="font-bold">
+                  &copy; 2023 Nutrifit Wellness Hub{" "}
+                </span>
+                All rights reserved
               </span>
             </a>
           </div>
@@ -23,7 +26,10 @@ export default function Footer() {
           </div>
 
           <div>
-            <a href="#" className="text-4xl text-blue">
+            <a
+              href="https://www.facebook.com/Nutrifit-Wellness-Hub-412660212192399"
+              className="text-4xl text-blue-800"
+            >
               <MdFacebook />
             </a>
           </div>
