@@ -44,7 +44,7 @@ export default function Login() {
           router.push("/");
         }
       } else {
-        error(result.resultText);
+        error(result.errorMessage);
       }
     };
 

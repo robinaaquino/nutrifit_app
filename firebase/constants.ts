@@ -343,6 +343,7 @@ export const ErrorCodes = {
   "too-many-requests": "You have too many requests. Try again later.",
   "user-not-found": "User does not exist. Sign up first.",
   "user-disabled": "The user account has been disabled by an administrator.",
+  "wrong-password": "Wrong password. Try again",
   "Invalid document reference":
     "Issues with document access. Please, contact the admin",
 };

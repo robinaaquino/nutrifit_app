@@ -76,7 +76,7 @@ export const logInWithEmailAndPassword = async (
       };
     })
     .catch((error: any) => {
-      const errorMessage = error.message;
+      const errorMessage = parseError(error);
 
       resultObject = {
         result: "",
