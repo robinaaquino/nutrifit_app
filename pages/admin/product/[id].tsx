@@ -20,6 +20,12 @@ import admin from "../../../firebase/admin-config";
 import { useForm } from "react-hook-form";
 import WarningMessage from "@/components/forms/WarningMessage";
 
+import HeadingTwo from "@/components/forms/HeadingTwo";
+import InputButton from "@/components/forms/input/InputButton";
+import InputComponent from "@/components/forms/input/InputComponent";
+import InputSubmit from "@/components/forms/input/InputSubmit";
+import Label from "@/components/forms/Label";
+
 export default function AdminProductShow(props: any) {
   const router = useRouter();
   const { id } = router.query;
@@ -185,8 +191,25 @@ export default function AdminProductShow(props: any) {
       >
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <div className="flex flex-wrap -mx-3 mb-6">
-              <div className="w-full px-3 mb-6">
+            <HeadingTwo label={"Product Details"} id="productImage" />
+            <div className="-mx-3 mb-6">
+              <InputComponent
+                id={"productName"}
+                name={"inputProductName"}
+                label={"Product Name"}
+                type={"text"}
+                placeholder={"Type your product name..."}
+                value={productName}
+                register={register}
+                rules={{
+                  required: "Product name is required",
+                  onChange: (e: any) => setProductName(e.target.value),
+                }}
+                error={errors}
+                aria-invalid={errors.inputProductName ? "true" : "false"}
+              />
+              {/* <div className="w-full px-3 mb-6">
+
                 <label
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                   htmlFor="grid-product-name"
@@ -208,9 +231,9 @@ export default function AdminProductShow(props: any) {
               </div>
               {errors.inputProductName && (
                 <WarningMessage text={errors.inputProductName?.message} />
-              )}
+              )} */}
             </div>
-            <div className="flex flex-wrap -mx-3 mb-6">
+            <div className="-mx-3 mb-6">
               <div className="w-full px-3 mb-6">
                 <label
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
@@ -255,8 +278,23 @@ export default function AdminProductShow(props: any) {
                 </div>
               </div>
             </div>
-            <div className="flex flex-wrap -mx-3 mb-6">
-              <div className="w-full px-3 mb-6">
+            <div className="-mx-3 mb-6">
+              <InputComponent
+                id={"price"}
+                name={"inputPrice"}
+                label={"Price"}
+                type={"number"}
+                placeholder={"Type your price..."}
+                value={price}
+                register={register}
+                rules={{
+                  required: "Price is required",
+                  onChange: (e: any) => setPrice(parseInt(e.target.value)),
+                }}
+                error={errors}
+                aria-invalid={errors.inputPrice ? "true" : "false"}
+              />
+              {/* <div className="w-full px-3 mb-6">
                 <label
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                   htmlFor="grid-price"
@@ -278,10 +316,26 @@ export default function AdminProductShow(props: any) {
               </div>
               {errors.inputPrice && (
                 <WarningMessage text={errors.inputPrice?.message} />
-              )}
+              )} */}
             </div>
-            <div className="flex flex-wrap -mx-3 mb-6">
-              <div className="w-full px-3 mb-6">
+            <div className="-mx-3 mb-6">
+              <InputComponent
+                id={"quantityLeft"}
+                name={"inputQuantity"}
+                label={"Quantity Left"}
+                type={"number"}
+                placeholder={"Type the quantity left..."}
+                value={quantityLeft}
+                register={register}
+                rules={{
+                  required: "Quantity is required",
+                  onChange: (e: any) =>
+                    setQuantityLeft(parseInt(e.target.value)),
+                }}
+                error={errors}
+                aria-invalid={errors.inputQuantity ? "true" : "false"}
+              />
+              {/* <div className="w-full px-3 mb-6">
                 <label
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                   htmlFor="grid-quantity-left"
@@ -304,9 +358,9 @@ export default function AdminProductShow(props: any) {
               </div>
               {errors.inputQuantity && (
                 <WarningMessage text={errors.inputQuantity?.message} />
-              )}
+              )} */}
             </div>
-            <div className="flex flex-wrap -mx-3 mb-6">
+            <div className="-mx-3 mb-6">
               <div className="w-full px-3 mb-6">
                 <label
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
@@ -326,7 +380,7 @@ export default function AdminProductShow(props: any) {
                 />
               </div>
             </div>
-            <div className="flex flex-wrap -mx-3 mb-6">
+            <div className="-mx-3 mb-6">
               <div className="w-full px-3 mb-6">
                 <label
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
@@ -346,8 +400,23 @@ export default function AdminProductShow(props: any) {
                 />
               </div>
             </div>
-            <div className="flex flex-wrap -mx-3 mb-6">
-              <div className="w-full px-3 mb-6">
+            <div className="-mx-3 mb-6">
+              <InputComponent
+                id={"productDescription"}
+                name={"inputProductDescription"}
+                label={"Product Description"}
+                type={"text"}
+                placeholder={"Type the product description..."}
+                value={productDescription}
+                register={register}
+                rules={{
+                  required: "Product description is required",
+                  onChange: (e: any) => setProductDescription(e.target.value),
+                }}
+                error={errors}
+                aria-invalid={errors.inputProductDescription ? "true" : "false"}
+              />
+              {/* <div className="w-full px-3 mb-6">
                 <label
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                   htmlFor="grid-product-description"
@@ -373,13 +442,13 @@ export default function AdminProductShow(props: any) {
                   <WarningMessage
                     text={errors.inputProductDescription?.message}
                   />
-                )}
-              </div>
+                )} */}
+              {/* </div> */}
             </div>
           </div>
           <div>
             <div className="h-full">
-              <div>Product Images</div>
+              <HeadingTwo label="Product Images" id="productImage" />
 
               <div className="flex flex-col w-auto min-h-screen p-10 bg-gray-100 text-gray-800">
                 <div className="grid  grid-cols-2 gap-x-6 gap-y-12 w-full mt-6">
@@ -475,7 +544,7 @@ export default function AdminProductShow(props: any) {
           </div>
         </div>
 
-        {/* <div className="flex flex-wrap -mx-3 mb-6">
+        {/* <div className="-mx-3 mb-6">
           <div className="w-full px-3">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
@@ -494,7 +563,7 @@ export default function AdminProductShow(props: any) {
             </p>
           </div>
         </div>
-        <div className="flex flex-wrap -mx-3 mb-2">
+        <div className="-mx-3 mb-2">
           <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
             <label
               className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"

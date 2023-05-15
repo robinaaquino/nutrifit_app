@@ -16,6 +16,12 @@ import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 import { useForm } from "react-hook-form";
 import WarningMessage from "@/components/forms/WarningMessage";
 
+import HeadingTwo from "@/components/forms/HeadingTwo";
+import InputButton from "@/components/forms/input/InputButton";
+import InputComponent from "@/components/forms/input/InputComponent";
+import InputSubmit from "@/components/forms/input/InputSubmit";
+import Label from "@/components/forms/Label";
+
 //clean authcontextobject calls
 //clean getserversideprops calls for all admin routes
 export default function AdminAddProduct(props: any) {
@@ -116,8 +122,24 @@ export default function AdminAddProduct(props: any) {
       >
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <div className="flex flex-wrap -mx-3 mb-6">
-              <div className="w-full px-3 mb-6">
+            <HeadingTwo label={"Product Details"} id="productImage" />
+            <div className="-mx-3 mb-6">
+              <InputComponent
+                id={"productName"}
+                name={"inputProductName"}
+                label={"Product Name"}
+                type={"text"}
+                placeholder={"Type your product name..."}
+                value={productName}
+                register={register}
+                rules={{
+                  required: "Product name is required",
+                  onChange: (e: any) => setProductName(e.target.value),
+                }}
+                error={errors}
+                aria-invalid={errors.inputProductName ? "true" : "false"}
+              />
+              {/* <div className="w-full px-3 mb-6">
                 <label
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                   htmlFor="grid-product-name"
@@ -138,9 +160,9 @@ export default function AdminAddProduct(props: any) {
               </div>
               {errors.inputProductName && (
                 <WarningMessage text={errors.inputProductName?.message} />
-              )}
+              )} */}
             </div>
-            <div className="flex flex-wrap -mx-3 mb-6">
+            <div className="-mx-3 mb-6">
               <div className="w-full px-3 mb-6">
                 <label
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
@@ -172,8 +194,23 @@ export default function AdminAddProduct(props: any) {
                 </div>
               </div>
             </div>
-            <div className="flex flex-wrap -mx-3 mb-6">
-              <div className="w-full px-3 mb-6">
+            <div className="-mx-3 mb-6">
+              <InputComponent
+                id={"price"}
+                name={"inputPrice"}
+                label={"Price"}
+                type={"number"}
+                placeholder={"Type your price..."}
+                value={price}
+                register={register}
+                rules={{
+                  required: "Price is required",
+                  onChange: (e: any) => setPrice(parseInt(e.target.value)),
+                }}
+                error={errors}
+                aria-invalid={errors.inputPrice ? "true" : "false"}
+              />
+              {/* <div className="w-full px-3 mb-6">
                 <label
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                   htmlFor="grid-price"
@@ -194,10 +231,25 @@ export default function AdminAddProduct(props: any) {
               </div>
               {errors.inputPrice && (
                 <WarningMessage text={errors.inputPrice?.message} />
-              )}
+              )} */}
             </div>
-            <div className="flex flex-wrap -mx-3 mb-6">
-              <div className="w-full px-3 mb-6">
+            <div className="-mx-3 mb-6">
+              <InputComponent
+                id={"quantity"}
+                name={"inputQuantity"}
+                label={"Quantity"}
+                type={"number"}
+                placeholder={"Type the quantity..."}
+                value={quantity}
+                register={register}
+                rules={{
+                  required: "Quantity is required",
+                  onChange: (e: any) => setQuantity(parseInt(e.target.value)),
+                }}
+                error={errors}
+                aria-invalid={errors.inputQuantity ? "true" : "false"}
+              />
+              {/* <div className="w-full px-3 mb-6">
                 <label
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                   htmlFor="grid-quantity"
@@ -218,16 +270,17 @@ export default function AdminAddProduct(props: any) {
               </div>
               {errors.inputQuantity && (
                 <WarningMessage text={errors.inputQuantity?.message} />
-              )}
+              )} */}
             </div>
-            <div className="flex flex-wrap -mx-3 mb-6">
+            <div className="-mx-3 mb-6">
               <div className="w-full px-3 mb-6">
-                <label
+                <Label label={"Product Description"} id="productDescription" />
+                {/* <label
                   className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                   htmlFor="grid-product-description"
                 >
                   Product Description
-                </label>
+                </label> */}
                 <textarea
                   className="block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white h-full"
                   id="grid-product-description"
@@ -252,7 +305,7 @@ export default function AdminAddProduct(props: any) {
           </div>
           <div>
             <div className="h-full">
-              <div>Product Images</div>
+              <HeadingTwo label={"Product Images"} id="productImage" />
 
               <div className="flex flex-col w-auto min-h-screen p-10 bg-gray-100 text-gray-800">
                 <div className="grid  grid-cols-2 gap-x-6 gap-y-12 w-full mt-6">
@@ -340,11 +393,7 @@ export default function AdminAddProduct(props: any) {
               </div>
             </div>
             <div>
-              <input
-                type="submit"
-                value="Add Product"
-                className=" w-full cursor-pointer rounded-md border bg-nf_green py-3 px-5 text-base text-white transition hover:bg-nf_dark_green"
-              />
+              <InputSubmit label={"Add Product"} />
             </div>
           </div>
         </div>
