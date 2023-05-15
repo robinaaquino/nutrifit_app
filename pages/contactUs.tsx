@@ -27,9 +27,9 @@ export default function ContactUs() {
     const { inputName, inputEmail, inputMessage } = data;
 
     const result = await addMessageFunction({
-      inputName,
-      inputEmail,
-      inputMessage,
+      name: inputName,
+      email: inputEmail,
+      message: inputMessage,
     });
 
     if (result.isSuccess) {
