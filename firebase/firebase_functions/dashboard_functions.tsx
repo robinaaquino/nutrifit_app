@@ -141,7 +141,7 @@ export const getAllAdminAnalytics = async () => {
       a["quantity"] > b["quantity"] ? -1 : b["quantity"] > a["quantity"] ? 1 : 0
     );
 
-    resultOfAdminAnalytics.frequentlyBoughtProducts = tempArray;
+    resultOfAdminAnalytics.frequentlyBoughtProducts = tempArray.slice(0, 6);
 
     tempArray = tempArray.sort((a: any, b: any) =>
       a["totalProfit"] > b["totalProfit"]
@@ -151,7 +151,7 @@ export const getAllAdminAnalytics = async () => {
         : 0
     );
 
-    resultOfAdminAnalytics.highestGrossingProducts = tempArray;
+    resultOfAdminAnalytics.highestGrossingProducts = tempArray.slice(0, 6);
 
     resultObject = {
       result: resultOfAdminAnalytics,

@@ -99,3 +99,12 @@ export function formatDate(date: string) {
     return date;
   }
 }
+
+export function splitLabel(text: string) {
+  const textArray: string[] = text.split("-");
+  if (textArray.length > 1) {
+    return textArray;
+  } else {
+    return text;
+  }
+}
