@@ -31,7 +31,7 @@ export default function ProductShow(props: any) {
     images: [],
   });
   const { id } = router.query;
-  const { error, user, addToCart } = useAuthContext();
+  const { error, user, addToCart, clear } = useAuthContext();
   const [displayImage, setDisplayImage] = useState<any>(no_image);
   const [availableImagesCount, setAvailableImagesCount] = useState(0);
   const [allImages, setAllImages] = useState<any[]>([]);
@@ -437,7 +437,9 @@ export default function ProductShow(props: any) {
                   </div>
                   <div className="py-6 mb-6 border-t border-b border-gray-200 dark:border-gray-700">
                     <span className="text-base text-black">
-                      {product.quantity_left > 0 ? "In stock" : "Out of stock"}
+                      {product.quantity_left > 0
+                        ? `${product.quantity_left} left`
+                        : "Out of stock"}
                     </span>
                     {/* <p className="mt-2 text-sm text-blue-500 dark:text-blue-200">
                       Ships from china.

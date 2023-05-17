@@ -137,7 +137,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
 
   const removeProductFromContextCart = (product: any) => {
     if (cart) {
-      if (cart.length == 0) {
+      if (cart) {
         var cartObject = cart;
         let previousProductsInCart = cartObject.products;
 
@@ -156,7 +156,6 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         setCart(cartObject);
       }
     }
-
     return true;
   };
 
@@ -269,9 +268,9 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
     );
     const productInfo: ProductsDatabaseType =
       currentProductInfo.result as ProductsDatabaseType;
-
     let cartProductQuantity = quantity;
-    for (let i = 0; i < cart.products.length; i++) {
+
+    for (let i = 0; i < cart?.products.length; i++) {
       if (cart.products[i].id == product.id) {
         cartProductQuantity += cart.products[i].quantity;
       }
@@ -371,7 +370,6 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
       }
       setLoading(false);
     });
-
     if (!cart) {
       const cookies = nookies.get(undefined);
       if (cookies.cart) {
