@@ -90,6 +90,10 @@ export const ErrorCodes = {
     "An error has occurred while we were adding a wellness survey. Try again or contact the administrator",
   "best-selling-products":
     "An error has occurred while we were looking for the best selling products. Try again or contact the administrator",
+  "no-product-quantity-left":
+    "There's insufficient quantity to add the product to your cart",
+  "error-in-cart-product-quantity":
+    "Your cart has a product with too much quantity. This product has been removed. Please, try again",
 };
 
 export const SuccessCodes = {
