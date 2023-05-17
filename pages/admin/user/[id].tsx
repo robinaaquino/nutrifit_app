@@ -1,21 +1,26 @@
 import nookies from "nookies";
-import admin from "@/firebase/admin-config";
-import {
-  getUserFunction,
-  updateUserFunction,
-} from "@/firebase/firebase_functions/users_functions";
-import { useAuthContext } from "@/context/AuthContext";
-import no_image from "../../../public/no_image.png";
 import Image from "next/image";
-import { UsersDatabaseType, RoleEnum } from "@/firebase/constants";
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { User } from "firebase/auth";
-import { resetPassword } from "@/firebase/firebase_functions/auth_functions";
-import { getAllOrdersViaIdFunction } from "@/firebase/firebase_functions/orders_functions";
-import TableComponent from "@/components/admin/TableComponent";
 
-import { useForm } from "react-hook-form";
+import no_image from "../../../public/no_image.png";
+import admin from "@/firebase/admin-config";
+import { useAuthContext } from "@/context/AuthContext";
+
+import { CollectionsEnum, RoleEnum } from "@/firebase/constants/enum_constants";
+import { OrdersDatabaseType } from "@/firebase/constants/orders_constants";
+import { UsersDatabaseType } from "@/firebase/constants/user_constants";
+
+import {
+  isUserAuthorizedFunction,
+  updateUserFunction,
+} from "@/firebase/firebase_functions/users_functions";
+import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
+import { resetPassword } from "@/firebase/firebase_functions/auth_functions";
+import { getAllDocumentsGivenTypeAndUserIdFunction } from "@/firebase/firebase_functions/general_functions";
+
+import TableComponent from "@/components/admin/TableComponent";
 import WarningMessage from "@/components/forms/WarningMessage";
 
 export default function AdminUserShow(props: any) {
@@ -48,7 +53,7 @@ export default function AdminUserShow(props: any) {
   const [city, setCity] = useState("");
   const [province, setProvince] = useState("");
 
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<OrdersDatabaseType[]>([]);
   const orderHeaders = ["ID", "Status", "Date ordered", "Total Price"];
   const orderKeys = ["id", "status", "created_at", "total_price"];
 
@@ -80,40 +85,41 @@ export default function AdminUserShow(props: any) {
       }
     }
 
-    const result = await getUserFunction(idInput);
+    const result = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.USER,
+      idInput
+    );
+    const userResult: UsersDatabaseType = result.result as UsersDatabaseType;
 
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
       router.push("/");
     } else {
-      setUserInfo(result.result);
+      setUserInfo(userResult);
 
-      setFirstName(result.result.shipping_details?.first_name || "");
-      setLastName(result.result.shipping_details?.last_name || "");
-      setContactNumber(result.result.shipping_details?.contact_number || "");
-      setAddress(result.result.shipping_details?.address || "");
-      setCity(result.result.shipping_details?.city || "");
-      setProvince(result.result.shipping_details?.province || "");
-      setRole(result.result.role);
+      setFirstName(userResult.shipping_details?.first_name || "");
+      setLastName(userResult.shipping_details?.last_name || "");
+      setContactNumber(userResult.shipping_details?.contact_number || "");
+      setAddress(userResult.shipping_details?.address || "");
+      setCity(userResult.shipping_details?.city || "");
+      setProvince(userResult.shipping_details?.province || "");
+      setRole(userResult.role ? userResult.role : RoleEnum.CUSTOMER);
 
-      setValue(
-        "inputFirstName",
-        result.result.shipping_details?.first_name || ""
-      );
-      setValue(
-        "inputLastName",
-        result.result.shipping_details?.last_name || ""
-      );
+      setValue("inputFirstName", userResult.shipping_details?.first_name || "");
+      setValue("inputLastName", userResult.shipping_details?.last_name || "");
       setValue(
         "inputContactNumber",
-        result.result.shipping_details?.contact_number || ""
+        userResult.shipping_details?.contact_number || ""
       );
-      setValue("inputAddress", result.result.shipping_details?.address || "");
-      setValue("inputCity", result.result.shipping_details?.city || "");
-      setValue("inputProvince", result.result.shipping_details?.province || "");
-      setValue("inputRole", result.result.role);
+      setValue("inputAddress", userResult.shipping_details?.address || "");
+      setValue("inputCity", userResult.shipping_details?.city || "");
+      setValue("inputProvince", userResult.shipping_details?.province || "");
+      setValue(
+        "inputRole",
+        userResult.role ? userResult.role : RoleEnum.CUSTOMER
+      );
 
-      setImage(result.result.image);
+      setImage(userResult.image);
     }
   }
 
@@ -127,12 +133,17 @@ export default function AdminUserShow(props: any) {
       }
     }
 
-    const result = await getAllOrdersViaIdFunction(idInput);
+    const result = await getAllDocumentsGivenTypeAndUserIdFunction(
+      CollectionsEnum.ORDER,
+      idInput
+    );
+
+    const resultObject = result.result as OrdersDatabaseType[];
 
     if (result.isSuccess) {
-      setOrders(result.result);
+      setOrders(resultObject);
     } else {
-      error("result.errorMessage");
+      error("result.message");
     }
   }
 
@@ -217,21 +228,22 @@ export default function AdminUserShow(props: any) {
     };
 
     const result = await updateUserFunction(newInfo, idInput);
+    const updateResult: UsersDatabaseType = result.result as UsersDatabaseType;
 
     if (result.isSuccess) {
-      success(result.resultText);
-      setUserInfo(result.result);
+      success(result.message);
+      setUserInfo(updateResult);
     } else {
-      error(result.errorMessage);
+      error(result.message);
     }
   };
 
   const handleResetPassword = async () => {
     const resetPasswordResult = await resetPassword(userInfo.email);
     if (resetPasswordResult.isSuccess) {
-      success(resetPasswordResult.resultText);
+      success(resetPasswordResult.message);
     } else {
-      error(resetPasswordResult.errorMessage);
+      error(resetPasswordResult.message);
     }
   };
 
@@ -252,7 +264,7 @@ export default function AdminUserShow(props: any) {
   }, []);
 
   if (props.isError) {
-    error(props.errorMessage);
+    error(props.message);
     router.push(props.redirect);
     return null;
   }
@@ -591,10 +603,9 @@ export async function getServerSideProps(context: any) {
     const cookies = nookies.get(context);
     const token = await admin.auth().verifyIdToken(cookies.token);
 
-    const { uid, email } = token;
+    const { uid } = token;
 
-    const a = await getUserFunction(uid);
-    const isAdmin = a.result.role == "admin" ? true : false;
+    const isAdmin = await isUserAuthorizedFunction(uid);
 
     if (!isAdmin) {
       // context.res.writeHead(302, { Location: "/login" });
@@ -603,7 +614,7 @@ export async function getServerSideProps(context: any) {
       return {
         props: {
           isError: true,
-          errorMessage: "Unauthorized access",
+          message: "Unauthorized access",
           redirect: "/",
         },
       };
@@ -611,10 +622,9 @@ export async function getServerSideProps(context: any) {
 
     return {
       props: {
-        message: `Your email is ${email} and your UID is ${uid}.`,
         authorized: isAdmin,
         isError: false,
-        errorMessage: "",
+        message: "",
         redirect: "",
       },
     };
@@ -625,7 +635,7 @@ export async function getServerSideProps(context: any) {
     return {
       props: {
         isError: true,
-        errorMessage: "Unauthenticated access",
+        message: "Unauthenticated access",
         redirect: "/login",
       },
     };

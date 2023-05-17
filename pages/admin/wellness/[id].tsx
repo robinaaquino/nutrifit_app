@@ -1,22 +1,26 @@
 import { useState, useEffect } from "react";
-import { WellnessOverallResults } from "../../../firebase/constants";
 import { useRouter } from "next/router";
-import { useAuthContext } from "@/context/AuthContext";
-import nookies from "nookies";
-import admin from "../../../firebase/admin-config";
-import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
-
 import { useForm } from "react-hook-form";
+import nookies from "nookies";
+
+import { useAuthContext } from "@/context/AuthContext";
+import admin from "../../../firebase/admin-config";
+import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
+
 import WarningMessage from "@/components/forms/WarningMessage";
-import {
-  WellnessQuestions,
-  WellnessRemarks,
-} from "../../../firebase/constants";
 
 import {
-  getWellnessSurveyResultsViaIdFunction,
-  updateWellnessSurveyResultFunction,
-} from "@/firebase/firebase_functions/wellness_functions";
+  CollectionsEnum,
+  WellnessRemarksEnum,
+} from "@/firebase/constants/enum_constants";
+import { UsersDatabaseType } from "@/firebase/constants/user_constants";
+import { WellnessQuestionsKeys } from "@/firebase/constants/wellness_constants";
+import {
+  WellnessDatabaseType,
+  WellnessDatabaseTypeFromDB,
+} from "@/firebase/constants/wellness_constants";
+
+import { updateWellnessSurveyResultFunction } from "@/firebase/firebase_functions/wellness_functions";
 
 import InputComponent from "@/components/forms/input/InputComponent";
 import InputSubmit from "@/components/forms/input/InputSubmit";
@@ -142,7 +146,7 @@ export default function AdminWellnessSurveyShow(props: any) {
       inputReviewedByAdmin,
     } = data;
 
-    const resultObject: WellnessOverallResults = {
+    const resultObject: WellnessDatabaseType = {
       user_id: userId,
       wellness_survey: wellness,
       name: name,
@@ -186,10 +190,10 @@ export default function AdminWellnessSurveyShow(props: any) {
     );
 
     if (updateWellnessSurveyResult.isSuccess) {
-      success(updateWellnessSurveyResult.resultText);
+      success(updateWellnessSurveyResult.message);
       router.push("/");
     } else {
-      error(updateWellnessSurveyResult.resultText);
+      error(updateWellnessSurveyResult.message);
     }
   };
 
@@ -203,71 +207,56 @@ export default function AdminWellnessSurveyShow(props: any) {
       }
     }
 
-    const result = await getWellnessSurveyResultsViaIdFunction(idInput);
+    const result = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.WELLNESS,
+      idInput
+    );
+
+    const resultObject: WellnessDatabaseTypeFromDB =
+      result.result as WellnessDatabaseTypeFromDB;
 
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
     } else {
-      const wellnessSurveyResultObject = result.result;
-      setOriginalSurveyResult(wellnessSurveyResultObject);
+      setOriginalSurveyResult(resultObject);
 
-      if (
-        wellnessSurveyResultObject.user_id &&
-        wellnessSurveyResultObject.user_id != props.user
-      ) {
+      if (resultObject.user_id && resultObject.user_id != props.user) {
         error("Unauthorized access");
         router.push("/");
       }
 
-      setUserId(wellnessSurveyResultObject.user_id);
-      setWellnessSurvey(wellnessSurveyResultObject.wellness_survey);
-      setName(wellnessSurveyResultObject.name);
-      setContactNumber(wellnessSurveyResultObject.contact_number);
-      setGender(wellnessSurveyResultObject.gender);
-      setHeight(wellnessSurveyResultObject.height);
-      setAge(wellnessSurveyResultObject.age);
-      setWeight(wellnessSurveyResultObject.weight);
+      setUserId(resultObject.user_id || "");
+      setWellnessSurvey(resultObject.wellness_survey);
+      setName(resultObject.name);
+      setContactNumber(resultObject.contact_number);
+      setGender(resultObject.gender || "");
+      setHeight(resultObject.height);
+      setAge(resultObject.age);
+      setWeight(resultObject.weight);
 
-      setDate(wellnessSurveyResultObject.wellness_trainer_information.date);
-      setFat(wellnessSurveyResultObject.wellness_trainer_information.fat);
-      setVisceralFat(
-        wellnessSurveyResultObject.wellness_trainer_information.visceral_fat
-      );
-      setBoneMass(
-        wellnessSurveyResultObject.wellness_trainer_information.bone_mass
-      );
+      setDate(resultObject.wellness_trainer_information.date);
+      setFat(resultObject.wellness_trainer_information.fat);
+      setVisceralFat(resultObject.wellness_trainer_information.visceral_fat);
+      setBoneMass(resultObject.wellness_trainer_information.bone_mass);
       setRestingMetabolicRate(
-        wellnessSurveyResultObject.wellness_trainer_information
-          .resting_metabolic_rate
+        resultObject.wellness_trainer_information.resting_metabolic_rate
       );
-      setMetabolicAge(
-        wellnessSurveyResultObject.wellness_trainer_information.metabolic_age
-      );
-      setMuscleMass(
-        wellnessSurveyResultObject.wellness_trainer_information.muscle_mass
-      );
+      setMetabolicAge(resultObject.wellness_trainer_information.metabolic_age);
+      setMuscleMass(resultObject.wellness_trainer_information.muscle_mass);
       setPhysiqueRating(
-        wellnessSurveyResultObject.wellness_trainer_information.physique_rating
+        resultObject.wellness_trainer_information.physique_rating
       );
-      setWater(wellnessSurveyResultObject.wellness_trainer_information.water);
+      setWater(resultObject.wellness_trainer_information.water);
 
-      setPresentWeight(
-        wellnessSurveyResultObject.wellness_remarks.present_weight
-      );
-      setIdealWeight(wellnessSurveyResultObject.wellness_remarks.ideal_weight);
-      setWeightStatus(
-        wellnessSurveyResultObject.wellness_remarks.weight_status
-      );
-      setWeightStatusNumber(
-        wellnessSurveyResultObject.wellness_remarks.weight_status_number
-      );
-      setIdealVisceral(
-        wellnessSurveyResultObject.wellness_remarks.ideal_visceral
-      );
-      setProgram(wellnessSurveyResultObject.program);
-      setMealPlan(wellnessSurveyResultObject.meal_plan);
+      setPresentWeight(resultObject.wellness_remarks.present_weight);
+      setIdealWeight(resultObject.wellness_remarks.ideal_weight);
+      setWeightStatus(resultObject.wellness_remarks.weight_status);
+      setWeightStatusNumber(resultObject.wellness_remarks.weight_status_number);
+      setIdealVisceral(resultObject.wellness_remarks.ideal_visceral);
+      setProgram(resultObject.program);
+      setMealPlan(resultObject.meal_plan);
 
-      setReviewedByAdmin(wellnessSurveyResultObject.reviewed_by_admin);
+      setReviewedByAdmin(resultObject.reviewed_by_admin);
     }
   }
 
@@ -319,7 +308,7 @@ export default function AdminWellnessSurveyShow(props: any) {
   }, []);
 
   if (props.isError) {
-    error(props.errorMessage);
+    error(props.message);
     router.push(props.redirect);
     return null;
   }
@@ -452,7 +441,7 @@ export default function AdminWellnessSurveyShow(props: any) {
           Please check the boxes for YES answers
         </p>
         <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-2 grid-rows-7">
-          {Object.keys(WellnessQuestions).map((key: string) => {
+          {Object.keys(WellnessQuestionsKeys).map((key: string) => {
             return (
               <>
                 <div className="flex text-black items-center mb-2">
@@ -464,7 +453,7 @@ export default function AdminWellnessSurveyShow(props: any) {
                     {...register("wellness")}
                     className="mx-3 block checkbox checkbox-success"
                   />
-                  <label htmlFor={key}>{WellnessQuestions[key]}</label>
+                  <label htmlFor={key}>{WellnessQuestionsKeys[key]}</label>
                 </div>
               </>
             );
@@ -807,27 +796,29 @@ export default function AdminWellnessSurveyShow(props: any) {
               aria-invalid={errors.inputProgram ? "true" : "false"}
             >
               <option
-                value={WellnessRemarks.GAIN}
+                value={WellnessRemarksEnum.GAIN}
                 key="gain"
-                selected={program == WellnessRemarks.GAIN ? true : false}
+                selected={program == WellnessRemarksEnum.GAIN ? true : false}
               >
-                {WellnessRemarks.GAIN}
+                {WellnessRemarksEnum.GAIN}
               </option>
 
               <option
-                value={WellnessRemarks.MAINTENANCE}
+                value={WellnessRemarksEnum.MAINTENANCE}
                 key="maintenance"
-                selected={program == WellnessRemarks.MAINTENANCE ? true : false}
+                selected={
+                  program == WellnessRemarksEnum.MAINTENANCE ? true : false
+                }
               >
-                {WellnessRemarks.MAINTENANCE}
+                {WellnessRemarksEnum.MAINTENANCE}
               </option>
 
               <option
-                value={WellnessRemarks.LOSS}
+                value={WellnessRemarksEnum.LOSS}
                 key="loss"
-                selected={program == WellnessRemarks.LOSS ? true : false}
+                selected={program == WellnessRemarksEnum.LOSS ? true : false}
               >
-                {WellnessRemarks.LOSS}
+                {WellnessRemarksEnum.LOSS}
               </option>
             </select>
           </div>
@@ -875,9 +866,8 @@ export async function getServerSideProps(context: any) {
   let props: any = {
     user: "",
     userInfo: null,
-    message: "",
     isError: true,
-    errorMessage: "Unauthorized access",
+    message: "Unauthorized access",
     redirect: "/login",
   };
 
@@ -890,20 +880,26 @@ export async function getServerSideProps(context: any) {
     props.user = uid;
     props.isError = false;
     props.message = `Your email is ${email} and your UID is ${uid}.`;
-    props.errorMessage = "";
+    props.message = "";
     props.redirect = "";
 
-    const getUserInfoResult = await getUserFunction(uid);
+    const getUserInfoResult = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.USER,
+      uid
+    );
 
     if (getUserInfoResult.isSuccess) props.userInfo = getUserInfoResult.result;
 
-    const isAdmin = getUserInfoResult.result.role == "admin" ? true : false;
+    const userInfoObject: UsersDatabaseType =
+      getUserInfoResult.result as UsersDatabaseType;
+
+    const isAdmin = userInfoObject.role == "admin" ? true : false;
 
     if (!isAdmin) {
       return {
         props: {
           isError: true,
-          errorMessage: "Unauthorized access",
+          message: "Unauthorized access",
           redirect: "/",
         },
       };

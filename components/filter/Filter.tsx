@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY } from "../../firebase/constants";
+import { ProductCategoriesList } from "@/firebase/constants/product_constants";
 import RadioButton from "../forms/RadioButton";
 import InputComponent from "../forms/input/InputComponent";
 import { useForm } from "react-hook-form";
@@ -144,7 +144,7 @@ export default function Filter({
     setFilterProgram("");
     setFilterReviewedByAdmin(false);
 
-    PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.map((e) => {
+    ProductCategoriesList.map((e) => {
       const filterCategoryRadioButton = document.getElementById(
         e
       ) as HTMLInputElement;

@@ -1,11 +1,15 @@
 "use client";
-import React, { useEffect, useContext, useState } from "react";
-import { logInWithEmailAndPassword } from "@/firebase/firebase_functions/auth_functions";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthContext } from "@/context/AuthContext";
 import Link from "next/link";
-import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 import { useForm } from "react-hook-form";
+
+import { useAuthContext } from "@/context/AuthContext";
+
+import { CollectionsEnum } from "@/firebase/constants/enum_constants";
+
+import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
+import { logInWithEmailAndPassword } from "@/firebase/firebase_functions/auth_functions";
 
 import SocialMediaLogin from "@/components/common/SocialMediaLogin";
 import InputComponent from "@/components/forms/input/InputComponent";
@@ -37,14 +41,17 @@ export default function Login() {
       const result = await logInWithEmailAndPassword(inputEmail, inputPassword);
 
       if (result.isSuccess) {
-        const getUserResult = await getUserFunction(result.result);
+        const getUserResult = await getDocumentGivenTypeAndIdFunction(
+          CollectionsEnum.USER,
+          result.result
+        );
 
         if (getUserResult.isSuccess) {
-          success(result.resultText);
+          success(result.message);
           router.push("/");
         }
       } else {
-        error(result.errorMessage);
+        error(result.message);
       }
     };
 

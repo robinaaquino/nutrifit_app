@@ -1,19 +1,20 @@
-import { useContext, useState, useEffect } from "react";
-import { WellnessOverallResults } from "../../firebase/constants";
-import { addProductFunction } from "@/firebase/firebase_functions/products_functions";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthContext, AuthContext } from "@/context/AuthContext";
+import { useAuthContext } from "@/context/AuthContext";
+import { useForm } from "react-hook-form";
 import nookies from "nookies";
 import admin from "../../firebase/admin-config";
-import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 
-import { useForm } from "react-hook-form";
-import WarningMessage from "@/components/forms/WarningMessage";
-import { WellnessQuestions } from "../../firebase/constants";
-
+import {
+  WellnessDatabaseType,
+  WellnessQuestionsKeys,
+} from "@/firebase/constants/wellness_constants";
+import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
 import { addWellnessSurveyResult } from "@/firebase/firebase_functions/wellness_functions";
+
 import InputComponent from "@/components/forms/input/InputComponent";
 import InputSubmit from "@/components/forms/input/InputSubmit";
+import { CollectionsEnum } from "@/firebase/constants/enum_constants";
 
 export default function WellnessSurvey(props: any) {
   const [userId, setUserId] = useState<string>("");
@@ -90,7 +91,7 @@ export default function WellnessSurvey(props: any) {
       inputWater,
     } = data;
 
-    const resultObject: WellnessOverallResults = {
+    const resultObject: WellnessDatabaseType = {
       user_id: userId,
       wellness_survey: wellness,
       name: inputName,
@@ -116,11 +117,11 @@ export default function WellnessSurvey(props: any) {
     const addResultResult = await addWellnessSurveyResult(resultObject);
 
     if (addResultResult.isSuccess) {
-      success(addResultResult.resultText);
+      success(addResultResult.message);
 
       router.push("/");
     } else {
-      error(addResultResult.resultText);
+      error(addResultResult.message);
     }
   };
 
@@ -150,7 +151,7 @@ export default function WellnessSurvey(props: any) {
   }, [props]);
 
   if (props.isError) {
-    error(props.errorMessage);
+    error(props.message);
     router.push(props.redirect);
     return null;
   }
@@ -412,7 +413,7 @@ export default function WellnessSurvey(props: any) {
           Please check the boxes for YES answers
         </p>
         <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-2 grid-rows-7">
-          {Object.keys(WellnessQuestions).map((key: string) => {
+          {Object.keys(WellnessQuestionsKeys).map((key: string) => {
             return (
               <>
                 <div className="flex text-black items-center mb-2">
@@ -423,7 +424,7 @@ export default function WellnessSurvey(props: any) {
                     {...register("wellness")}
                     className="mx-3 block checkbox checkbox-success"
                   />
-                  <label htmlFor={key}>{WellnessQuestions[key]}</label>
+                  <label htmlFor={key}>{WellnessQuestionsKeys[key]}</label>
                 </div>
               </>
             );
@@ -825,7 +826,6 @@ export async function getServerSideProps(context: any) {
     userInfo: null,
     message: "",
     isError: false,
-    errorMessage: "",
     redirect: "",
   };
 
@@ -838,10 +838,13 @@ export async function getServerSideProps(context: any) {
     props.user = uid;
     props.isError = false;
     props.message = `Your email is ${email} and your UID is ${uid}.`;
-    props.errorMessage = "";
+    props.message = "";
     props.redirect = "";
 
-    const getUserInfoResult = await getUserFunction(uid);
+    const getUserInfoResult = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.USER,
+      uid
+    );
 
     if (getUserInfoResult.isSuccess) props.userInfo = getUserInfoResult.result;
 

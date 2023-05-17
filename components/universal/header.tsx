@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import React from "react";
 import SearchBar from "./SearchBar";
 import { logout, useAuthContext } from "@/context/AuthContext";
@@ -21,6 +22,14 @@ export default function Header() {
       router.push(`/product?${additionalParams}`);
     }
   }
+
+  useEffect(() => {
+    console.log("header", {
+      user: user,
+      authorized: isAuthorized,
+      cart: cart,
+    });
+  }, []);
 
   return (
     <>

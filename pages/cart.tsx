@@ -2,29 +2,28 @@ import { useAuthContext } from "@/context/AuthContext";
 import { useState, useEffect } from "react";
 import nookies from "nookies";
 import admin from "../firebase/admin-config";
+import Link from "next/link";
+import Image from "next/image";
+
+import { OrdersDatabaseType } from "@/firebase/constants/orders_constants";
+import {
+  PaymentMethodEnum,
+  OrderStatusEnum,
+} from "@/firebase/constants/enum_constants";
 import {
   getCartViaIdFunction,
   clearCartFunction,
 } from "@/firebase/firebase_functions/cart_functions";
-import Image from "next/image";
-import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
-import {
-  OrdersDatabaseType,
-  PaymentMethodEnum,
-  OrderStatusEnum,
-} from "@/firebase/constants";
+
 import { addOrderFunction } from "@/firebase/firebase_functions/orders_functions";
 import { useRouter } from "next/navigation";
 import RadioButton from "@/components/forms/RadioButton";
 
 import { useForm } from "react-hook-form";
-import WarningMessage from "@/components/forms/WarningMessage";
-
 import InputComponent from "@/components/forms/input/InputComponent";
 import InputSubmit from "@/components/forms/input/InputSubmit";
-import InputButton from "@/components/forms/input/InputButton";
 import Label from "@/components/forms/Label";
-import Link from "next/link";
+
 import HeadingTwo from "@/components/forms/HeadingTwo";
 
 export default function Cart(props: any) {
@@ -163,10 +162,12 @@ export default function Cart(props: any) {
       console.log(orderDetails);
 
       const result = await addOrderFunction(orderDetails);
+      const resultOrder: OrdersDatabaseType =
+        result.result as OrdersDatabaseType;
 
       if (result.isSuccess) {
-        success(result.resultText);
-        router.push(`/order/${result.result.id}`);
+        success(result.message);
+        router.push(`/order/${resultOrder.id}`);
         nookies.set(undefined, "order", JSON.stringify(result.result));
 
         if (props.user || user) {
@@ -175,13 +176,13 @@ export default function Cart(props: any) {
           if (clearCartResult.isSuccess) {
             deleteCartInCookiesAndContext();
           } else {
-            error(result.resultText);
+            error(result.message);
           }
         } else {
           deleteCartInCookiesAndContext();
         }
       } else {
-        error(result.resultText);
+        error(result.message);
       }
     } else {
       error("No items in cart");
@@ -198,6 +199,9 @@ export default function Cart(props: any) {
   }
 
   useEffect(() => {
+    console.log("what comes first, the cart or this");
+    console.log(cart);
+    console.log(props);
     clear();
     fetchCarts();
   }, []);
@@ -777,7 +781,7 @@ export async function getServerSideProps(context: any) {
           user: uid,
           cart: getCartResult.isSuccess ? getCartResult.result : null,
           isError: false,
-          errorMessage: "",
+          message: "",
           redirect: "/",
         },
       };
@@ -788,7 +792,7 @@ export async function getServerSideProps(context: any) {
             user: null,
             cart: JSON.parse(cookies.cart),
             isError: false,
-            errorMessage: "",
+            message: "",
             redirect: "/",
           },
         };
@@ -798,7 +802,7 @@ export async function getServerSideProps(context: any) {
             user: null,
             cart: null,
             isError: false,
-            errorMessage: "",
+            message: "",
             redirect: "/",
           },
         };
@@ -810,7 +814,7 @@ export async function getServerSideProps(context: any) {
         user: null,
         cart: null,
         isError: true,
-        errorMessage: "Error with getting cart",
+        message: "Error with getting cart",
         redirect: "/login",
       },
     };

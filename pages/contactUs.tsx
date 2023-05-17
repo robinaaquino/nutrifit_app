@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { addMessageFunction } from "@/firebase/firebase_functions/messages_functions";
-import { useAuthContext } from "@/context/AuthContext";
 import { useForm } from "react-hook-form";
+
+import { useAuthContext } from "@/context/AuthContext";
+import { addMessageFunction } from "@/firebase/firebase_functions/messages_functions";
 import WarningMessage from "@/components/forms/WarningMessage";
 import HeadingOne from "@/components/forms/HeadingOne";
 
@@ -34,9 +35,9 @@ export default function ContactUs() {
     });
 
     if (result.isSuccess) {
-      success(result.resultText);
+      success(result.message);
     } else {
-      error(result.resultText);
+      error(result.message);
     }
   };
 

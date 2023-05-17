@@ -1,19 +1,24 @@
 import { useRouter } from "next/router";
 import nookies from "nookies";
 import { useState, useEffect } from "react";
-import { getOrderViaIdFunction } from "@/firebase/firebase_functions/orders_functions";
+import Image from "next/image";
+import { useForm } from "react-hook-form";
+
+import admin from "@/firebase/admin-config";
 import { useAuthContext } from "@/context/AuthContext";
+
+import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
+
+import { OrdersDatabaseType } from "@/firebase/constants/orders_constants";
 import {
-  OrdersDatabaseType,
   OrderStatusEnum,
   PaymentMethodEnum,
-} from "@/firebase/constants";
-import Image from "next/image";
-import admin from "@/firebase/admin-config";
-import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
-import RadioButton from "@/components/forms/RadioButton";
+  CollectionsEnum,
+} from "@/firebase/constants/enum_constants";
 
-import { useForm } from "react-hook-form";
+import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_functions";
+
+import RadioButton from "@/components/forms/RadioButton";
 
 export default function OrderShow(props: any) {
   const router = useRouter();
@@ -70,14 +75,19 @@ export default function OrderShow(props: any) {
       }
     }
 
-    const result = await getOrderViaIdFunction(idInput);
+    const result = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.ORDER,
+      idInput
+    );
+
+    const orderResult: OrdersDatabaseType = result.result as OrdersDatabaseType;
 
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
       router.push("/");
     } else {
-      if (props.user == result.result.user_id || props.authorized) {
-        setOrder(result.result);
+      if (props.user == orderResult.user_id || props.authorized) {
+        setOrder(orderResult);
       } else {
         error("Unauthorized viewing");
         router.push("/");
@@ -286,7 +296,7 @@ export default function OrderShow(props: any) {
               <div className="mt-8">
                 <div className="flex flex-col space-y-4">
                   {order && order.products && order.products.length > 0 ? (
-                    order.products.map((e: any, index) => {
+                    order.products.map((e: any, index: number) => {
                       const imageLink = e.image.src ? e.image.src : e.image;
                       return (
                         <>
@@ -435,7 +445,7 @@ export async function getServerSideProps(context: any) {
     user: null,
     order: null,
     isError: false,
-    errorMessage: "",
+    message: "",
     redirect: "/",
   };
   try {
@@ -452,9 +462,7 @@ export async function getServerSideProps(context: any) {
 
       props.user = uid;
 
-      const isAdminResult = await getUserFunction(uid);
-
-      const isAdmin = isAdminResult.result.role == "admin" ? true : false;
+      const isAdmin = await isUserAuthorizedFunction(uid);
 
       props.authorized = isAdmin;
     }
@@ -467,7 +475,7 @@ export async function getServerSideProps(context: any) {
         user: null,
         order: null,
         isError: true,
-        errorMessage: "Error with getting order",
+        message: "Error with getting order",
         redirect: "/",
       },
     };

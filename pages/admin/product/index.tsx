@@ -1,18 +1,25 @@
-import TableComponent from "@/components/admin/TableComponent";
-import { useEffect, useState, useContext } from "react";
-import {
-  getAllProductsFunction,
-  getAllProductsWithFilterFunction,
-  getAllProductsWithSearchFunction,
-} from "@/firebase/firebase_functions/products_functions";
-import { ProductsDatabaseType } from "@/firebase/constants";
-import { AuthContext, useAuthContext } from "@/context/AuthContext";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import nookies from "nookies";
+
+import { useAuthContext } from "@/context/AuthContext";
 import admin from "../../../firebase/admin-config";
-import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
+
+import {
+  applyFilterFunction,
+  applySearchFunction,
+} from "@/firebase/firebase_functions/filter_and_search_functions";
+import { ProductsDatabaseType } from "@/firebase/constants/product_constants";
+import {
+  getDocumentGivenTypeAndIdFunction,
+  getAllDocumentsGivenTypeFunction,
+} from "@/firebase/firebase_functions/general_functions";
+
+import TableComponent from "@/components/admin/TableComponent";
 import Filter from "@/components/filter/Filter";
 import SearchBar from "@/components/universal/SearchBar";
+import { CollectionsEnum } from "@/firebase/constants/enum_constants";
+import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_functions";
 
 //clean getserversideprops calls for all admin routes
 export default function AdminProduct(props: any) {
@@ -43,30 +50,37 @@ export default function AdminProduct(props: any) {
   ];
 
   async function fetchAllProducts() {
-    const result = await getAllProductsFunction();
+    const result = await getAllDocumentsGivenTypeFunction(
+      CollectionsEnum.PRODUCT
+    );
+    const productResult: ProductsDatabaseType[] =
+      result.result as ProductsDatabaseType[];
 
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
     } else {
-      setProducts(result.result);
+      setProducts(productResult);
     }
   }
 
   async function handleSearch(searchString: any) {
-    const result = await getAllProductsWithSearchFunction(searchString);
+    const result = await applySearchFunction(
+      CollectionsEnum.PRODUCT,
+      searchString
+    );
 
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
     } else {
       setProducts(result.result);
     }
   }
 
   async function handleFilters(filter: any) {
-    const result = await getAllProductsWithFilterFunction(filter);
+    const result = await applyFilterFunction(CollectionsEnum.PRODUCT, filter);
 
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
     } else {
       setProducts(result.result);
     }
@@ -103,7 +117,7 @@ export default function AdminProduct(props: any) {
   }, []);
 
   if (props.isError) {
-    error(props.errorMessage);
+    error(props.message);
     router.push(props.redirect);
     return null;
   }
@@ -261,8 +275,7 @@ export async function getServerSideProps(context: any) {
 
     const { uid, email } = token;
 
-    const a = await getUserFunction(uid);
-    const isAdmin = a.result.role == "admin" ? true : false;
+    const isAdmin = await isUserAuthorizedFunction(uid);
 
     if (!isAdmin) {
       // context.res.writeHead(302, { Location: "/login" });
@@ -271,7 +284,7 @@ export async function getServerSideProps(context: any) {
       return {
         props: {
           isError: true,
-          errorMessage: "Unauthorized access",
+          message: "Unauthorized access",
           redirect: "/",
         },
       };
@@ -279,10 +292,9 @@ export async function getServerSideProps(context: any) {
 
     return {
       props: {
-        message: `Your email is ${email} and your UID is ${uid}.`,
         authorized: isAdmin,
         isError: false,
-        errorMessage: "",
+        message: "",
         redirect: "",
       },
     };
@@ -293,7 +305,7 @@ export async function getServerSideProps(context: any) {
     return {
       props: {
         isError: true,
-        errorMessage: "Unauthenticated access",
+        message: "Unauthenticated access",
         redirect: "/login",
       },
     };

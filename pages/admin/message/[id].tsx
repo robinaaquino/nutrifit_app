@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
-import {
-  addMessageFunction,
-  getMessageFunction,
-  updateMessageFunction,
-} from "@/firebase/firebase_functions/messages_functions";
-import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/router";
-import nookies from "nookies";
+
+import { useAuthContext } from "@/context/AuthContext";
+
+import {
+  CollectionsEnum,
+  MessageStatusEnum,
+} from "@/firebase/constants/enum_constants";
+import { MessagesDatabaseType } from "@/firebase/constants/messages_constants";
+import { FunctionResult } from "@/firebase/constants/function_constants";
+
+import { updateMessageFunction } from "@/firebase/firebase_functions/messages_functions";
+import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
 
 import HeadingTwo from "@/components/forms/HeadingTwo";
 
@@ -16,7 +21,9 @@ export default function ContactUs() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState<MessageStatusEnum>(
+    MessageStatusEnum.UNREAD
+  );
   const [createdAt, setCreatedAt] = useState("");
   const { success, error } = useAuthContext();
 
@@ -30,18 +37,23 @@ export default function ContactUs() {
       }
     }
 
-    const result = await getMessageFunction(idInput);
+    const result: FunctionResult = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.MESSAGE,
+      idInput
+    );
     console.log(result);
 
+    const messageResult: MessagesDatabaseType =
+      result.result as MessagesDatabaseType;
+
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
       router.push("/");
     } else {
-      setName(result.result.name);
-      setMessage(result.result.message);
-      setEmail(result.result.email);
-      setStatus(result.result.status);
-      setCreatedAt(result.result.created_at);
+      setName(messageResult.name);
+      setMessage(messageResult.message);
+      setEmail(messageResult.email);
+      setStatus(messageResult.status);
     }
   }
 
@@ -56,7 +68,7 @@ export default function ContactUs() {
       }
     }
 
-    const previousMessage = {
+    const previousMessage: MessagesDatabaseType = {
       name: name,
       email: email,
       message: message,
@@ -68,10 +80,10 @@ export default function ContactUs() {
     const result = await updateMessageFunction(previousMessage, idInput);
 
     if (result.isSuccess) {
-      success(result.resultText);
+      success(result.message);
       router.push("/admin/message");
     } else {
-      error(result.errorMessage);
+      error(result.message);
     }
   };
 
@@ -133,7 +145,11 @@ export default function ContactUs() {
                       id="status"
                       className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                       onChange={(e) => {
-                        setStatus(e.target.value);
+                        setStatus(
+                          e.target.value == MessageStatusEnum.REPLIED
+                            ? MessageStatusEnum.REPLIED
+                            : MessageStatusEnum.UNREAD
+                        );
                       }}
                       value={status}
                     >

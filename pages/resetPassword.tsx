@@ -1,9 +1,12 @@
-import { resetPassword } from "@/firebase/firebase_functions/auth_functions";
 import { useState } from "react";
-import { useAuthContext } from "@/context/AuthContext";
 import { useForm } from "react-hook-form";
 
+import { useAuthContext } from "@/context/AuthContext";
+
+import { resetPassword } from "@/firebase/firebase_functions/auth_functions";
+
 import WarningMessage from "@/components/forms/WarningMessage";
+import InputComponent from "@/components/forms/input/InputComponent";
 
 export default function ResetPassword() {
   const [email, setEmail] = useState("");
@@ -26,9 +29,9 @@ export default function ResetPassword() {
     const { inputEmail } = data;
     const resetPasswordResult = await resetPassword(inputEmail);
     if (resetPasswordResult.isSuccess) {
-      success(resetPasswordResult.resultText);
+      success(resetPasswordResult.message);
     } else {
-      error(resetPasswordResult.errorMessage);
+      error(resetPasswordResult.message);
     }
   };
 
@@ -43,24 +46,25 @@ export default function ResetPassword() {
               </h2>
               <form onSubmit={handleSubmit(handleResetPassword)}>
                 <div className="mb-6">
-                  <input
+                  <InputComponent
+                    id="email"
+                    name="inputEmail"
                     type="text"
+                    label="Email"
                     placeholder="Type your email..."
-                    className="w-full rounded-md bg-gray-200 py-3 px-5 text-base text-black placeholder-gray-500 outline-none border-none  focus:border-nf_green focus-visible:shadow-none"
-                    {...register("inputEmail", {
+                    value={email}
+                    register={register}
+                    rules={{
                       required: "Email address is required",
                       pattern: {
                         value:
                           /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:.[a-zA-Z0-9-]+)*$/,
                         message: "Please, enter a valid email address",
                       },
-                      onChange: (e) => setEmail(e.target.value),
-                    })}
-                    aria-invalid={errors.inputEmail ? "true" : "false"}
+                      onChange: (e: any) => setEmail(e.target.value),
+                    }}
+                    error={errors}
                   />
-                  {errors.inputEmail && (
-                    <WarningMessage text={errors.inputEmail?.message} />
-                  )}
                 </div>
 
                 <div className="">

@@ -1,24 +1,25 @@
 import no_image from "../public/no_image.png";
 import format from "date-fns/format";
-import { ErrorCodes } from "./constants";
+import { ErrorCodes } from "./constants/success_and_error_codes";
 
+//check all
 export function parseError(e: unknown) {
-  let errorMessage: string = "Unknown error while adding product";
+  let message: string = "";
   if (typeof e === "string") {
-    errorMessage = e;
+    message = e;
   } else if (e instanceof Error) {
-    errorMessage = e.message;
+    message = e.message;
   }
 
   for (const [key, value] of Object.entries(ErrorCodes)) {
     let regexExp = `^.*` + key + `.*$`;
-    if (errorMessage.toLowerCase().match(regexExp)) {
-      errorMessage = value;
+    if (message.toLowerCase().match(regexExp)) {
+      message = value;
       break;
     }
   }
 
-  return errorMessage;
+  return message;
 }
 
 export function returnKeyByValue(text: string) {

@@ -1,5 +1,5 @@
 import RadioButton from "../forms/RadioButton";
-import { PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY } from "@/firebase/constants";
+import { ProductCategoriesList } from "@/firebase/constants/product_constants";
 
 export default function FilterCategory({
   register,
@@ -17,7 +17,7 @@ export default function FilterCategory({
           <p className="leading-5 text-sm font-bold">Category</p>
         </div>
         <div className="p-2">
-          {PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.map((e) => {
+          {ProductCategoriesList.map((e) => {
             return (
               <>
                 <RadioButton

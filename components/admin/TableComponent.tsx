@@ -2,14 +2,11 @@ import TableRowText from "./TableRowText";
 import TableRowHeader from "./TableRowHeader";
 import { useContext, useState, useEffect } from "react";
 import { returnKeyByValue, formatDate } from "../../firebase/helpers";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useAuthContext, AuthContext } from "@/context/AuthContext";
 import { deleteProductFunction } from "@/firebase/firebase_functions/products_functions";
-import { deleteOrderFunction } from "@/firebase/firebase_functions/orders_functions";
-import { deleteUserFunction } from "@/firebase/firebase_functions/users_functions";
-import { deleteMessageFunction } from "@/firebase/firebase_functions/messages_functions";
-import { deleteWellnessSurveyResult } from "@/firebase/firebase_functions/wellness_functions";
+import { deleteDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
+import { CollectionsEnum } from "@/firebase/constants/enum_constants";
 
 export default function TableComponent({
   headers,
@@ -87,7 +84,7 @@ export default function TableComponent({
     const result = await deleteProductFunction(product);
 
     if (result.isSuccess) {
-      authContextObject.success(result.resultText);
+      authContextObject.success(result.message);
       let previousProductList = itemList;
 
       for (let i = 0; i < itemList.length; i++) {
@@ -100,15 +97,18 @@ export default function TableComponent({
 
       onPageChange(currentPage);
     } else {
-      authContextObject.error(result.resultText);
+      authContextObject.error(result.message);
     }
   };
 
   const deleteOrder = async (order: any) => {
-    const result = await deleteOrderFunction(order.id);
+    const result = await deleteDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.ORDER,
+      order.id
+    );
 
     if (result.isSuccess) {
-      authContextObject.success(result.resultText);
+      authContextObject.success(result.message);
       let previousItemList = itemList;
 
       for (let i = 0; i < itemList.length; i++) {
@@ -121,15 +121,18 @@ export default function TableComponent({
 
       onPageChange(currentPage);
     } else {
-      authContextObject.error(result.resultText);
+      authContextObject.error(result.message);
     }
   };
 
   const deleteUser = async (user: any) => {
-    const result = await deleteUserFunction(user.id);
+    const result = await deleteDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.USER,
+      user.id
+    );
 
     if (result.isSuccess) {
-      authContextObject.success(result.resultText);
+      authContextObject.success(result.message);
       let previousItemList = itemList;
 
       for (let i = 0; i < itemList.length; i++) {
@@ -142,15 +145,18 @@ export default function TableComponent({
 
       onPageChange(currentPage);
     } else {
-      authContextObject.error(result.resultText);
+      authContextObject.error(result.message);
     }
   };
 
   const deleteMessage = async (message: any) => {
-    const result = await deleteMessageFunction(message.id);
+    const result = await deleteDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.MESSAGE,
+      message.id
+    );
 
     if (result.isSuccess) {
-      authContextObject.success(result.resultText);
+      authContextObject.success(result.message);
       let previousItemList = itemList;
 
       for (let i = 0; i < itemList.length; i++) {
@@ -162,15 +168,18 @@ export default function TableComponent({
       }
       onPageChange(currentPage);
     } else {
-      authContextObject.error(result.resultText);
+      authContextObject.error(result.message);
     }
   };
 
   const deleteWellnessResult = async (result: any) => {
-    const deleteWellnessObject = await deleteWellnessSurveyResult(result.id);
+    const deleteWellnessObject = await deleteDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.WELLNESS,
+      result.id
+    );
 
     if (deleteWellnessObject.isSuccess) {
-      authContextObject.success(deleteWellnessObject.resultText);
+      authContextObject.success(deleteWellnessObject.message);
       let previousItemList = itemList;
 
       for (let i = 0; i < itemList.length; i++) {
@@ -183,7 +192,7 @@ export default function TableComponent({
 
       onPageChange(currentPage);
     } else {
-      authContextObject.error(result.resultText);
+      authContextObject.error(result.message);
     }
   };
 

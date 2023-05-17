@@ -1,7 +1,7 @@
 import React, { ReactNode, createContext, useContext, useEffect } from "react";
 import { getAuth, signOut, onIdTokenChanged } from "firebase/auth";
 import app from "@/firebase/config";
-import * as Constants from "../firebase/constants";
+import { NotificationEnum } from "@/firebase/constants/enum_constants";
 import nookies from "nookies";
 
 import { useState } from "react";
@@ -25,12 +25,12 @@ export const AuthContext = createContext({
   loading: true,
   notification: "",
   notificationText: "",
+  cart: {},
   success: (text: string) => {},
   error: (text: string) => {},
   clear: () => {},
   reset: () => {},
   setUserAndAuthorization: (id: string, authorized: boolean) => {},
-  cart: [],
   addToCart: (product: any, quantity: any, user?: any) => {},
   removeFromCart: (product: any) => {},
   deleteCartInCookiesAndContext: () => {},
@@ -50,13 +50,13 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
   const success = (text: string) => {
     window.scroll(0, 0);
     setNotificationText(text);
-    setNotification(Constants.NOTIFICATION_STATES.SUCCESS);
+    setNotification(NotificationEnum.SUCCESS);
   };
 
   const error = (text: string) => {
     window.scroll(0, 0);
     setNotificationText(text);
-    setNotification(Constants.NOTIFICATION_STATES.ERROR);
+    setNotification(NotificationEnum.ERROR);
   };
 
   const clear = () => {
@@ -266,7 +266,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         });
         success("Successfully added to cart");
       } else {
-        error(addCartResult.errorMessage);
+        error(addCartResult.message);
       }
     } else {
       const contextResult = addProductToContextCart(
@@ -291,7 +291,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         removeProductFromCookiesCart(product);
         success("Successful in removing product from cart");
       } else {
-        error(removeFromCartResult.errorMessage);
+        error(removeFromCartResult.message);
       }
     } else {
       removeProductFromContextCart(product);
@@ -318,6 +318,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         const token = await userInfo.getIdToken();
         setUser(userInfo.uid);
         nookies.set(undefined, "token", token, { path: "/" });
+
         const authorization = await isUserAuthorizedFunction(userInfo.uid);
         setAuthorized(authorization.result);
 
@@ -335,15 +336,26 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
             success("Successful in logging in");
             router.push("/");
           } else {
-            error(addResult.resultText);
+            error(addResult.message);
           }
         }
       }
       setLoading(false);
     });
 
+    if (!cart) {
+      const cookies = nookies.get(undefined);
+      if (cookies.cart) {
+        setCart(JSON.parse(cookies.cart));
+      }
+    }
+
     return () => unsubscribe();
   }, []);
+
+  // useEffect(() => {
+
+  // }, []);
 
   useEffect(() => {
     const handle = setInterval(async () => {

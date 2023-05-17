@@ -1,21 +1,24 @@
 import {
-  FunctionResult,
-  PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY,
-} from "../constants";
-import { getAllProductsFunction } from "./products_functions";
+  ProductCategoriesList,
+  ProductsDatabaseTypeFromDB,
+} from "../constants/product_constants";
+import { FunctionResult } from "../constants/function_constants";
 import { parseError } from "../helpers";
-import { resourceLimits } from "worker_threads";
-import { getAllOrdersFunction } from "./orders_functions";
-import { getAllUsersFunction } from "./users_functions";
+import { getAllDocumentsGivenTypeFunction } from "./general_functions";
+import { CollectionsEnum, ResultTypeEnum } from "../constants/enum_constants";
+import { UsersDatabaseType } from "../constants/user_constants";
+import { OrdersDatabaseFromDBType } from "../constants/orders_constants";
+import { SuccessCodes, ErrorCodes } from "../constants/success_and_error_codes";
+import { AdminAnalyticsType } from "../constants/dashboard_constant";
 
 export const getAllAdminAnalytics = async () => {
   let resultObject: FunctionResult = {
-    result: "",
+    result: {},
+    resultType: ResultTypeEnum.OBJECT,
     isSuccess: false,
-    resultText: "",
-    errorMessage: "",
+    message: "",
   };
-  let resultOfAdminAnalytics: any = {
+  let resultOfAdminAnalytics: AdminAnalyticsType = {
     salesPerCategory: [],
     totalProfit: 0,
     numberOfPendingOrders: 0,
@@ -30,38 +33,35 @@ export const getAllAdminAnalytics = async () => {
 
   try {
     let dateToday = new Date();
-    const getAllUsersResult = await getAllUsersFunction();
+    const getAllUsersResult = await getAllDocumentsGivenTypeFunction(
+      CollectionsEnum.USER
+    );
 
     if (!getAllUsersResult.isSuccess) {
-      return {
-        result: resultOfAdminAnalytics,
-        isSuccess: true,
-        resultText: "Failed in getting all users for admin analytics",
-        errorMessage: getAllUsersResult.errorMessage,
-      };
+      return getAllUsersResult;
     }
-    resultOfAdminAnalytics.numberOfTotalUsers = getAllUsersResult.result.length;
+    const allUsers: UsersDatabaseType[] =
+      getAllUsersResult.result as UsersDatabaseType[];
+    resultOfAdminAnalytics.numberOfTotalUsers = allUsers.length;
 
-    const getAllProductsResult = await getAllProductsFunction();
+    const getAllProductsResult = await getAllDocumentsGivenTypeFunction(
+      CollectionsEnum.PRODUCT
+    );
 
     if (!getAllProductsResult.isSuccess) {
-      return {
-        result: resultOfAdminAnalytics,
-        isSuccess: true,
-        resultText: "Failed in getting all products for admin analytics",
-        errorMessage: getAllProductsResult.errorMessage,
-      };
+      return getAllProductsResult;
     }
 
-    for (let i = 0; i < PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.length; i++) {
+    for (let i = 0; i < ProductCategoriesList.length; i++) {
       let categorySales: any = {
-        category: PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY[i],
+        category: ProductCategoriesList[i],
         sales: 0,
       };
       resultOfAdminAnalytics.salesPerCategory.push(categorySales);
     }
 
-    const allProducts = getAllProductsResult.result;
+    const allProducts: ProductsDatabaseTypeFromDB[] =
+      getAllProductsResult.result as ProductsDatabaseTypeFromDB[];
 
     for (let i = 0; i < allProducts.length; i++) {
       resultOfAdminAnalytics.numberOfTotalProducts += 1;
@@ -79,18 +79,15 @@ export const getAllAdminAnalytics = async () => {
       }
     }
 
-    const getAllOrdersResult = await getAllOrdersFunction();
+    const getAllDocumentsForOrdersResult =
+      await getAllDocumentsGivenTypeFunction(CollectionsEnum.ORDER);
 
-    if (!getAllOrdersResult.isSuccess) {
-      return {
-        result: resultOfAdminAnalytics,
-        isSuccess: true,
-        resultText: "Failed in getting sales per category",
-        errorMessage: getAllOrdersResult.errorMessage,
-      };
+    if (!getAllDocumentsForOrdersResult.isSuccess) {
+      return getAllDocumentsForOrdersResult;
     }
 
-    const allOrders = getAllOrdersResult.result;
+    const allOrders: OrdersDatabaseFromDBType[] =
+      getAllDocumentsForOrdersResult.result as OrdersDatabaseFromDBType[];
 
     let frequentlyBoughtTemp: any = {};
     for (let i = 0; i < allOrders.length; i++) {
@@ -158,16 +155,20 @@ export const getAllAdminAnalytics = async () => {
 
     resultObject = {
       result: resultOfAdminAnalytics,
+      resultType: ResultTypeEnum.OBJECT,
       isSuccess: true,
-      resultText: "Successful in getting sales per category",
-      errorMessage: "",
+      message: SuccessCodes["best-selling-products"],
     };
-  } catch (e) {
+  } catch (e: unknown) {
+    const errorMessage = parseError(e);
+
     resultObject = {
       result: resultOfAdminAnalytics,
+      resultType: ResultTypeEnum.OBJECT,
       isSuccess: false,
-      resultText: "Failed in getting sales per category",
-      errorMessage: parseError(e),
+      message: errorMessage
+        ? errorMessage
+        : ErrorCodes["best-selling-products"],
     };
   }
 
@@ -178,8 +179,8 @@ export const getAllAdminAnalytics = async () => {
 //   let resultObject: FunctionResult = {
 //     result: "",
 //     isSuccess: false,
-//     resultText: "",
-//     errorMessage: "",
+//     message: "",
+//     message: "",
 //   };
 //   let datas: any[] = [];
 
@@ -187,15 +188,15 @@ export const getAllAdminAnalytics = async () => {
 //     resultObject = {
 //       result: datas,
 //       isSuccess: true,
-//       resultText: "Successful in getting all products",
-//       errorMessage: "",
+//       message: "Successful in getting all products",
+//       message: "",
 //     };
 //   } catch (e) {
 //     resultObject = {
 //       result: datas,
 //       isSuccess: true,
-//       resultText: "Failed in getting all products",
-//       errorMessage: parseError(e),
+//       message: "Failed in getting all products",
+//       message: parseError(e),
 //     };
 //   }
 

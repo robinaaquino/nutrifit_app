@@ -1,16 +1,17 @@
 import nookies from "nookies";
-import admin from "@/firebase/admin-config";
-
-import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
-
-import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+
+import admin from "@/firebase/admin-config";
+import { useAuthContext } from "@/context/AuthContext";
+
 import { getAllAdminAnalytics } from "@/firebase/firebase_functions/dashboard_functions";
+
 import TableComponent from "@/components/admin/TableComponent";
 import CardStats from "@/components/admin/dashboard/CardStats";
 import CarouselProduct from "@/components/admin/dashboard/CarouselProduct";
-import { getBestSellingProducts } from "@/firebase/firebase_functions/products_functions";
+import { AdminAnalyticsType } from "@/firebase/constants/dashboard_constant";
+import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_functions";
 
 export default function AdminDashboard(props: any) {
   const { error } = useAuthContext();
@@ -34,11 +35,11 @@ export default function AdminDashboard(props: any) {
 
   async function fetchAllDataForAdminDashboard() {
     const getAllAdminAnalyticsResult = await getAllAdminAnalytics();
-    const adminAnalytics = getAllAdminAnalyticsResult.result;
-    console.log(getAllAdminAnalyticsResult);
+    const adminAnalytics: AdminAnalyticsType =
+      getAllAdminAnalyticsResult.result as AdminAnalyticsType;
 
     if (!getAllAdminAnalyticsResult.isSuccess) {
-      error(getAllAdminAnalyticsResult.resultText);
+      error(getAllAdminAnalyticsResult.message);
     } else {
       setSalesPerCategory(adminAnalytics.salesPerCategory);
       setFrequentlyBoughtProducts(adminAnalytics.frequentlyBoughtProducts);
@@ -59,7 +60,7 @@ export default function AdminDashboard(props: any) {
   }, []);
 
   if (props.isError) {
-    error(props.errorMessage);
+    error(props.message);
     router.push(props.redirect);
     return null;
   }
@@ -138,14 +139,13 @@ export async function getServerSideProps(context: any) {
 
     const { uid, email } = token;
 
-    const isAdminResult = await getUserFunction(uid);
-    const isAdmin = isAdminResult.result.role == "admin" ? true : false;
+    const isAdmin = await isUserAuthorizedFunction(uid);
 
     if (!isAdmin) {
       return {
         props: {
           isError: true,
-          errorMessage: "Unauthorized access",
+          message: "Unauthorized access",
           redirect: "/",
         },
       };
@@ -153,10 +153,9 @@ export async function getServerSideProps(context: any) {
 
     return {
       props: {
-        message: `Your email is ${email} and your UID is ${uid}.`,
         authorized: isAdmin,
         isError: false,
-        errorMessage: "",
+        message: "",
         redirect: "",
       },
     };
@@ -164,7 +163,7 @@ export async function getServerSideProps(context: any) {
     return {
       props: {
         isError: true,
-        errorMessage: "Unauthenticated access",
+        message: "Unauthenticated access",
         redirect: "/login",
       },
     };
