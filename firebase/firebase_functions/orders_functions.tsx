@@ -18,6 +18,7 @@ import { CollectionsEnum, ResultTypeEnum } from "../constants/enum_constants";
 import { OrdersDatabaseType } from "../constants/orders_constants";
 import { SuccessCodes, ErrorCodes } from "../constants/success_and_error_codes";
 import { ProductsDatabaseType } from "../constants/product_constants";
+import { CartsDatabaseType } from "../constants/cart_constants";
 
 export const addOrderFunction = async (order: OrdersDatabaseType) => {
   let resultObject: FunctionResult = {
@@ -29,7 +30,7 @@ export const addOrderFunction = async (order: OrdersDatabaseType) => {
   let data: OrdersDatabaseType = {} as OrdersDatabaseType;
 
   try {
-    const documentRef = await addDoc(collection(db, "orders"), {
+    data = {
       created_at: new Date().toString(),
       updated_at: new Date().toString(),
 
@@ -44,32 +45,56 @@ export const addOrderFunction = async (order: OrdersDatabaseType) => {
       note: order.note,
       delivery_mode: order.delivery_mode,
       shipping_details: order.shipping_details,
+    };
+
+    const productInfo: any[] = [];
+    let promises: any[] = [];
+
+    for (let i = 0; i < data.products.length; i++) {
+      const currentProduct = data.products[i];
+      const productPromise = await getDocumentGivenTypeAndIdFunction(
+        CollectionsEnum.PRODUCT,
+        currentProduct.id
+      ).then((value) => {
+        productInfo.push(value.result);
+      });
+      promises.push(productPromise);
+    }
+
+    let isError = false;
+    await Promise.all(promises).then(async (e) => {
+      for (let i = 0; i < productInfo.length; i++) {
+        const currentProductQuantity = productInfo[i].quantity_left
+          ? productInfo[i].quantity_left
+          : 0;
+        if (currentProductQuantity < data.products[i].quantity) {
+          isError = true;
+          const errorMessage = `Error with product name: ${productInfo[i].name}. Remove from cart and try again.`;
+
+          //return error
+          resultObject = {
+            result: data,
+            resultType: ResultTypeEnum.OBJECT,
+            isSuccess: false,
+            message: errorMessage,
+          };
+          break;
+        }
+      }
+
+      if (!isError) {
+        const documentRef = await addDoc(collection(db, "orders"), data);
+
+        data.id = documentRef.id;
+
+        resultObject = {
+          result: data,
+          resultType: ResultTypeEnum.OBJECT,
+          isSuccess: true,
+          message: SuccessCodes["add-order"],
+        };
+      }
     });
-
-    const data = {
-      id: documentRef.id,
-      created_at: new Date().toString(),
-      updated_at: new Date().toString(),
-
-      total_price: order.total_price,
-      date_cleared: "",
-
-      payment: order.payment,
-      products: order.products,
-      status: order.status,
-
-      user_id: order.user_id,
-      note: order.note,
-      delivery_mode: order.delivery_mode,
-      shipping_details: order.shipping_details,
-    };
-
-    resultObject = {
-      result: data,
-      resultType: ResultTypeEnum.OBJECT,
-      isSuccess: true,
-      message: SuccessCodes["add-order"],
-    };
   } catch (e: unknown) {
     const errorMessage = parseError(e);
 

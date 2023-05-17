@@ -1,7 +1,10 @@
 import React, { ReactNode, createContext, useContext, useEffect } from "react";
 import { getAuth, signOut, onIdTokenChanged } from "firebase/auth";
 import app from "@/firebase/config";
-import { NotificationEnum } from "@/firebase/constants/enum_constants";
+import {
+  CollectionsEnum,
+  NotificationEnum,
+} from "@/firebase/constants/enum_constants";
 import nookies from "nookies";
 
 import { useState } from "react";
@@ -16,6 +19,9 @@ import {
 } from "@/firebase/firebase_functions/cart_functions";
 import { getImageInProduct } from "@/firebase/helpers";
 import { useRouter } from "next/navigation";
+import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
+import { ProductsDatabaseType } from "@/firebase/constants/product_constants";
+import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
 
 const auth = getAuth(app);
 
@@ -86,7 +92,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
     return -1;
   };
 
-  const addProductToContextCart = (product: any, quantity: any) => {
+  const addProductToContextCart = async (product: any, quantity: any) => {
     const productToBeAddedToCart = {
       id: product.id,
       name: product.name,
@@ -255,6 +261,29 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
       quantity: quantity,
       image: getImageInProduct(product),
     };
+
+    //checking quantity left in database
+    const currentProductInfo = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.PRODUCT,
+      product.id || ""
+    );
+    const productInfo: ProductsDatabaseType =
+      currentProductInfo.result as ProductsDatabaseType;
+
+    let cartProductQuantity = quantity;
+    for (let i = 0; i < cart.products.length; i++) {
+      if (cart.products[i].id == product.id) {
+        cartProductQuantity += cart.products[i].quantity;
+      }
+    }
+
+    if (
+      !currentProductInfo.isSuccess ||
+      productInfo.quantity_left < cartProductQuantity
+    ) {
+      error(ErrorCodes["no-product-quantity-left"]);
+      return;
+    }
 
     if (user) {
       const addCartResult = await addToCartFunction(product, quantity, user);

@@ -2,15 +2,19 @@ import { db } from "../config";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 
 import { FunctionResult } from "../constants/function_constants";
-import { ResultTypeEnum } from "../constants/enum_constants";
+import { CollectionsEnum, ResultTypeEnum } from "../constants/enum_constants";
 
 import {
   ProductsInCartsType,
   CartsDatabaseType,
 } from "../constants/cart_constants";
-import { ProductsDatabaseType } from "../constants/product_constants";
+import {
+  ProductsDatabaseType,
+  ProductsDatabaseTypeFromDB,
+} from "../constants/product_constants";
 import { SuccessCodes, ErrorCodes } from "../constants/success_and_error_codes";
 import { parseError, getImageInProduct } from "../helpers";
+import { getDocumentGivenTypeAndIdFunction } from "./general_functions";
 
 // Initialize a new cart for new user
 export const initializeNewCartFunction = async (
@@ -115,49 +119,66 @@ export const addToCartFunction = async (
   };
 
   try {
-    const cartReference = doc(db, "carts", userId);
+    const currentProductInfo = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.PRODUCT,
+      product.id || ""
+    );
+    const productInfoResult: ProductsDatabaseTypeFromDB =
+      currentProductInfo.result as ProductsDatabaseTypeFromDB;
 
-    const cartSnapshot = await getDoc(cartReference);
+    if (
+      currentProductInfo.isSuccess &&
+      productInfoResult.quantity_left > quantity
+    ) {
+      const cartReference = doc(db, "carts", userId);
 
-    if (!cartSnapshot.exists()) {
-      const initializationResult = await initializeNewCartFunction(
-        userId,
-        product,
-        quantity
-      );
+      const cartSnapshot = await getDoc(cartReference);
 
-      resultObject = initializationResult;
-    } else {
-      //get docs
-      var cartData = cartSnapshot.data();
+      if (!cartSnapshot.exists()) {
+        const initializationResult = await initializeNewCartFunction(
+          userId,
+          product,
+          quantity
+        );
 
-      //check if product exists in cart already
-      let productAlreadyInCart = false;
-      for (let i = 0; i < cartData.products.length; i++) {
-        //update cartData
-        if (cartData.products[i].id == productToBeAddedToCart.id) {
-          productAlreadyInCart = true;
-          cartData.products[i].quantity += productToBeAddedToCart.quantity;
-          cartData.subtotal_price += quantity * productToBeAddedToCart.price;
-          break;
+        resultObject = initializationResult;
+      } else {
+        //get docs
+        var cartData = cartSnapshot.data();
+
+        //check if product exists in cart already
+        let productAlreadyInCart = false;
+        for (let i = 0; i < cartData.products.length; i++) {
+          //update cartData
+          if (cartData.products[i].id == productToBeAddedToCart.id) {
+            productAlreadyInCart = true;
+            cartData.products[i].quantity += productToBeAddedToCart.quantity;
+            cartData.subtotal_price += quantity * productToBeAddedToCart.price;
+            break;
+          }
         }
+
+        //if not in cart, push as is
+        if (!productAlreadyInCart) {
+          cartData.products.push(productToBeAddedToCart);
+          cartData.subtotal_price += productToBeAddedToCart.price * quantity;
+        }
+
+        await setDoc(cartReference, cartData, { merge: true });
+
+        resultObject = {
+          result: cartData,
+          resultType: ResultTypeEnum.OBJECT,
+          isSuccess: true,
+          message: SuccessCodes["add-cart"],
+        };
       }
-
-      //if not in cart, push as is
-      if (!productAlreadyInCart) {
-        cartData.products.push(productToBeAddedToCart);
-        cartData.subtotal_price += productToBeAddedToCart.price * quantity;
-      }
-
-      //TODO: check quantity of product to add
-
-      await setDoc(cartReference, cartData, { merge: true });
-
+    } else {
       resultObject = {
-        result: cartData,
+        result: {},
         resultType: ResultTypeEnum.OBJECT,
-        isSuccess: true,
-        message: SuccessCodes["add-cart"],
+        isSuccess: false,
+        message: ErrorCodes["no-product-quantity-left"],
       };
     }
   } catch (e: unknown) {
