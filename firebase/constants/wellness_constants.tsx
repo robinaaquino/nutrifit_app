@@ -9,7 +9,7 @@ export const WellnessQuestionsKeys: { [key: string]: string } = {
   constantlyHungry:
     "Do you often feel hungry or have a constant craving for food?",
   processedFood:
-    "Do yo eat fast food, instant food or processed food regularly?",
+    "Do you eat fast food, instant food or processed food regularly?",
   connectionFoodLevel:
     "Do you believe there is a connection between the food you eat and the level of your health?",
   eightWater: "Do you drink at least eight glass of plain water each day?",
