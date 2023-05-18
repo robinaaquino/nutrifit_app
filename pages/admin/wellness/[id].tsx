@@ -353,6 +353,10 @@ export default function AdminWellnessSurveyShow(props: any) {
             register={register}
             rules={{
               required: "Contact number is required",
+              pattern: {
+                value: /^[+]?[0-9]*$/,
+                message: "Please, enter a valid contact number",
+              },
               onChange: (e: any) => setContactNumber(e.target.value),
               disabled: true,
             }}
@@ -389,6 +393,10 @@ export default function AdminWellnessSurveyShow(props: any) {
             register={register}
             rules={{
               required: "Age is required",
+              pattern: {
+                value: /^[0-9]*$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setAge(e.target.value),
               disabled: true,
             }}
@@ -407,6 +415,10 @@ export default function AdminWellnessSurveyShow(props: any) {
             register={register}
             rules={{
               required: "Height is required",
+              pattern: {
+                value: /^[0-9]*$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setHeight(e.target.value),
               disabled: true,
             }}
@@ -425,6 +437,10 @@ export default function AdminWellnessSurveyShow(props: any) {
             register={register}
             rules={{
               required: "Weight is required",
+              pattern: {
+                value: /^[0-9]*$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setWeight(e.target.value),
               disabled: true,
             }}
@@ -474,7 +490,7 @@ export default function AdminWellnessSurveyShow(props: any) {
             name={"inputDate"}
             label={"Date"}
             type={"date"}
-            placeholder={"Type your date..."}
+            placeholder={"Type the date..."}
             value={date}
             register={register}
             rules={{
@@ -496,6 +512,10 @@ export default function AdminWellnessSurveyShow(props: any) {
             register={register}
             rules={{
               required: false,
+              pattern: {
+                value: /^[0-9]*.?[0-9]+$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setFat(e.target.value),
             }}
             error={errors}
@@ -530,6 +550,10 @@ export default function AdminWellnessSurveyShow(props: any) {
             register={register}
             rules={{
               required: false,
+              pattern: {
+                value: /^[0-9]*.?[0-9]+$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setBoneMass(e.target.value),
             }}
             error={errors}
@@ -547,6 +571,10 @@ export default function AdminWellnessSurveyShow(props: any) {
             register={register}
             rules={{
               required: false,
+              pattern: {
+                value: /^[0-9]*.?[0-9]+$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setRestingMetabolicRate(e.target.value),
             }}
             error={errors}
@@ -564,6 +592,10 @@ export default function AdminWellnessSurveyShow(props: any) {
             register={register}
             rules={{
               required: false,
+              pattern: {
+                value: /^[0-9]*.?[0-9]+$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setMetabolicAge(e.target.value),
             }}
             error={errors}
@@ -581,6 +613,10 @@ export default function AdminWellnessSurveyShow(props: any) {
             register={register}
             rules={{
               required: false,
+              pattern: {
+                value: /^[0-9]*.?[0-9]+$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setMuscleMass(e.target.value),
             }}
             error={errors}
@@ -598,6 +634,7 @@ export default function AdminWellnessSurveyShow(props: any) {
             register={register}
             rules={{
               required: false,
+
               onChange: (e: any) => setPhysiqueRating(e.target.value),
             }}
             error={errors}
@@ -615,6 +652,10 @@ export default function AdminWellnessSurveyShow(props: any) {
             register={register}
             rules={{
               required: false,
+              pattern: {
+                value: /^[0-9]*.?[0-9]+$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setWater(e.target.value),
             }}
             error={errors}
