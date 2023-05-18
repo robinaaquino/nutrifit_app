@@ -160,8 +160,12 @@ export default function WellnessSurvey(props: any) {
     <>
       <form onSubmit={handleSubmit(handleForm)} className="w-1/2 mx-auto py-2">
         <h2 className="mt-6 mb-10 text-center text-3xl font-bold tracking-tight text-gray-900">
-          Wellness Survey
+          Wellness Survey Fill Up
         </h2>
+        <p className="mt-6 mb-10 text-center tracking-tight text-gray-700">
+          After filling this up, please wait for the administrators to contact
+          you about your suggested meal plan.
+        </p>
         <h3 className="mb-2 ml-2 text-2xl font-bold tracking-tight text-gray-900">
           Personal Details
         </h3>
