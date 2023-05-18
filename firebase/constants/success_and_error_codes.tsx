@@ -94,6 +94,10 @@ export const ErrorCodes = {
     "There's insufficient quantity to add the product to your cart",
   "error-in-cart-product-quantity":
     "Your cart has a product with too much quantity. This product has been removed. Please, try again",
+  "user-pending-orders":
+    "User still has pending orders. Resolve all pending orders before deleting the user",
+  "user-pending-orders-error":
+    "An error has occurred while we were retrieving the pending orders of the user. Try again or contact the administrator",
 };
 
 export const SuccessCodes = {
@@ -139,4 +143,6 @@ export const SuccessCodes = {
   delete: "You have successfully deleted the item",
   "best-selling-products":
     "You have successfully retrieved the top best selling products",
+  "user-pending-orders":
+    "You have successfully retrieved all the pending orders of the user",
 };

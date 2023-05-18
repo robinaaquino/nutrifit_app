@@ -14,7 +14,11 @@ import {
 import { FunctionResult } from "../constants/function_constants";
 import { parseError } from "../helpers";
 import { getDocumentGivenTypeAndIdFunction } from "./general_functions";
-import { CollectionsEnum, ResultTypeEnum } from "../constants/enum_constants";
+import {
+  CollectionsEnum,
+  OrderStatusEnum,
+  ResultTypeEnum,
+} from "../constants/enum_constants";
 import { OrdersDatabaseType } from "../constants/orders_constants";
 import { SuccessCodes, ErrorCodes } from "../constants/success_and_error_codes";
 import { ProductsDatabaseType } from "../constants/product_constants";
@@ -180,6 +184,61 @@ export const updateOrderFunction = async (
       resultType: ResultTypeEnum.NULL,
       isSuccess: false,
       message: errorMessage ? errorMessage : ErrorCodes["update-order"],
+    };
+  }
+
+  return resultObject;
+};
+
+export const getAllPendingOrdersGivenUserId = async (userId: string) => {
+  let resultObject: FunctionResult = {
+    result: [],
+    resultType: ResultTypeEnum.ARRAY,
+    isSuccess: false,
+    message: "",
+  };
+  let datas: OrdersDatabaseType[] = [];
+
+  try {
+    const orderReference = query(
+      collection(db, "orders"),
+      where("user_id", "==", userId)
+    );
+
+    const docs = await getDocs(orderReference);
+    docs.forEach((doc) => {
+      const id = doc.id;
+      const data = doc.data();
+      if (data.status && data.status == OrderStatusEnum.PENDING) {
+        datas.push({
+          id: id,
+          total_price: data.total_price,
+          payment: data.payment,
+          products: data.products,
+          status: data.status,
+          delivery_mode: data.delivery_mode,
+          shipping_details: data.shipping_details,
+          ...data,
+        });
+      }
+    });
+
+    resultObject = {
+      result: datas,
+      resultType: ResultTypeEnum.ARRAY,
+      isSuccess: true,
+      message: SuccessCodes["user-pending-orders"],
+    };
+  } catch (e: unknown) {
+    const errorMessage = parseError(e);
+
+    resultObject = {
+      result: [],
+      resultType: ResultTypeEnum.ARRAY,
+      isSuccess: false,
+      message: errorMessage
+        ? errorMessage
+        : ErrorCodes["user-pending-orders-error"],
     };
   }
 

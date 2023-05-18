@@ -24,6 +24,7 @@ import { ProductsDatabaseType } from "../constants/product_constants";
 import { MessagesDatabaseType } from "../constants/messages_constants";
 import { OrdersDatabaseType } from "../constants/orders_constants";
 import { WellnessDatabaseType } from "../constants/wellness_constants";
+import { getAllPendingOrdersGivenUserId } from "./orders_functions";
 
 export const getAllDocumentsGivenTypeFunction = async (
   type: CollectionsEnum
@@ -244,14 +245,39 @@ export const deleteDocumentGivenTypeAndIdFunction = async (
   };
 
   try {
-    await deleteDoc(doc(db, type, id));
+    if (type == CollectionsEnum.USER) {
+      const userPendingOrders = await getAllPendingOrdersGivenUserId(id);
+      if (!userPendingOrders.isSuccess) {
+        return userPendingOrders;
+      }
 
-    resultObject = {
-      result: null,
-      resultType: ResultTypeEnum.NULL,
-      isSuccess: true,
-      message: SuccessCodes.delete,
-    };
+      if (userPendingOrders.result.length > 0) {
+        resultObject = {
+          result: null,
+          resultType: ResultTypeEnum.NULL,
+          isSuccess: false,
+          message: ErrorCodes["user-pending-orders"],
+        };
+      } else {
+        await deleteDoc(doc(db, type, id));
+
+        resultObject = {
+          result: null,
+          resultType: ResultTypeEnum.NULL,
+          isSuccess: true,
+          message: SuccessCodes.delete,
+        };
+      }
+    } else {
+      await deleteDoc(doc(db, type, id));
+
+      resultObject = {
+        result: null,
+        resultType: ResultTypeEnum.NULL,
+        isSuccess: true,
+        message: SuccessCodes.delete,
+      };
+    }
   } catch (e: unknown) {
     const errorMessage = parseError(e);
     resultObject = {
