@@ -1,9 +1,13 @@
 import { useAuthContext } from "@/context/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import nookies from "nookies";
 import admin from "../firebase/admin-config";
 import Link from "next/link";
 import Image from "next/image";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
+import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
 
 import { auth } from "@/firebase/firebase_functions/auth_functions";
 
@@ -35,7 +39,7 @@ export default function Cart(props: any) {
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [province, setProvince] = useState("");
-  const [deliveryMode, setDeliveryMode] = useState("pickup");
+  const [deliveryMode, setDeliveryMode] = useState("delivery");
   const [notes, setNotes] = useState("");
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodEnum>(
@@ -72,6 +76,16 @@ export default function Cart(props: any) {
     clear,
   } = useAuthContext();
   const router = useRouter();
+
+  const mapContainer = useRef<any>(null);
+  const geocoderContainer = useRef<any>(null);
+  const map = useRef<any>(null);
+  const [lng, setLng] = useState(120.46851434051715);
+  const [lat, setLat] = useState(14.86645035829063);
+  const [zoom, setZoom] = useState(15);
+  const cityCoordinates = [120.46851434051715, 14.86645035829063];
+
+  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOXGL_ACCESS_TOKEN || "";
 
   async function fetchCarts() {
     if (props.cart) {
@@ -186,10 +200,70 @@ export default function Cart(props: any) {
     setPaymentMethod(PaymentMethodEnum.GCASH);
   }
 
+  async function convertLatLngToAddress(inputLat: number, inputLng: number) {
+    const reverseGeocodingUrl = `https://api.geoapify.com/v1/geocode/reverse?lat=${inputLat}&lon=${inputLng}&apiKey=${"d2728093e4394f759d8e7a8f0c9644e7"}`;
+
+    const res = await fetch(reverseGeocodingUrl);
+    const data = await res.json();
+    const address =
+      data.features && data.features.length > 0
+        ? data.features[0].properties
+        : null;
+    setAddress(address.formatted);
+    setCity(address.city);
+    setProvince(address.state);
+  }
+
   useEffect(() => {
     clear();
     fetchCarts();
-  }, []);
+
+    const coordinates: HTMLElement = document.getElementById(
+      "coordinates"
+    ) as HTMLElement;
+
+    if (!mapContainer.current) {
+      return;
+    }
+
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current || "",
+      style: "mapbox://styles/mapbox/streets-v12",
+      center: [120.46851434051715, 14.86645035829063],
+      zoom: zoom,
+    });
+
+    const marker = new mapboxgl.Marker({
+      draggable: true,
+    })
+      .setLngLat([120.46851434051715, 14.86645035829063])
+      .addTo(map.current);
+
+    marker.on("dragend", onDragEnd);
+
+    function onDragEnd() {
+      const lngLat = marker.getLngLat();
+      coordinates.style.display = "block";
+      setLng(lngLat.lng);
+      setLat(lngLat.lat);
+      convertLatLngToAddress(lngLat.lat, lngLat.lng);
+    }
+
+    const geocoder = new MapboxGeocoder({
+      accessToken: mapboxgl.accessToken,
+      mapboxgl: mapboxgl,
+    });
+
+    map.current.addControl(geocoder);
+
+    geocoder.on("results", function (results, error) {
+      if (results && results.features?.length > 0) {
+        const inputLng = results.features[0].geometry.coordinates[0];
+        const inputLat = results.features[0].geometry.coordinates[1];
+        convertLatLngToAddress(inputLat, inputLng);
+      }
+    });
+  }, [mapContainer, map, deliveryMode]);
 
   return (
     <>
@@ -321,9 +395,14 @@ export default function Cart(props: any) {
               </div>
 
               {/* Shipping Address */}
+
               {deliveryMode == "delivery" ? (
                 <div className="bg-gray-50 rounded-lg p-2">
                   <HeadingTwo label={"Shipping Address"} />
+                  <p className="text-sm text-gray-500">
+                    Manually input your shipping address or drag the marker in
+                    the map below to find your location
+                  </p>
                   {/* Address */}
                   <div className="mt-4">
                     <InputComponent
@@ -381,27 +460,6 @@ export default function Cart(props: any) {
                       error={errors}
                       aria-invalid={errors.inputCity ? "true" : "false"}
                     />
-                    {/* <div className="w-full lg:w-1/2">
-                    <label
-                      htmlFor="city"
-                      className="block mb-3 text-sm font-semibold text-gray-500"
-                    >
-                      City
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="City"
-                      className="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white text-black"
-                      {...register("inputCity", {
-                        required: "City is required",
-                        onChange: (e: any) => setCity(e.target.value),
-                      })}
-                      aria-invalid={errors.inputCity ? "true" : "false"}
-                    />
-                  </div>
-                  {errors.inputCity && (
-                    <WarningMessage text={errors.inputCity?.message} />
-                  )} */}
                     <InputComponent
                       id={"province"}
                       name={"inputProvince"}
@@ -438,6 +496,19 @@ export default function Cart(props: any) {
                   {errors.inputProvince && (
                     <WarningMessage text={errors.inputProvince?.message} />
                   )} */}
+                  </div>
+                  <div className="mt-4 px-4">
+                    <div
+                      id="mapId"
+                      ref={mapContainer}
+                      className="map-container w-96 h-96 "
+                    ></div>
+                    <pre id="coordinates" className="bg-red-500"></pre>
+                    <div
+                      id="geocoder"
+                      // ref={geocoderContainer}
+                      className="geocoder"
+                    ></div>
                   </div>
                 </div>
               ) : null}
