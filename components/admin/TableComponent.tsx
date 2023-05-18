@@ -72,6 +72,23 @@ export default function TableComponent({
       setSort(sort * -1);
       setItemList(newList);
       onPageChange(currentPage);
+    } else if (
+      text == "updated_at" ||
+      text == "created_at" ||
+      text == "date" ||
+      text == "date_cleared"
+    ) {
+      let previousList = itemList;
+      let newList = previousList.sort((a, b) =>
+        new Date(a[key]) > new Date(b[key])
+          ? sort
+          : new Date(b[key]) > new Date(a[key])
+          ? sort * -1
+          : 0
+      );
+      setSort(sort * -1);
+      setItemList(newList);
+      onPageChange(currentPage);
     } else {
       let previousList = itemList;
       let newList = previousList.sort((a, b) =>
