@@ -39,7 +39,9 @@ export default function TableRowText({
       ) : (
         <td className="px-4 py-4 text-sm w-auto font-medium whitespace-nowrap text-center">
           <div>
-            <h2 className="font-medium text-black ">{text ? text : ""}</h2>
+            <h2 className="font-medium text-black ">
+              {text == "0" || text ? text : ""}
+            </h2>
           </div>
         </td>
       )}
