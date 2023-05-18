@@ -122,7 +122,7 @@ export default function Home(props: any) {
             More likely than you think!
           </h3>
           <Button
-            text="Get started"
+            text="Fill up your wellness survey"
             round={true}
             headline={true}
             handleClick={navigateToSurvey}
