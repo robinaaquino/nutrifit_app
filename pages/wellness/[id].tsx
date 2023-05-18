@@ -237,7 +237,7 @@ export default function WellnessSurveyShow(props: any) {
     <>
       <form onSubmit={handleSubmit(handleForm)} className="w-1/2 mx-auto">
         <h2 className="mt-6 mb-10 text-center text-3xl font-bold tracking-tight text-gray-900">
-          Wellness Survey
+          Edit Wellness Survey Result
         </h2>
         <h3 className="mb-2 ml-2 text-2xl font-bold tracking-tight text-gray-900">
           Personal Details
