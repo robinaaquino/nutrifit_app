@@ -590,7 +590,7 @@ export async function getServerSideProps(context: any) {
         user: null,
         isError: true,
         message: "Error with getting user info",
-        redirect: "/logn",
+        redirect: "/login",
       },
     };
   }
