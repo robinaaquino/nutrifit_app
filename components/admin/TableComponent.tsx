@@ -316,7 +316,7 @@ export default function TableComponent({
                                         );
                                       } else if (type == "user") {
                                         router.push(
-                                          `/admin/user/${currentElement.id}`
+                                          `/user/${currentElement.id}`
                                         );
                                       } else if (type == "message") {
                                         router.push(
