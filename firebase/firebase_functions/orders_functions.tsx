@@ -131,7 +131,10 @@ export const updateOrderFunction = async (
       updated_at: new Date().toString(),
 
       total_price: order.total_price,
-      date_cleared: order.date_cleared,
+      date_cleared:
+        order.status == OrderStatusEnum.DELIVERED
+          ? new Date().toString()
+          : order.date_cleared,
 
       payment: order.payment,
       products: order.products,
