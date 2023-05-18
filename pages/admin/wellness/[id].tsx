@@ -182,8 +182,6 @@ export default function AdminWellnessSurveyShow(props: any) {
       reviewed_by_admin: inputReviewedByAdmin == "true" ? true : false,
     };
 
-    console.log(resultObject);
-
     const updateWellnessSurveyResult = await updateWellnessSurveyResultFunction(
       resultObject,
       idInput

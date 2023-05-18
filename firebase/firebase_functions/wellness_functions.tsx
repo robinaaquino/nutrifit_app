@@ -97,7 +97,7 @@ export const addWellnessSurveyResult = async (
     };
   } catch (e: unknown) {
     const errorMessage = parseError(e);
-    console.log(e);
+
     resultObject = {
       result: data,
       resultType: ResultTypeEnum.OBJECT,
@@ -186,7 +186,7 @@ export const updateWellnessSurveyResultFunction = async (
     };
   } catch (e: unknown) {
     const errorMessage = parseError(e);
-    console.log(e);
+
     resultObject = {
       result: null,
       resultType: ResultTypeEnum.NULL,

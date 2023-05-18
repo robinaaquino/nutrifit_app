@@ -315,7 +315,6 @@ export default function UserShow(props: any) {
   };
 
   const handleReloadVerificationStatus = async () => {
-    console.log(auth.currentUser);
     await auth.currentUser?.reload();
     setEmailVerified(auth.currentUser?.emailVerified || false);
 
@@ -331,7 +330,6 @@ export default function UserShow(props: any) {
           success(
             "Successfully sent a verification email. Please, log back in once you've verified your account"
           );
-          // logout();
         })
         .catch((error: any) => {
           const errorMessage = parseError(error);

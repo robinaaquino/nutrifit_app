@@ -29,30 +29,28 @@ export default function Signup() {
   const router = useRouter();
   const { success, error } = useAuthContext();
 
-  const handleForm = async (data: any, e?: any) =>
-    // event: any
-    {
-      e.preventDefault();
-      const { inputEmail, inputPassword } = data;
+  const handleForm = async (data: any, e?: any) => {
+    e.preventDefault();
+    const { inputEmail, inputPassword } = data;
 
-      const result = await createAccount(inputEmail, inputPassword);
+    const result = await createAccount(inputEmail, inputPassword);
 
-      if (result.isSuccess) {
-        const addResult = await addUserFunction({
-          email: inputEmail,
-          id: result.result,
-        });
+    if (result.isSuccess) {
+      const addResult = await addUserFunction({
+        email: inputEmail,
+        id: result.result,
+      });
 
-        if (addResult.isSuccess) {
-          success(result.message);
-          router.push("/");
-        } else {
-          error(result.message);
-        }
+      if (addResult.isSuccess) {
+        success(result.message);
+        router.push("/");
       } else {
         error(result.message);
       }
-    };
+    } else {
+      error(result.message);
+    }
+  };
 
   return (
     <>

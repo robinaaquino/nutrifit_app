@@ -177,8 +177,6 @@ export const applyFilterFunction = async (
         );
       }
 
-      console.log(queryList);
-
       const resultReference = query(
         collection(db, "resultingArray"),
         ...queryList
@@ -343,7 +341,6 @@ export const applySearchFunction = async (
           currentData["last_name"] = currentData.shipping_details.last_name;
         }
       }
-      console.log("resultingArray", resultingArray);
 
       const individualStrings = searchString.toLowerCase().split(" ");
       for (let i = 0; i < resultingArray.length; i++) {
@@ -431,7 +428,6 @@ export const applySearchFunction = async (
     };
   } catch (e: unknown) {
     const errorMessage = parseError(e);
-    console.log(e);
     resultObject = {
       result: datas,
       resultType: ResultTypeEnum.ARRAY,

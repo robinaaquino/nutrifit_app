@@ -79,24 +79,6 @@ export default function Cart(props: any) {
       setCartContents(props.cart);
       setCartProducts(props.cart.products);
     }
-    // else {
-    //   if (cart) {
-    //     //check cart in context
-    //     setCartContents(cart);
-    //     setCartProducts(products);
-    //   } else {
-    //     let newCart: any = {
-    //       created_at: new Date().toString(),
-    //       products: [],
-    //       subtotal_price: 0,
-    //       updated_at: new Date().toString(),
-    //       user_id: null,
-    //     };
-
-    //     setCartContents(newCart);
-    //     setCartProducts([]);
-    //   }
-    // }
   }
 
   function handleRemoveFromCart(product: any) {
@@ -114,7 +96,6 @@ export default function Cart(props: any) {
 
     setCartContents(previousCart);
     setCartProducts(previousCart.products);
-    console.log("prev", previousCart);
   }
 
   const handleFormForPayment = async (data: any, e: any) => {
@@ -206,9 +187,6 @@ export default function Cart(props: any) {
   }
 
   useEffect(() => {
-    console.log("what comes first, the cart or this");
-    console.log(cart);
-    console.log(props);
     clear();
     fetchCarts();
   }, []);
@@ -552,28 +530,12 @@ export default function Cart(props: any) {
                         label={"Payment upon Pickup"}
                         handleClick={handlePaymentUponPickup}
                       />
-                      {/* <button
-                        className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900 mt-2"
-                        onClick={(e) => {
-                          setPaymentMethod(
-                            PaymentMethodEnum.PAYMENT_UPON_PICK_UP
-                          );
-                        }}
-                      >
-                        Payment Upon Pickup
-                      </button> */}
                     </>
                   ) : (
                     <InputSubmit
                       label={"Process Payment"}
                       handleClick={handleCashlessPayment}
                     />
-                    // <button
-                    //   className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900 disabled"
-                    //   type="submit"
-                    // >
-                    //   Process Payment
-                    // </button>
                   )}
                 </div>
               </div>

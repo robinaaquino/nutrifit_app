@@ -191,7 +191,7 @@ export const deleteProductFunction = async (product: ProductsDatabaseType) => {
     };
   } catch (e: unknown) {
     const errorMessage = parseError(e);
-    console.log(e);
+
     resultObject = {
       result: null,
       resultType: ResultTypeEnum.NULL,
@@ -242,8 +242,6 @@ export const getBestSellingProducts = async () => {
       message: SuccessCodes["best-selling-products"],
     };
   } catch (e: unknown) {
-    console.log(e);
-
     resultObject = {
       result: [],
       resultType: ResultTypeEnum.ARRAY,

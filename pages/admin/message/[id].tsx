@@ -41,7 +41,6 @@ export default function ContactUs() {
       CollectionsEnum.MESSAGE,
       idInput
     );
-    console.log(result);
 
     const messageResult: MessagesDatabaseType =
       result.result as MessagesDatabaseType;

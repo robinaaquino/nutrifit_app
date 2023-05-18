@@ -160,7 +160,6 @@ export default function WellnessSurveyShow(props: any) {
       CollectionsEnum.WELLNESS,
       idInput
     );
-    console.log(result);
 
     if (!result.isSuccess) {
       error(result.message);
@@ -215,7 +214,6 @@ export default function WellnessSurveyShow(props: any) {
       setWeightStatus(
         wellnessSurveyResultObject.wellness_remarks.weight_status
       );
-      console.log(wellnessSurveyResultObject.wellness_remarks.weight_status);
       setWeightStatusNumber(
         wellnessSurveyResultObject.wellness_remarks.weight_status_number
       );

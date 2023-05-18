@@ -78,15 +78,6 @@ export default function Filter({
   }
 
   function applyFilters(e: any) {
-    console.log("filterCategory", filterCategory);
-    console.log("filterMinPrice", filterMinPrice);
-    console.log("filterMaxPrice", filterMaxPrice);
-    console.log("filterInStock", filterInStock);
-    console.log("filterStatus", filterStatus);
-    console.log("filterRole", filterRole);
-    console.log("filterProgram", filterProgram);
-    console.log("filterReviewedByAdmin", filterReviewedByAdmin);
-
     e.preventDefault();
     if (isProductFilter) {
       const filterObject = {
@@ -187,7 +178,6 @@ export default function Filter({
     });
 
     additionalParams.set("search", "");
-    // router.replace(`/product?${additionalParams}`);
     nookies.set(undefined, "search", "", { path: "/" });
   }
 

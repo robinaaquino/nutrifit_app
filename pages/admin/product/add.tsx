@@ -29,8 +29,6 @@ import InputComponent from "@/components/forms/input/InputComponent";
 import Label from "@/components/forms/Label";
 import InputSubmit from "@/components/forms/input/InputSubmit";
 
-//clean authcontextobject calls
-//clean getserversideprops calls for all admin routes
 export default function AdminAddProduct(props: any) {
   const [productName, setProductName] = useState("");
   const [category, setCategory] = useState("");
@@ -60,35 +58,33 @@ export default function AdminAddProduct(props: any) {
     },
   });
 
-  const handleForm = async (data: any, e: any) =>
-    // event: any
-    {
-      e.preventDefault();
-      const {
-        inputCategory,
-        inputProductDescription,
-        inputPrice,
-        inputQuantity,
-        inputProductName,
-      } = data;
+  const handleForm = async (data: any, e: any) => {
+    e.preventDefault();
+    const {
+      inputCategory,
+      inputProductDescription,
+      inputPrice,
+      inputQuantity,
+      inputProductName,
+    } = data;
 
-      const productObject: ProductsDatabaseType = {
-        category: inputCategory,
-        description: inputProductDescription,
-        price: parseInt(inputPrice),
-        quantity_left: parseInt(inputQuantity),
-        name: inputProductName,
-        images: files,
-      };
-      const result = await addProductFunction(productObject);
-
-      if (result.isSuccess) {
-        authContextObject.success(result.message);
-        router.push("/product");
-      } else {
-        authContextObject.error(result.message);
-      }
+    const productObject: ProductsDatabaseType = {
+      category: inputCategory,
+      description: inputProductDescription,
+      price: parseInt(inputPrice),
+      quantity_left: parseInt(inputQuantity),
+      name: inputProductName,
+      images: files,
     };
+    const result = await addProductFunction(productObject);
+
+    if (result.isSuccess) {
+      authContextObject.success(result.message);
+      router.push("/product");
+    } else {
+      authContextObject.error(result.message);
+    }
+  };
 
   const handleIndividualFile = (e: any, index: any) => {
     setMessage("");
@@ -440,9 +436,6 @@ export async function getServerSideProps(context: any) {
       },
     };
   } catch (err) {
-    // context.res.writeHead(302, { Location: "/login" });
-    // context.res.end();
-
     return {
       props: {
         isError: true,

@@ -386,10 +386,6 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  // useEffect(() => {
-
-  // }, []);
-
   useEffect(() => {
     const handle = setInterval(async () => {
       const user = auth.currentUser;

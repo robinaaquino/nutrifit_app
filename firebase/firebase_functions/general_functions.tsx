@@ -142,7 +142,7 @@ export const getAllDocumentsGivenTypeAndUserIdFunction = async (
     };
   } catch (e: unknown) {
     const errorMessage = parseError(e);
-    console.log(e);
+
     resultObject = {
       result: datas,
       resultType: ResultTypeEnum.ARRAY,
@@ -156,23 +156,6 @@ export const getAllDocumentsGivenTypeAndUserIdFunction = async (
   return resultObject;
 };
 
-// {
-//     id: "",
-//     email: "",
-//     contact_number: "",
-//     created_at: "",
-//     updated_at: "",
-//     role: RoleEnum.CUSTOMER,
-//     shipping_details: {
-//       address: "",
-//       first_name: "",
-//       last_name: "",
-//       city: "",
-//       province: "",
-//       contact_number: "",
-//     },
-//     image: "",
-//   };
 export const getDocumentGivenTypeAndIdFunction = async (
   type: CollectionsEnum,
   id: string

@@ -174,31 +174,3 @@ export const getAllAdminAnalytics = async () => {
 
   return resultObject;
 };
-
-// export const template = async () => {
-//   let resultObject: FunctionResult = {
-//     result: "",
-//     isSuccess: false,
-//     message: "",
-//     message: "",
-//   };
-//   let datas: any[] = [];
-
-//   try {
-//     resultObject = {
-//       result: datas,
-//       isSuccess: true,
-//       message: "Successful in getting all products",
-//       message: "",
-//     };
-//   } catch (e) {
-//     resultObject = {
-//       result: datas,
-//       isSuccess: true,
-//       message: "Failed in getting all products",
-//       message: parseError(e),
-//     };
-//   }
-
-//   return resultObject;
-// };

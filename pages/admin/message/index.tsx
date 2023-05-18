@@ -70,7 +70,7 @@ export default function AdminMessage(props: any) {
 
   async function handleFilters(filter: any) {
     const result = await applyFilterFunction(CollectionsEnum.MESSAGE, filter);
-    console.log(result);
+
     if (!result.isSuccess) {
       error(result.message);
     } else {

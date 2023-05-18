@@ -23,13 +23,7 @@ export default function Header() {
     }
   }
 
-  useEffect(() => {
-    console.log("header", {
-      user: user,
-      authorized: isAuthorized,
-      cart: cart,
-    });
-  }, []);
+  useEffect(() => {}, []);
 
   return (
     <>

@@ -205,8 +205,6 @@ export default function Catalog(props: any) {
             handleFilters={handleFilters}
             isProductFilter={true}
             resetFilter={fetchAllProducts}
-            // isOrderFilter={true}
-            // isCustomerFilter={true}
           />
         </div>
         <div>

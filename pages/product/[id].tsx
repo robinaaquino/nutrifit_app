@@ -521,8 +521,6 @@ export default function ProductShow(props: any) {
                     </div> */}
                     <button
                       onClick={() => {
-                        console.log(user);
-                        console.log("omo");
                         handleAddToCart(product, quantity);
                       }}
                       className="w-1/2 px-4 py-3 text-center text-white bg-nf_green hover:bg-nf_dark_blue  rounded-xl"
@@ -566,7 +564,6 @@ export async function getServerSideProps(context: any) {
         },
       };
     } else {
-      console.log("ah then here?");
       if (cookies.cart) {
         return {
           props: {
@@ -577,7 +574,6 @@ export async function getServerSideProps(context: any) {
           },
         };
       } else {
-        console.log("here then");
         return {
           props: {
             cart: null,
