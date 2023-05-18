@@ -11,8 +11,9 @@ import {
   getDoc,
   orderBy,
 } from "firebase/firestore";
-import * as Constants from "../constants";
-import { FunctionResult } from "@/firebase/constants";
+import { ResultTypeEnum } from "../constants/enum_constants";
+import { ProductsDatabaseType } from "../constants/product_constants";
+import { FunctionResult } from "../constants/function_constants";
 import { parseError } from "../helpers";
 import {
   ref,
@@ -21,230 +22,19 @@ import {
   deleteObject,
 } from "firebase/storage";
 import { v4 } from "uuid";
+import { ErrorCodes, SuccessCodes } from "../constants/success_and_error_codes";
 
-export const getAllProductsFunction = async () => {
+export const addProductFunction = async (product: ProductsDatabaseType) => {
   let resultObject: FunctionResult = {
-    result: "",
+    result: {},
+    resultType: ResultTypeEnum.OBJECT,
     isSuccess: false,
-    resultText: "",
-    errorMessage: "",
+    message: "",
   };
-  let datas: any[] = [];
+  let data: ProductsDatabaseType = {} as ProductsDatabaseType;
 
   try {
-    const docs = await getDocs(collection(db, "products"));
-
-    docs.forEach((doc) => {
-      const id = doc.id;
-      const data = doc.data();
-      datas.push({
-        id,
-        ...data,
-      });
-    });
-
-    resultObject = {
-      result: datas,
-      isSuccess: true,
-      resultText: "Successful in getting all products",
-      errorMessage: "",
-    };
-  } catch (e: unknown) {
-    console.log(e);
-    resultObject = {
-      result: datas,
-      isSuccess: false,
-      resultText: "Failed in getting all products",
-      errorMessage: parseError(e),
-    };
-  }
-
-  return resultObject;
-};
-
-export const getAllProductsWithFilterFunction = async (filter: any) => {
-  let resultObject: FunctionResult = {
-    result: "",
-    isSuccess: false,
-    resultText: "",
-    errorMessage: "",
-  };
-  let datas: any[] = [];
-  let productQuery: any[] = [];
-
-  try {
-    if (filter.category != "") {
-      productQuery.push(where("category", "==", filter.category));
-    }
-
-    if (filter.minPrice != 0) {
-      productQuery.push(where("price", ">=", filter.minPrice));
-    }
-
-    if (filter.maxPrice != 0) {
-      productQuery.push(where("price", "<=", filter.maxPrice));
-    }
-
-    const productReference = query(collection(db, "products"), ...productQuery);
-
-    const docs = await getDocs(productReference);
-    docs.forEach((doc) => {
-      const id = doc.id;
-      const data = doc.data();
-      if (filter.inStock == true || filter.inStock == false) {
-        if (filter.inStock) {
-          if (data.quantity_left > 0) {
-            datas.push({
-              id,
-              ...data,
-            });
-          }
-        } else {
-          if (data.quantity_left <= 0) {
-            datas.push({
-              id,
-              ...data,
-            });
-          }
-        }
-      }
-    });
-
-    resultObject = {
-      result: datas,
-      isSuccess: true,
-      resultText: "Successful in getting all products with filter",
-      errorMessage: "",
-    };
-  } catch (e: unknown) {
-    console.log(e);
-    resultObject = {
-      result: datas,
-      isSuccess: false,
-      resultText: "Failed in getting all products with filter",
-      errorMessage: parseError(e),
-    };
-  }
-
-  return resultObject;
-};
-
-export const getAllProductsWithSearchFunction = async (searchString: any) => {
-  let resultObject: FunctionResult = {
-    result: "",
-    isSuccess: false,
-    resultText: "",
-    errorMessage: "",
-  };
-  let datas: any[] = [];
-
-  try {
-    const result = await getAllProductsFunction();
-
-    if (!result.isSuccess) {
-      resultObject = {
-        result: datas,
-        isSuccess: false,
-        resultText: "Failed in getting all products with search string",
-        errorMessage: result.errorMessage,
-      };
-    }
-
-    const products = result.result;
-
-    const individualStrings = searchString.toLowerCase().split(" ");
-    for (let i = 0; i < products.length; i++) {
-      let matchedString = false;
-      for (let j = 0; j < individualStrings.length; j++) {
-        let regexExpression = `^.*` + individualStrings[j] + `.*$`;
-        if (
-          products[i].name.toLowerCase().match(regexExpression) ||
-          products[i].description.toLowerCase().match(regexExpression) ||
-          products[i].category.toLowerCase().match(regexExpression)
-        ) {
-          matchedString = true;
-          break;
-        }
-      }
-      if (matchedString) {
-        datas.push(products[i]);
-      }
-    }
-
-    resultObject = {
-      result: datas,
-      isSuccess: true,
-      resultText: "Successful in getting all products with search string",
-      errorMessage: "",
-    };
-  } catch (e: unknown) {
-    console.log(e);
-    resultObject = {
-      result: datas,
-      isSuccess: false,
-      resultText: "Failed in getting all products with search string",
-      errorMessage: parseError(e),
-    };
-  }
-
-  return resultObject;
-};
-
-export const getProductViaIdFunction = async (id: string) => {
-  let resultObject: FunctionResult = {
-    result: "",
-    isSuccess: false,
-    resultText: "",
-    errorMessage: "",
-  };
-  let data: string = "";
-
-  try {
-    const productReference = doc(db, "products", id);
-
-    const productSnapshot = await getDoc(productReference);
-
-    if (productSnapshot.exists()) {
-      resultObject = {
-        result: { id: productSnapshot.id, ...productSnapshot.data() },
-        isSuccess: true,
-        resultText: "Successful in getting product information",
-        errorMessage: "",
-      };
-    } else {
-      resultObject = {
-        result: data,
-        isSuccess: true,
-        resultText: "Product does not exist",
-        errorMessage: "",
-      };
-    }
-  } catch (e: unknown) {
-    console.log(e);
-    resultObject = {
-      result: data,
-      isSuccess: false,
-      resultText: "Failed in getting product information",
-      errorMessage: parseError(e),
-    };
-  }
-
-  return resultObject;
-};
-
-export const addProductFunction = async (
-  product: Constants.ProductsDatabaseType
-) => {
-  let resultObject: FunctionResult = {
-    result: "",
-    isSuccess: false,
-    resultText: "",
-    errorMessage: "",
-  };
-  let data: string = "";
-
-  try {
-    let productToBeAdded: Constants.ProductsDatabaseType = {
+    data = {
       quantity_in_carts: 0,
       quantity_sold: 0,
       updated_at: new Date().toString(),
@@ -262,29 +52,29 @@ export const addProductFunction = async (
         contentType: product.images[i]["type"],
       }).then(async (snapshot) => {
         await getDownloadURL(snapshot.ref).then((url: any) => {
-          productToBeAdded.images.push(url);
+          data.images.push(url);
         });
       });
       promises.push(upload);
     }
 
     await Promise.all(promises).then(async (e) => {
-      await setDoc(doc(db, "products", productId), productToBeAdded);
+      await setDoc(doc(db, "products", productId), data);
     });
 
     resultObject = {
-      result: productId,
+      result: data,
+      resultType: ResultTypeEnum.OBJECT,
       isSuccess: true,
-      resultText: "Successful in adding product",
-      errorMessage: "",
+      message: SuccessCodes["add-product"],
     };
   } catch (e: unknown) {
-    console.log(e);
+    const errorMessage = parseError(e);
     resultObject = {
-      result: "",
+      result: data,
+      resultType: ResultTypeEnum.OBJECT,
       isSuccess: false,
-      resultText: "Failed in adding product",
-      errorMessage: parseError(e),
+      message: errorMessage ? errorMessage : ErrorCodes["add-product"],
     };
   }
 
@@ -293,19 +83,19 @@ export const addProductFunction = async (
 
 //Ensure that to update a product, unchanged info is passed as well to prevent changes
 export const updateProductFunction = async (
-  product: Constants.ProductsDatabaseType,
+  product: ProductsDatabaseType,
   productId: string
 ) => {
   let resultObject: FunctionResult = {
-    result: "",
+    result: null,
+    resultType: ResultTypeEnum.NULL,
     isSuccess: false,
-    resultText: "",
-    errorMessage: "",
+    message: "",
   };
-  let datas: any[] = [];
+  let datas: ProductsDatabaseType[] = [];
 
   try {
-    let productToBeAdded: Constants.ProductsDatabaseType = {
+    let productToBeAdded: ProductsDatabaseType = {
       quantity_in_carts: product.quantity_in_carts,
       quantity_sold: product.quantity_sold,
       updated_at: new Date().toString(),
@@ -343,34 +133,32 @@ export const updateProductFunction = async (
     });
 
     resultObject = {
-      result: datas,
+      result: null,
+      resultType: ResultTypeEnum.NULL,
       isSuccess: true,
-      resultText: "Successful in updating product",
-      errorMessage: "",
+      message: SuccessCodes["update-product"],
     };
   } catch (e: unknown) {
-    console.log(e);
+    const errorMessage = parseError(e);
+
     resultObject = {
-      result: datas,
+      result: null,
+      resultType: ResultTypeEnum.NULL,
       isSuccess: false,
-      resultText: "Failed in updating product",
-      errorMessage: parseError(e),
+      message: errorMessage ? errorMessage : ErrorCodes["update-product"],
     };
   }
 
   return resultObject;
 };
 
-export const deleteProductFunction = async (
-  product: Constants.ProductsDatabaseType
-) => {
+export const deleteProductFunction = async (product: ProductsDatabaseType) => {
   let resultObject: FunctionResult = {
-    result: "",
+    result: null,
+    resultType: ResultTypeEnum.NULL,
     isSuccess: false,
-    resultText: "",
-    errorMessage: "",
+    message: "",
   };
-  let datas: any[] = [];
 
   try {
     const productId = product.id || "";
@@ -396,18 +184,19 @@ export const deleteProductFunction = async (
     });
 
     resultObject = {
-      result: datas,
+      result: null,
+      resultType: ResultTypeEnum.NULL,
       isSuccess: true,
-      resultText: "Successful in deleting product",
-      errorMessage: "",
+      message: SuccessCodes.delete,
     };
   } catch (e: unknown) {
+    const errorMessage = parseError(e);
     console.log(e);
     resultObject = {
-      result: datas,
+      result: null,
+      resultType: ResultTypeEnum.NULL,
       isSuccess: false,
-      resultText: "Failed in deleting product",
-      errorMessage: parseError(e),
+      message: errorMessage ? errorMessage : ErrorCodes.delete,
     };
   }
 
@@ -416,12 +205,12 @@ export const deleteProductFunction = async (
 
 export const getBestSellingProducts = async () => {
   let resultObject: FunctionResult = {
-    result: "",
+    result: [],
+    resultType: ResultTypeEnum.ARRAY,
     isSuccess: false,
-    resultText: "",
-    errorMessage: "",
+    message: "",
   };
-  let datas: any[] = [];
+  let datas: ProductsDatabaseType[] = [];
 
   try {
     const productReference = query(
@@ -436,23 +225,30 @@ export const getBestSellingProducts = async () => {
       const data = doc.data();
       datas.push({
         id,
+        name: data.name,
+        category: data.category,
+        description: data.description,
+        price: data.price,
+        quantity_left: data.quantity_left,
+        images: data.images,
         ...data,
       });
     });
 
     resultObject = {
       result: datas,
+      resultType: ResultTypeEnum.ARRAY,
       isSuccess: true,
-      resultText: "Successful in getting best selling products",
-      errorMessage: "",
+      message: SuccessCodes["best-selling-products"],
     };
   } catch (e: unknown) {
     console.log(e);
+
     resultObject = {
-      result: datas,
+      result: [],
+      resultType: ResultTypeEnum.ARRAY,
       isSuccess: false,
-      resultText: "Failed in getting best selling products",
-      errorMessage: parseError(e),
+      message: ErrorCodes["best-selling-products"],
     };
   }
 

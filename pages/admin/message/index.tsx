@@ -5,20 +5,20 @@ import Filter from "@/components/filter/Filter";
 import SearchBar from "@/components/universal/SearchBar";
 import TableComponent from "@/components/admin/TableComponent";
 
-import { UsersDatabaseType } from "@/firebase/constants";
-import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
+import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_functions";
+import { CollectionsEnum } from "@/firebase/constants/enum_constants";
+import { getAllDocumentsGivenTypeFunction } from "@/firebase/firebase_functions/general_functions";
 import {
-  getAllMessagesFunction,
-  getAllMessagesWithFilterFunction,
-  getAllMessagesWithSearchFunction,
-} from "@/firebase/firebase_functions/messages_functions";
-
+  applyFilterFunction,
+  applySearchFunction,
+} from "@/firebase/firebase_functions/filter_and_search_functions";
 import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { MessagesDatabaseType } from "@/firebase/constants/messages_constants";
 
 export default function AdminMessage(props: any) {
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<MessagesDatabaseType[]>([]);
   const { error } = useAuthContext();
   const router = useRouter();
 
@@ -43,29 +43,36 @@ export default function AdminMessage(props: any) {
   ];
 
   async function fetchAllMessages() {
-    const result = await getAllMessagesFunction();
+    const result = await getAllDocumentsGivenTypeFunction(
+      CollectionsEnum.MESSAGE
+    );
+    const messageResult: MessagesDatabaseType[] =
+      result.result as MessagesDatabaseType[];
 
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
     } else {
-      setMessages(result.result);
+      setMessages(messageResult);
     }
   }
 
   async function handleSearch(searchString: any) {
-    const result = await getAllMessagesWithSearchFunction(searchString);
+    const result = await applySearchFunction(
+      CollectionsEnum.MESSAGE,
+      searchString
+    );
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
     } else {
       setMessages(result.result);
     }
   }
 
   async function handleFilters(filter: any) {
-    const result = await getAllMessagesWithFilterFunction(filter);
+    const result = await applyFilterFunction(CollectionsEnum.MESSAGE, filter);
     console.log(result);
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
     } else {
       setMessages(result.result);
     }
@@ -76,7 +83,7 @@ export default function AdminMessage(props: any) {
   }, []);
 
   if (props.isError) {
-    error(props.errorMessage);
+    error(props.message);
     router.push(props.redirect);
     return null;
   }
@@ -125,14 +132,13 @@ export async function getServerSideProps(context: any) {
 
     const { uid, email } = token;
 
-    const isAdminResult = await getUserFunction(uid);
-    const isAdmin = isAdminResult.result.role == "admin" ? true : false;
+    const isAdmin = await isUserAuthorizedFunction(uid);
 
     if (!isAdmin) {
       return {
         props: {
           isError: true,
-          errorMessage: "Unauthorized access",
+          message: "Unauthorized access",
           redirect: "/",
         },
       };
@@ -140,10 +146,9 @@ export async function getServerSideProps(context: any) {
 
     return {
       props: {
-        message: `Your email is ${email} and your UID is ${uid}.`,
         authorized: isAdmin,
         isError: false,
-        errorMessage: "",
+        message: "",
         redirect: "",
       },
     };
@@ -151,7 +156,7 @@ export async function getServerSideProps(context: any) {
     return {
       props: {
         isError: true,
-        errorMessage: "Unauthenticated access",
+        message: "Unauthenticated access",
         redirect: "/login",
       },
     };

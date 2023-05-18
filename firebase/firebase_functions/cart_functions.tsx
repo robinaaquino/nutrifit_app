@@ -1,58 +1,52 @@
-import { db, storage } from "../config";
-import {
-  collection,
-  getDocs,
-  doc,
-  updateDoc,
-  deleteDoc,
-  setDoc,
-  query,
-  where,
-  getDoc,
-} from "firebase/firestore";
-import * as Constants from "../constants";
-import { FunctionResult } from "@/firebase/constants";
-import {
-  parseError,
-  getImageInProduct,
-  computeSubtotalInCart,
-} from "../helpers";
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  deleteObject,
-} from "firebase/storage";
-import { v4 } from "uuid";
+import { db } from "../config";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 
+import { FunctionResult } from "../constants/function_constants";
+import { CollectionsEnum, ResultTypeEnum } from "../constants/enum_constants";
+
+import {
+  ProductsInCartsType,
+  CartsDatabaseType,
+} from "../constants/cart_constants";
+import {
+  ProductsDatabaseType,
+  ProductsDatabaseTypeFromDB,
+} from "../constants/product_constants";
+import { SuccessCodes, ErrorCodes } from "../constants/success_and_error_codes";
+import { parseError, getImageInProduct } from "../helpers";
+import { getDocumentGivenTypeAndIdFunction } from "./general_functions";
+
+// Initialize a new cart for new user
 export const initializeNewCartFunction = async (
   userId: string,
-  product?: any,
+  product?: ProductsDatabaseType,
   quantity?: number
 ) => {
   let resultObject: FunctionResult = {
-    result: "",
+    result: {},
+    resultType: ResultTypeEnum.OBJECT,
     isSuccess: false,
-    resultText: "",
-    errorMessage: "",
+    message: "",
   };
+
   try {
     if (product) {
-      const productToBeAddedToCart = {
+      const productToBeAddedToCart: ProductsInCartsType = {
         id: product.id,
         name: product.name,
         description: product.description,
         price: product.price,
         category: product.category,
-        quantity: quantity,
+        quantity: quantity ? quantity : 1,
         image: getImageInProduct(product),
       };
 
-      let newCart: any = {
+      let newCart: CartsDatabaseType = {
         created_at: new Date().toString(),
-        products: [productToBeAddedToCart],
-        subtotal_price: productToBeAddedToCart.price * (quantity || 0),
         updated_at: new Date().toString(),
+
+        products: [productToBeAddedToCart],
+        subtotal_price: productToBeAddedToCart.price * (quantity || 1),
         user_id: userId,
       };
 
@@ -62,16 +56,17 @@ export const initializeNewCartFunction = async (
 
       resultObject = {
         result: newCart,
+        resultType: ResultTypeEnum.OBJECT,
         isSuccess: true,
-        resultText: "Successful in initializing cart with product",
-        errorMessage: "",
+        message: SuccessCodes["initialize-cart-with-product"],
       };
     } else {
-      let newCart: any = {
+      let newCart: CartsDatabaseType = {
         created_at: new Date().toString(),
+        updated_at: new Date().toString(),
+
         products: [],
         subtotal_price: 0,
-        updated_at: new Date().toString(),
         user_id: userId,
       };
 
@@ -81,37 +76,39 @@ export const initializeNewCartFunction = async (
 
       resultObject = {
         result: newCart,
+        resultType: ResultTypeEnum.OBJECT,
         isSuccess: true,
-        resultText: "Successful in initializing cart",
-        errorMessage: "",
+        message: SuccessCodes["initialize-cart"],
       };
     }
   } catch (e: unknown) {
-    console.log(e);
+    const errorMessage = parseError(e);
+
     resultObject = {
       result: {},
+      resultType: ResultTypeEnum.OBJECT,
       isSuccess: false,
-      resultText: "Failed in initializing cart",
-      errorMessage: parseError(e),
+      message: errorMessage ? errorMessage : ErrorCodes["initialize-cart"],
     };
   }
 
   return resultObject;
 };
 
+// Add a product to cart
 export const addToCartFunction = async (
-  product: Constants.ProductsDatabaseType,
+  product: ProductsDatabaseType,
   quantity: number,
   userId: string
 ) => {
   let resultObject: FunctionResult = {
-    result: "",
+    result: {},
+    resultType: ResultTypeEnum.OBJECT,
     isSuccess: false,
-    resultText: "",
-    errorMessage: "",
+    message: "",
   };
-  let data: any = {};
-  const productToBeAddedToCart = {
+
+  const productToBeAddedToCart: ProductsInCartsType = {
     id: product.id,
     name: product.name,
     description: product.description,
@@ -122,92 +119,93 @@ export const addToCartFunction = async (
   };
 
   try {
-    const cartReference = doc(db, "carts", userId);
+    const currentProductInfo = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.PRODUCT,
+      product.id || ""
+    );
+    const productInfoResult: ProductsDatabaseTypeFromDB =
+      currentProductInfo.result as ProductsDatabaseTypeFromDB;
 
-    const cartSnapshot = await getDoc(cartReference);
+    if (
+      currentProductInfo.isSuccess &&
+      productInfoResult.quantity_left > quantity
+    ) {
+      const cartReference = doc(db, "carts", userId);
 
-    if (!cartSnapshot.exists()) {
-      const initializationResult = await initializeNewCartFunction(
-        userId,
-        product,
-        quantity
-      );
+      const cartSnapshot = await getDoc(cartReference);
 
-      if (initializationResult.isSuccess) {
-        resultObject = {
-          result: initializationResult.result,
-          isSuccess: true,
-          resultText: "Successful in adding product to cart",
-          errorMessage: "",
-        };
+      if (!cartSnapshot.exists()) {
+        const initializationResult = await initializeNewCartFunction(
+          userId,
+          product,
+          quantity
+        );
+
+        resultObject = initializationResult;
       } else {
+        //get docs
+        var cartData = cartSnapshot.data();
+
+        //check if product exists in cart already
+        let productAlreadyInCart = false;
+        for (let i = 0; i < cartData.products.length; i++) {
+          //update cartData
+          if (cartData.products[i].id == productToBeAddedToCart.id) {
+            productAlreadyInCart = true;
+            cartData.products[i].quantity += productToBeAddedToCart.quantity;
+            cartData.subtotal_price += quantity * productToBeAddedToCart.price;
+            break;
+          }
+        }
+
+        //if not in cart, push as is
+        if (!productAlreadyInCart) {
+          cartData.products.push(productToBeAddedToCart);
+          cartData.subtotal_price += productToBeAddedToCart.price * quantity;
+        }
+
+        await setDoc(cartReference, cartData, { merge: true });
+
         resultObject = {
-          result: initializationResult.result,
-          isSuccess: false,
-          resultText: "Failed in adding product to cart",
-          errorMessage: initializationResult.errorMessage,
+          result: cartData,
+          resultType: ResultTypeEnum.OBJECT,
+          isSuccess: true,
+          message: SuccessCodes["add-cart"],
         };
       }
     } else {
-      //get docs
-      var cartData = cartSnapshot.data();
-
-      //check if product exists in cart already
-      let productAlreadyInCart = false;
-      for (let i = 0; i < cartData.products.length; i++) {
-        if (cartData.products[i].id == productToBeAddedToCart.id) {
-          productAlreadyInCart = true;
-          cartData.products[i].quantity += productToBeAddedToCart.quantity;
-          cartData.subtotal_price +=
-            productToBeAddedToCart.quantity * productToBeAddedToCart.price;
-          break;
-        }
-      }
-
-      // if (productAlreadyInCart) {
-      //   resultObject = {
-      //     result: cartData,
-      //     isSuccess: false,
-      //     resultText: "Failed in adding product to cart",
-      //     errorMessage: "Duplicate product",
-      //   };
-      // } else {
-      if (!productAlreadyInCart) {
-        cartData.products.push(productToBeAddedToCart);
-        cartData.subtotal_price += productToBeAddedToCart.price * quantity;
-      }
-
-      await setDoc(cartReference, cartData, { merge: true });
-
       resultObject = {
-        result: cartData,
-        isSuccess: true,
-        resultText: "Successful in adding product to cart",
-        errorMessage: "",
+        result: {},
+        resultType: ResultTypeEnum.OBJECT,
+        isSuccess: false,
+        message: ErrorCodes["no-product-quantity-left"],
       };
-      // }
     }
   } catch (e: unknown) {
-    console.log(e);
+    const errorMessage = parseError(e);
+
     resultObject = {
-      result: data,
+      result: {},
+      resultType: ResultTypeEnum.OBJECT,
       isSuccess: false,
-      resultText: "Failed in getting cart information",
-      errorMessage: parseError(e),
+      message: errorMessage ? errorMessage : SuccessCodes["add-cart"],
     };
   }
 
   return resultObject;
 };
 
-export const removeFromCartFunction = async (product: any, userId: string) => {
+// Remove a product from the cart
+export const removeFromCartFunction = async (
+  product: ProductsInCartsType,
+  userId: string
+) => {
   let resultObject: FunctionResult = {
-    result: "",
+    result: {},
+    resultType: ResultTypeEnum.OBJECT,
     isSuccess: false,
-    resultText: "",
-    errorMessage: "",
+    message: "",
   };
-  let data: any = {};
 
   try {
     const cartReference = doc(db, "carts", userId);
@@ -216,10 +214,10 @@ export const removeFromCartFunction = async (product: any, userId: string) => {
 
     if (!cartSnapshot.exists()) {
       resultObject = {
-        result: userId,
+        result: {},
+        resultType: ResultTypeEnum.OBJECT,
         isSuccess: false,
-        resultText: "Failed in removing product from cart",
-        errorMessage: "Cart does not exist",
+        message: ErrorCodes["remove-cart-cart-does-not-exist"],
       };
     }
 
@@ -240,42 +238,42 @@ export const removeFromCartFunction = async (product: any, userId: string) => {
       await setDoc(cartReference, cartData);
 
       resultObject = {
-        result: userId,
+        result: cartData,
+        resultType: ResultTypeEnum.OBJECT,
         isSuccess: true,
-        resultText: "Successful in initializing cart with product",
-        errorMessage: "",
+        message: SuccessCodes["remove-cart"],
       };
     } else {
       resultObject = {
-        result: data,
+        result: cartData,
+        resultType: ResultTypeEnum.OBJECT,
         isSuccess: false,
-        resultText: "Failed in removing product from cart",
-        errorMessage: "Product does not exist in cart",
+        message: ErrorCodes["remove-cart-product-does-not-exist"],
       };
     }
   } catch (e: unknown) {
-    console.log(e);
+    const errorMessage = parseError(e);
+
     resultObject = {
-      result: data,
+      result: {},
+      resultType: ResultTypeEnum.OBJECT,
       isSuccess: false,
-      resultText: "Failed in removing product from cart",
-      errorMessage: parseError(e),
+      message: errorMessage ? errorMessage : ErrorCodes["remove-cart"],
     };
   }
 
   return resultObject;
 };
 
+// Clear cart
+//TODO
 export const clearCartFunction = async (userId: string) => {
-  //reset products
-  //subtotal price = 0
   let resultObject: FunctionResult = {
-    result: "",
+    result: {},
+    resultType: ResultTypeEnum.OBJECT,
     isSuccess: false,
-    resultText: "",
-    errorMessage: "",
+    message: "",
   };
-  let data: any = {}; //change to orders database type
 
   try {
     const cartReference = doc(db, "carts", userId);
@@ -283,49 +281,52 @@ export const clearCartFunction = async (userId: string) => {
     const cartSnapshot = await getDoc(cartReference);
 
     if (cartSnapshot.exists()) {
-      data = cartSnapshot.data();
+      const clearedCart: CartsDatabaseType = {
+        ...cartSnapshot.data(),
+        products: [],
+        subtotal_price: 0,
+        updated_at: new Date().toString(),
+        user_id: userId,
+      };
 
-      data.products = [];
-      data.subtotal_price = 0;
-      data.updated_at = new Date().toString();
-
-      await setDoc(cartReference, data);
+      await setDoc(cartReference, clearedCart);
 
       resultObject = {
-        result: data,
+        result: clearedCart,
+        resultType: ResultTypeEnum.OBJECT,
         isSuccess: true,
-        resultText: "Successful in resetting cart information",
-        errorMessage: "",
+        message: SuccessCodes["clear-cart"],
       };
     } else {
       resultObject = {
-        result: data,
-        isSuccess: false,
-        resultText: "Failed in getting cart information and resetting cart",
-        errorMessage: "User has no cart",
+        result: {},
+        resultType: ResultTypeEnum.OBJECT,
+        isSuccess: true,
+        message: ErrorCodes["clear-cart-no-cart"],
       };
     }
   } catch (e: unknown) {
-    console.log(e);
+    const errorMessage = parseError(e);
+
     resultObject = {
-      result: data,
+      result: {},
+      resultType: ResultTypeEnum.OBJECT,
       isSuccess: false,
-      resultText: "Failed in resetting cart information",
-      errorMessage: parseError(e),
+      message: errorMessage ? errorMessage : ErrorCodes["clear-cart"],
     };
   }
 
   return resultObject;
 };
 
+// Get cart given ID
 export const getCartViaIdFunction = async (userId: string) => {
   let resultObject: FunctionResult = {
-    result: "",
+    result: {},
+    resultType: ResultTypeEnum.OBJECT,
     isSuccess: false,
-    resultText: "",
-    errorMessage: "",
+    message: "",
   };
-  let data: any = {};
 
   try {
     const cartReference = doc(db, "carts", userId);
@@ -333,42 +334,35 @@ export const getCartViaIdFunction = async (userId: string) => {
     const cartSnapshot = await getDoc(cartReference);
 
     if (cartSnapshot.exists()) {
-      data = cartSnapshot.data();
+      const information = cartSnapshot.data();
+      const data: CartsDatabaseType = {
+        id: userId,
+        created_at: information.created_at,
+        updated_at: information.created_at,
+        products: information.products,
+        subtotal_price: information.subtotal_price,
+        user_id: information.user_id,
+      };
 
       resultObject = {
         result: data,
+        resultType: ResultTypeEnum.OBJECT,
         isSuccess: true,
-        resultText: "Successful in getting cart information",
-        errorMessage: "",
+        message: SuccessCodes["get-cart-given-id"],
       };
     } else {
       const initializationResult = await initializeNewCartFunction(userId);
 
-      if (initializationResult.isSuccess) {
-        resultObject = {
-          result: initializationResult.result,
-          isSuccess: true,
-          resultText:
-            "Successful in getting cart information and initializing new cart",
-          errorMessage: "",
-        };
-      } else {
-        resultObject = {
-          result: data,
-          isSuccess: false,
-          resultText:
-            "Failed in getting cart information and initializing new cart",
-          errorMessage: initializationResult.errorMessage,
-        };
-      }
+      resultObject = initializationResult;
     }
   } catch (e: unknown) {
-    console.log(e);
+    const errorMessage = parseError(e);
+
     resultObject = {
-      result: data,
+      result: {},
+      resultType: ResultTypeEnum.OBJECT,
       isSuccess: false,
-      resultText: "Failed in getting cart information",
-      errorMessage: parseError(e),
+      message: errorMessage ? errorMessage : ErrorCodes["get-cart-given-id"],
     };
   }
 

@@ -1,16 +1,20 @@
 import ProductCard from "@/components/product/ProductCard";
 import { useEffect, useState, useContext } from "react";
-import {
-  getAllProductsFunction,
-  getAllProductsWithFilterFunction,
-  getAllProductsWithSearchFunction,
-} from "@/firebase/firebase_functions/products_functions";
-import { ProductsDatabaseType } from "@/firebase/constants";
-import { AuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import nookies from "nookies";
+
+import { AuthContext } from "@/context/AuthContext";
 import admin from "../../firebase/admin-config";
+
+import { getAllDocumentsGivenTypeFunction } from "@/firebase/firebase_functions/general_functions";
+import {
+  applyFilterFunction,
+  applySearchFunction,
+} from "@/firebase/firebase_functions/filter_and_search_functions";
+import { ProductsDatabaseType } from "@/firebase/constants/product_constants";
+
 import Filter from "@/components/filter/Filter";
+import { CollectionsEnum } from "@/firebase/constants/enum_constants";
 
 export default function Catalog(props: any) {
   const [productList, setProductList] = useState<ProductsDatabaseType[]>([]);
@@ -47,9 +51,9 @@ export default function Catalog(props: any) {
   };
 
   async function handleFilters(filter: any) {
-    const result = await getAllProductsWithFilterFunction(filter);
+    const result = await applyFilterFunction(CollectionsEnum.PRODUCT, filter);
     if (!result.isSuccess) {
-      authContextObject.error(result.resultText);
+      authContextObject.error(result.message);
     } else {
       setProductList(result.result);
       onPageChange(currentPage, result.result);
@@ -65,22 +69,29 @@ export default function Catalog(props: any) {
   }
   async function fetchAllProducts() {
     if (props.searchString) {
-      const result = await getAllProductsWithSearchFunction(props.searchString);
+      const result = await applySearchFunction(
+        CollectionsEnum.PRODUCT,
+        props.searchString
+      );
 
       if (!result.isSuccess) {
-        authContextObject.error(result.resultText);
+        authContextObject.error(result.message);
       } else {
         setProductList(result.result);
         setCurrentProductList(result.result.slice(0, pageSize));
       }
     } else {
-      const result = await getAllProductsFunction();
+      const result = await getAllDocumentsGivenTypeFunction(
+        CollectionsEnum.PRODUCT
+      );
+      const productResult: ProductsDatabaseType[] =
+        result.result as ProductsDatabaseType[];
 
       if (!result.isSuccess) {
-        authContextObject.error(result.resultText);
+        authContextObject.error(result.message);
       } else {
-        setProductList(result.result);
-        setCurrentProductList(result.result.slice(0, pageSize));
+        setProductList(productResult);
+        setCurrentProductList(productResult.slice(0, pageSize));
       }
     }
   }
@@ -312,7 +323,7 @@ export async function getServerSideProps(context: any) {
     category: null,
     orders: null,
     isError: true,
-    errorMessage: "Error with getting user info",
+    message: "Error with getting user info",
     redirect: "/login",
   };
 
@@ -327,21 +338,21 @@ export async function getServerSideProps(context: any) {
 
       props.searchString = searchString;
       props.isError = false;
-      props.errorMessage = "";
+      props.message = "";
       props.redirect = "/";
     }
 
     if (cookies.cart) {
       props.cart = JSON.parse(cookies.cart);
       props.isError = false;
-      props.errorMessage = "";
+      props.message = "";
       props.redirect = "/";
     }
 
     if (cookies.category) {
       props.category = cookies.category;
       props.isError = false;
-      props.errorMessage = "";
+      props.message = "";
       props.redirect = "/";
     }
 
@@ -352,13 +363,13 @@ export async function getServerSideProps(context: any) {
 
       props.user = uid;
       props.isError = false;
-      props.errorMessage = "";
+      props.message = "";
       props.redirect = "/";
     }
 
     return { props };
   } catch (err) {
-    props.errorMessage = "Error with getting user info";
+    props.message = "Error with getting user info";
     props.redirect = "/";
 
     return { props };

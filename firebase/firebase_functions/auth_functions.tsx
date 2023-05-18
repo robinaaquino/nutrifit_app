@@ -1,4 +1,3 @@
-import app from "../config";
 import {
   getAuth,
   GoogleAuthProvider,
@@ -7,72 +6,76 @@ import {
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
 } from "firebase/auth";
-import { FunctionResult } from "@/firebase/constants";
+
+import app from "../config";
+
+import { ResultTypeEnum } from "../constants/enum_constants";
+import { FunctionResult } from "../constants/function_constants";
+import { ErrorCodes, SuccessCodes } from "../constants/success_and_error_codes";
+
 import { parseError } from "../helpers";
 
 export const auth = getAuth(app);
-
 const provider = new GoogleAuthProvider();
 
+// Call GoogleSignIn provider to login user
 export const signInWithGoogle = async (): Promise<any> => {
   let resultObject: FunctionResult = {
     result: "",
+    resultType: ResultTypeEnum.TEXT,
     isSuccess: false,
-    resultText: "",
-    errorMessage: "",
+    message: "",
   };
 
   await signInWithRedirect(auth, provider)
     .then((result: any) => {
-      const credential: any = GoogleAuthProvider.credentialFromResult(result);
-      const token = credential.accessToken;
-      const user = result.user;
+      const userUid = result.user; //returns user uid
 
       resultObject = {
-        result: user,
+        //set result object for success
+        result: userUid,
+        resultType: ResultTypeEnum.TEXT,
         isSuccess: true,
-        resultText: "Successful in logging in via Google",
-        errorMessage: "",
+        message: SuccessCodes["login-google"],
       };
     })
     .catch((error: any) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      const email = error.customData.email;
-      const credential = GoogleAuthProvider.credentialFromError(error);
+      const errorMessage = parseError(error.message); //parse error message
 
       resultObject = {
+        //set result object for fail
         result: "",
+        resultType: ResultTypeEnum.TEXT,
         isSuccess: false,
-        resultText: "Failed in logging in via Google",
-        errorMessage: errorMessage,
+        message: errorMessage ? errorMessage : ErrorCodes["login-google"],
       };
     });
 
   return resultObject;
 };
 
-//TODO: turn alert and redirects in the function
+// Login user using email and password
 export const logInWithEmailAndPassword = async (
   email: string,
   password: string
 ) => {
   let resultObject: FunctionResult = {
     result: "",
+    resultType: ResultTypeEnum.TEXT,
     isSuccess: false,
-    resultText: "",
-    errorMessage: "",
+    message: "",
   };
 
-  await signInWithEmailAndPassword(auth, email, password)
+  await signInWithEmailAndPassword(auth, email, password) //call Firebase function to login using email and password
     .then((result: any) => {
-      const userUid = result.user.uid;
+      const userUid = result.user.uid; //get user uid
 
       resultObject = {
+        //set result for success
         result: userUid,
+        resultType: ResultTypeEnum.TEXT,
         isSuccess: true,
-        resultText: "Successful in logging in via email",
-        errorMessage: "",
+        message: SuccessCodes["login-email"],
       };
     })
     .catch((error: any) => {
@@ -80,21 +83,22 @@ export const logInWithEmailAndPassword = async (
 
       resultObject = {
         result: "",
+        resultType: ResultTypeEnum.TEXT,
         isSuccess: false,
-        resultText: "Failed in logging in via email",
-        errorMessage: errorMessage,
+        message: errorMessage ? errorMessage : ErrorCodes["login-email"],
       };
     });
 
   return resultObject;
 };
 
-export const signUp = async (email: string, password: string) => {
+// Create an account using email and password
+export const createAccount = async (email: string, password: string) => {
   let resultObject: FunctionResult = {
     result: "",
+    resultType: ResultTypeEnum.TEXT,
     isSuccess: false,
-    resultText: "",
-    errorMessage: "",
+    message: "",
   };
   await createUserWithEmailAndPassword(auth, email, password)
     .then((result: any) => {
@@ -102,9 +106,9 @@ export const signUp = async (email: string, password: string) => {
 
       resultObject = {
         result: userUid,
+        resultType: ResultTypeEnum.TEXT,
         isSuccess: true,
-        resultText: "Successful in signing up in via email",
-        errorMessage: "",
+        message: SuccessCodes["signup-email"],
       };
     })
     .catch((error: any) => {
@@ -112,40 +116,41 @@ export const signUp = async (email: string, password: string) => {
 
       resultObject = {
         result: "",
+        resultType: ResultTypeEnum.TEXT,
         isSuccess: false,
-        resultText: "Failed in signing up via email",
-        errorMessage: errorMessage,
+        message: errorMessage ? errorMessage : ErrorCodes["signup-email"],
       };
     });
 
   return resultObject;
 };
 
+// Send a reset password link given email
 export const resetPassword = async (email: string) => {
   let resultObject: FunctionResult = {
-    result: "",
+    result: null,
+    resultType: ResultTypeEnum.NULL,
     isSuccess: false,
-    resultText: "",
-    errorMessage: "",
+    message: "",
   };
 
   await sendPasswordResetEmail(auth, email)
     .then(() => {
       resultObject = {
-        result: "",
+        result: null,
+        resultType: ResultTypeEnum.NULL,
         isSuccess: true,
-        resultText: "Check your email to reset your password",
-        errorMessage: "",
+        message: SuccessCodes["reset-password"],
       };
     })
     .catch((error: any) => {
       const errorMessage = error.message;
 
       resultObject = {
-        result: "",
+        result: null,
+        resultType: ResultTypeEnum.NULL,
         isSuccess: false,
-        resultText: "Failed to send email to reset your password",
-        errorMessage: errorMessage,
+        message: errorMessage ? errorMessage : ErrorCodes["reset-password"],
       };
     });
 

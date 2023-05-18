@@ -2,14 +2,13 @@ import TableRowText from "./TableRowText";
 import TableRowHeader from "./TableRowHeader";
 import { useContext, useState, useEffect } from "react";
 import { returnKeyByValue, formatDate } from "../../firebase/helpers";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useAuthContext, AuthContext } from "@/context/AuthContext";
 import { deleteProductFunction } from "@/firebase/firebase_functions/products_functions";
-import { deleteOrderFunction } from "@/firebase/firebase_functions/orders_functions";
-import { deleteUserFunction } from "@/firebase/firebase_functions/users_functions";
-import { deleteMessageFunction } from "@/firebase/firebase_functions/messages_functions";
-import { deleteWellnessSurveyResult } from "@/firebase/firebase_functions/wellness_functions";
+import { deleteDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
+import { CollectionsEnum } from "@/firebase/constants/enum_constants";
+
+import InputSubmit from "../forms/input/InputSubmit";
 
 export default function TableComponent({
   headers,
@@ -39,6 +38,7 @@ export default function TableComponent({
   const router = useRouter();
   const authContextObject = useContext(AuthContext);
   const [sort, setSort] = useState(1);
+  const [selectedElement, setSelectedElement] = useState<any>(null);
 
   const onPageChange = (page: number) => {
     var prevIndex = 0;
@@ -72,6 +72,23 @@ export default function TableComponent({
       setSort(sort * -1);
       setItemList(newList);
       onPageChange(currentPage);
+    } else if (
+      text == "updated_at" ||
+      text == "created_at" ||
+      text == "date" ||
+      text == "date_cleared"
+    ) {
+      let previousList = itemList;
+      let newList = previousList.sort((a, b) =>
+        new Date(a[key]) > new Date(b[key])
+          ? sort
+          : new Date(b[key]) > new Date(a[key])
+          ? sort * -1
+          : 0
+      );
+      setSort(sort * -1);
+      setItemList(newList);
+      onPageChange(currentPage);
     } else {
       let previousList = itemList;
       let newList = previousList.sort((a, b) =>
@@ -87,7 +104,7 @@ export default function TableComponent({
     const result = await deleteProductFunction(product);
 
     if (result.isSuccess) {
-      authContextObject.success(result.resultText);
+      authContextObject.success(result.message);
       let previousProductList = itemList;
 
       for (let i = 0; i < itemList.length; i++) {
@@ -100,15 +117,18 @@ export default function TableComponent({
 
       onPageChange(currentPage);
     } else {
-      authContextObject.error(result.resultText);
+      authContextObject.error(result.message);
     }
   };
 
   const deleteOrder = async (order: any) => {
-    const result = await deleteOrderFunction(order.id);
+    const result = await deleteDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.ORDER,
+      order.id
+    );
 
     if (result.isSuccess) {
-      authContextObject.success(result.resultText);
+      authContextObject.success(result.message);
       let previousItemList = itemList;
 
       for (let i = 0; i < itemList.length; i++) {
@@ -121,15 +141,18 @@ export default function TableComponent({
 
       onPageChange(currentPage);
     } else {
-      authContextObject.error(result.resultText);
+      authContextObject.error(result.message);
     }
   };
 
   const deleteUser = async (user: any) => {
-    const result = await deleteUserFunction(user.id);
+    const result = await deleteDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.USER,
+      user.id
+    );
 
     if (result.isSuccess) {
-      authContextObject.success(result.resultText);
+      authContextObject.success(result.message);
       let previousItemList = itemList;
 
       for (let i = 0; i < itemList.length; i++) {
@@ -142,15 +165,18 @@ export default function TableComponent({
 
       onPageChange(currentPage);
     } else {
-      authContextObject.error(result.resultText);
+      authContextObject.error(result.message);
     }
   };
 
   const deleteMessage = async (message: any) => {
-    const result = await deleteMessageFunction(message.id);
+    const result = await deleteDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.MESSAGE,
+      message.id
+    );
 
     if (result.isSuccess) {
-      authContextObject.success(result.resultText);
+      authContextObject.success(result.message);
       let previousItemList = itemList;
 
       for (let i = 0; i < itemList.length; i++) {
@@ -162,15 +188,18 @@ export default function TableComponent({
       }
       onPageChange(currentPage);
     } else {
-      authContextObject.error(result.resultText);
+      authContextObject.error(result.message);
     }
   };
 
   const deleteWellnessResult = async (result: any) => {
-    const deleteWellnessObject = await deleteWellnessSurveyResult(result.id);
+    const deleteWellnessObject = await deleteDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.WELLNESS,
+      result.id
+    );
 
     if (deleteWellnessObject.isSuccess) {
-      authContextObject.success(deleteWellnessObject.resultText);
+      authContextObject.success(deleteWellnessObject.message);
       let previousItemList = itemList;
 
       for (let i = 0; i < itemList.length; i++) {
@@ -183,9 +212,45 @@ export default function TableComponent({
 
       onPageChange(currentPage);
     } else {
-      authContextObject.error(result.resultText);
+      authContextObject.error(result.message);
     }
   };
+
+  function applyDelete(e: any) {
+    e.preventDefault();
+    const currentElement = selectedElement;
+    if (type == "product") {
+      deleteProduct(currentElement);
+    } else if (type == "order") {
+      deleteOrder(currentElement);
+    } else if (type == "user") {
+      deleteUser(currentElement);
+    } else if (type == "message") {
+      deleteMessage(currentElement);
+    } else if (type == "wellness") {
+      deleteWellnessResult(currentElement);
+    }
+    closeDeleteModalSection();
+  }
+
+  function closeDeleteModalSection() {
+    var deleteSectionElement = document.getElementById("deleteSection");
+    if (deleteSectionElement) {
+      deleteSectionElement.classList.add("hidden");
+    }
+  }
+
+  function showDeleteModalSection() {
+    var deleteSectionElement = document.getElementById("deleteSection");
+    if (deleteSectionElement) {
+      if (deleteSectionElement.classList.contains("hidden")) {
+        deleteSectionElement.classList.remove("hidden");
+        deleteSectionElement.classList.add("block");
+      } else {
+        deleteSectionElement.classList.add("hidden");
+      }
+    }
+  }
 
   useEffect(() => {
     if (content) {
@@ -251,7 +316,7 @@ export default function TableComponent({
                                         );
                                       } else if (type == "user") {
                                         router.push(
-                                          `/admin/user/${currentElement.id}`
+                                          `/user/${currentElement.id}`
                                         );
                                       } else if (type == "message") {
                                         router.push(
@@ -268,18 +333,10 @@ export default function TableComponent({
                                   </button>
                                   <button
                                     className="flex items-center justify-center w-1/2 px-5 py-2 text-sm tracking-wide text-white transition-colors duration-200 bg-red-500 rounded-lg shrink-0 sm:w-auto gap-x-2 hover:bg-nf_dark_blue ml-2"
-                                    onClick={() => {
-                                      if (type == "product") {
-                                        deleteProduct(currentElement);
-                                      } else if (type == "order") {
-                                        deleteOrder(currentElement);
-                                      } else if (type == "user") {
-                                        deleteUser(currentElement);
-                                      } else if (type == "message") {
-                                        deleteMessage(currentElement);
-                                      } else if (type == "wellness") {
-                                        deleteWellnessResult(currentElement);
-                                      }
+                                    onClick={(e: any) => {
+                                      // applyDelete(e, currentElement);
+                                      setSelectedElement(currentElement);
+                                      showDeleteModalSection();
                                     }}
                                   >
                                     Delete
@@ -419,6 +476,62 @@ export default function TableComponent({
             </div>
           </div>
         ) : null}
+        <div
+          className="relative z-10 hidden"
+          aria-labelledby="modal-title"
+          role="dialog"
+          aria-modal="true"
+          id="deleteSection"
+        >
+          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+          <div className="fixed inset-0 z-10 overflow-y-auto">
+            <div className="flex min-h-full justify-center p-4 text-center items-center ">
+              <div className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                <div className="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4 max-w-full min-w-full">
+                  <div className="">
+                    <div className="flex items-center ">
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100 ">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          fill="currentColor"
+                          className="bi bi-trash text-red"
+                          viewBox="0 0 16 16"
+                        >
+                          <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5Zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6Z" />
+                          <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1ZM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118ZM2.5 3h11V2h-11v1Z" />
+                        </svg>
+                      </div>
+                      <h3
+                        className="ml-3 font-semibold leading-6 text-gray-900"
+                        id="modal-title"
+                      >
+                        Are you sure you want to delete this item?
+                      </h3>
+                    </div>
+
+                    <div className="mt-3 text-left ml-2">
+                      <form onSubmit={(e: any) => applyDelete(e)}>
+                        <div className=" py-3 flex flex-row-reverse px-6">
+                          <InputSubmit label="Delete" type="multiple" />
+                          <button
+                            type="button"
+                            className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                            onClick={() => closeDeleteModalSection()}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );

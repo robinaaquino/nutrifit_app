@@ -1,7 +1,10 @@
 import React, { ReactNode, createContext, useContext, useEffect } from "react";
 import { getAuth, signOut, onIdTokenChanged } from "firebase/auth";
 import app from "@/firebase/config";
-import * as Constants from "../firebase/constants";
+import {
+  CollectionsEnum,
+  NotificationEnum,
+} from "@/firebase/constants/enum_constants";
 import nookies from "nookies";
 
 import { useState } from "react";
@@ -16,6 +19,9 @@ import {
 } from "@/firebase/firebase_functions/cart_functions";
 import { getImageInProduct } from "@/firebase/helpers";
 import { useRouter } from "next/navigation";
+import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
+import { ProductsDatabaseType } from "@/firebase/constants/product_constants";
+import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
 
 const auth = getAuth(app);
 
@@ -25,12 +31,18 @@ export const AuthContext = createContext({
   loading: true,
   notification: "",
   notificationText: "",
+  cart: {
+    created_at: "",
+    products: [],
+    subtotal_price: 0,
+    updated_at: "",
+    user_id: "",
+  },
   success: (text: string) => {},
   error: (text: string) => {},
   clear: () => {},
   reset: () => {},
   setUserAndAuthorization: (id: string, authorized: boolean) => {},
-  cart: [],
   addToCart: (product: any, quantity: any, user?: any) => {},
   removeFromCart: (product: any) => {},
   deleteCartInCookiesAndContext: () => {},
@@ -50,13 +62,13 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
   const success = (text: string) => {
     window.scroll(0, 0);
     setNotificationText(text);
-    setNotification(Constants.NOTIFICATION_STATES.SUCCESS);
+    setNotification(NotificationEnum.SUCCESS);
   };
 
   const error = (text: string) => {
     window.scroll(0, 0);
     setNotificationText(text);
-    setNotification(Constants.NOTIFICATION_STATES.ERROR);
+    setNotification(NotificationEnum.ERROR);
   };
 
   const clear = () => {
@@ -86,7 +98,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
     return -1;
   };
 
-  const addProductToContextCart = (product: any, quantity: any) => {
+  const addProductToContextCart = async (product: any, quantity: any) => {
     const productToBeAddedToCart = {
       id: product.id,
       name: product.name,
@@ -131,7 +143,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
 
   const removeProductFromContextCart = (product: any) => {
     if (cart) {
-      if (cart.length == 0) {
+      if (cart) {
         var cartObject = cart;
         let previousProductsInCart = cartObject.products;
 
@@ -150,7 +162,6 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         setCart(cartObject);
       }
     }
-
     return true;
   };
 
@@ -256,6 +267,29 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
       image: getImageInProduct(product),
     };
 
+    //checking quantity left in database
+    const currentProductInfo = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.PRODUCT,
+      product.id || ""
+    );
+    const productInfo: ProductsDatabaseType =
+      currentProductInfo.result as ProductsDatabaseType;
+    let cartProductQuantity = quantity;
+
+    for (let i = 0; i < cart?.products.length; i++) {
+      if (cart.products[i].id == product.id) {
+        cartProductQuantity += cart.products[i].quantity;
+      }
+    }
+
+    if (
+      !currentProductInfo.isSuccess ||
+      productInfo.quantity_left < cartProductQuantity
+    ) {
+      error(ErrorCodes["no-product-quantity-left"]);
+      return;
+    }
+
     if (user) {
       const addCartResult = await addToCartFunction(product, quantity, user);
 
@@ -266,7 +300,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         });
         success("Successfully added to cart");
       } else {
-        error(addCartResult.errorMessage);
+        error(addCartResult.message);
       }
     } else {
       const contextResult = addProductToContextCart(
@@ -291,7 +325,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         removeProductFromCookiesCart(product);
         success("Successful in removing product from cart");
       } else {
-        error(removeFromCartResult.errorMessage);
+        error(removeFromCartResult.message);
       }
     } else {
       removeProductFromContextCart(product);
@@ -318,6 +352,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         const token = await userInfo.getIdToken();
         setUser(userInfo.uid);
         nookies.set(undefined, "token", token, { path: "/" });
+
         const authorization = await isUserAuthorizedFunction(userInfo.uid);
         setAuthorized(authorization.result);
 
@@ -335,15 +370,25 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
             success("Successful in logging in");
             router.push("/");
           } else {
-            error(addResult.resultText);
+            error(addResult.message);
           }
         }
       }
       setLoading(false);
     });
+    if (!cart) {
+      const cookies = nookies.get(undefined);
+      if (cookies.cart) {
+        setCart(JSON.parse(cookies.cart));
+      }
+    }
 
     return () => unsubscribe();
   }, []);
+
+  // useEffect(() => {
+
+  // }, []);
 
   useEffect(() => {
     const handle = setInterval(async () => {

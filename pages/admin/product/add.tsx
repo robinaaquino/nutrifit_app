@@ -1,25 +1,33 @@
-import { useContext, useState } from "react";
+import { useRouter } from "next/router";
+import { useEffect, useState, useContext } from "react";
 import Image from "next/image";
-import no_image from "../../../public/no_image.png";
-import {
-  PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY,
-  ProductsDatabaseType,
-} from "../../../firebase/constants";
-import { addProductFunction } from "@/firebase/firebase_functions/products_functions";
-import { useRouter } from "next/navigation";
-import { useAuthContext, AuthContext } from "@/context/AuthContext";
 import nookies from "nookies";
-import admin from "../../../firebase/admin-config";
-import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
-
 import { useForm } from "react-hook-form";
+
+import admin from "../../../firebase/admin-config";
+import { useAuthContext, AuthContext } from "@/context/AuthContext";
+
+import no_image from "../../../public/no_image.png";
+
+import {
+  ProductCategoriesList,
+  ProductsDatabaseType,
+  ProductsDatabaseTypeFromDB,
+} from "@/firebase/constants/product_constants";
+import { CollectionsEnum } from "@/firebase/constants/enum_constants";
+import {
+  updateProductFunction,
+  addProductFunction,
+} from "@/firebase/firebase_functions/products_functions";
+import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
+import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_functions";
+
 import WarningMessage from "@/components/forms/WarningMessage";
 
 import HeadingTwo from "@/components/forms/HeadingTwo";
-import InputButton from "@/components/forms/input/InputButton";
 import InputComponent from "@/components/forms/input/InputComponent";
-import InputSubmit from "@/components/forms/input/InputSubmit";
 import Label from "@/components/forms/Label";
+import InputSubmit from "@/components/forms/input/InputSubmit";
 
 //clean authcontextobject calls
 //clean getserversideprops calls for all admin routes
@@ -75,10 +83,10 @@ export default function AdminAddProduct(props: any) {
       const result = await addProductFunction(productObject);
 
       if (result.isSuccess) {
-        authContextObject.success(result.resultText);
+        authContextObject.success(result.message);
         router.push("/product");
       } else {
-        authContextObject.error(result.resultText);
+        authContextObject.error(result.message);
       }
     };
 
@@ -108,7 +116,7 @@ export default function AdminAddProduct(props: any) {
   };
 
   if (props.isError) {
-    error(props.errorMessage);
+    error(props.message);
     router.push(props.redirect);
     return null;
   }
@@ -179,7 +187,7 @@ export default function AdminAddProduct(props: any) {
                     })}
                     aria-invalid={errors.inputCategory ? "true" : "false"}
                   >
-                    {PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.map((category) => {
+                    {ProductCategoriesList.map((category) => {
                       return (
                         <option value={category} key={category}>
                           {category}
@@ -408,8 +416,7 @@ export async function getServerSideProps(context: any) {
 
     const { uid, email } = token;
 
-    const a = await getUserFunction(uid);
-    const isAdmin = a.result.role == "admin" ? true : false;
+    const isAdmin = await isUserAuthorizedFunction(uid);
 
     if (!isAdmin) {
       // context.res.writeHead(302, { Location: "/login" });
@@ -418,7 +425,7 @@ export async function getServerSideProps(context: any) {
       return {
         props: {
           isError: true,
-          errorMessage: "Unauthorized access",
+          message: "Unauthorized access",
           redirect: "/",
         },
       };
@@ -426,10 +433,9 @@ export async function getServerSideProps(context: any) {
 
     return {
       props: {
-        message: `Your email is ${email} and your UID is ${uid}.`,
         authorized: isAdmin,
         isError: false,
-        errorMessage: "",
+        message: "",
         redirect: "",
       },
     };
@@ -440,7 +446,7 @@ export async function getServerSideProps(context: any) {
     return {
       props: {
         isError: true,
-        errorMessage: "Unauthorized access",
+        message: "Unauthorized access",
         redirect: "/login",
       },
     };

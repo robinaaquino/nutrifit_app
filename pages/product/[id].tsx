@@ -1,23 +1,22 @@
 import { useRouter } from "next/router";
-import React, { useEffect, useState } from "react";
-import {
-  PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY,
-  ProductsDatabaseType,
-} from "../../firebase/constants";
-import {
-  addProductFunction,
-  getProductViaIdFunction,
-  updateProductFunction,
-} from "@/firebase/firebase_functions/products_functions";
-import { useAuthContext } from "@/context/AuthContext";
-import no_image from "../../public/no_image.png";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import nookies from "nookies";
+
+import { useAuthContext } from "@/context/AuthContext";
 import admin from "../../firebase/admin-config";
+
+import no_image from "../../public/no_image.png";
+
+import {
+  ProductCategoriesList,
+  ProductsDatabaseType,
+} from "@/firebase/constants/product_constants";
+import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
+import { CollectionsEnum } from "@/firebase/constants/enum_constants";
 
 export default function ProductShow(props: any) {
   const router = useRouter();
-  const productImagesArray = [0, 1, 2, 3];
   const [product, setProduct] = useState<ProductsDatabaseType>({
     id: "",
     name: "",
@@ -32,7 +31,7 @@ export default function ProductShow(props: any) {
     images: [],
   });
   const { id } = router.query;
-  const { error, user, addToCart } = useAuthContext();
+  const { error, user, addToCart, clear } = useAuthContext();
   const [displayImage, setDisplayImage] = useState<any>(no_image);
   const [availableImagesCount, setAvailableImagesCount] = useState(0);
   const [allImages, setAllImages] = useState<any[]>([]);
@@ -47,16 +46,21 @@ export default function ProductShow(props: any) {
         idInput = id;
       }
     }
-    const result = await getProductViaIdFunction(idInput);
-    // console.log("result: ", result);
+    const result = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.PRODUCT,
+      idInput
+    );
+
+    const productResult: ProductsDatabaseType =
+      result.result as ProductsDatabaseType;
 
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
     } else {
-      setProduct(result.result);
+      setProduct(productResult);
       let hasImage = false;
       let count = 0;
-      let productImages = result.result.images;
+      let productImages = productResult.images;
       let validImages = [];
       for (let i = 0; i < productImages.length; i++) {
         if (productImages[i] != undefined || productImages[i] != "") {
@@ -89,7 +93,6 @@ export default function ProductShow(props: any) {
   };
 
   useEffect(() => {
-    // router.replace("/maintenance");
     fetchProduct();
   }, []);
   return (
@@ -434,7 +437,9 @@ export default function ProductShow(props: any) {
                   </div>
                   <div className="py-6 mb-6 border-t border-b border-gray-200 dark:border-gray-700">
                     <span className="text-base text-black">
-                      {product.quantity_left > 0 ? "In stock" : "Out of stock"}
+                      {product.quantity_left > 0
+                        ? `${product.quantity_left} left`
+                        : "Out of stock"}
                     </span>
                     {/* <p className="mt-2 text-sm text-blue-500 dark:text-blue-200">
                       Ships from china.
@@ -556,7 +561,7 @@ export async function getServerSideProps(context: any) {
         props: {
           user: uid,
           isError: false,
-          errorMessage: "",
+          message: "",
           redirect: "/",
         },
       };
@@ -567,7 +572,7 @@ export async function getServerSideProps(context: any) {
           props: {
             cart: JSON.parse(cookies.cart),
             isError: false,
-            errorMessage: "",
+            message: "",
             redirect: "/",
           },
         };
@@ -577,7 +582,7 @@ export async function getServerSideProps(context: any) {
           props: {
             cart: null,
             isError: false,
-            errorMessage: "",
+            message: "",
             redirect: "/",
           },
         };
@@ -588,7 +593,7 @@ export async function getServerSideProps(context: any) {
       props: {
         user: null,
         isError: true,
-        errorMessage: "Error with getting user info",
+        message: "Error with getting user info",
         redirect: "/logn",
       },
     };

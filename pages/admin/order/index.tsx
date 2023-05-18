@@ -1,21 +1,23 @@
 import nookies from "nookies";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+import { useAuthContext } from "@/context/AuthContext";
 import admin from "@/firebase/admin-config";
 
 import Filter from "@/components/filter/Filter";
 import SearchBar from "@/components/universal/SearchBar";
 import TableComponent from "@/components/admin/TableComponent";
 
-import {
-  getAllOrdersFunction,
-  getAllOrdersWithFilterFunction,
-  getAllOrdersWithSearchFunction,
-} from "@/firebase/firebase_functions/orders_functions";
-import { OrdersDatabaseType } from "@/firebase/constants";
-import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
+import { CollectionsEnum } from "@/firebase/constants/enum_constants";
+import { OrdersDatabaseType } from "@/firebase/constants/orders_constants";
 
-import { useAuthContext } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import {
+  applyFilterFunction,
+  applySearchFunction,
+} from "@/firebase/firebase_functions/filter_and_search_functions";
+import { getAllDocumentsGivenTypeFunction } from "@/firebase/firebase_functions/general_functions";
+import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_functions";
 
 export default function AdminOrder(props: any) {
   const [orders, setOrders] = useState<OrdersDatabaseType[]>([]);
@@ -47,29 +49,36 @@ export default function AdminOrder(props: any) {
   ];
 
   async function fetchAllOrders() {
-    const result = await getAllOrdersFunction();
+    const result = await getAllDocumentsGivenTypeFunction(
+      CollectionsEnum.ORDER
+    );
+
+    const resultInformation = result.result as OrdersDatabaseType[];
     console.log(result);
 
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
     } else {
-      setOrders(result.result);
+      setOrders(resultInformation);
     }
   }
 
   async function handleSearch(searchString: any) {
-    const result = await getAllOrdersWithSearchFunction(searchString);
+    const result = await applySearchFunction(
+      CollectionsEnum.ORDER,
+      searchString
+    );
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
     } else {
       setOrders(result.result);
     }
   }
 
   async function handleFilters(filter: any) {
-    const result = await getAllOrdersWithFilterFunction(filter);
+    const result = await applyFilterFunction(CollectionsEnum.ORDER, filter);
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
     } else {
       setOrders(result.result);
     }
@@ -80,7 +89,7 @@ export default function AdminOrder(props: any) {
   }, []);
 
   if (props.isError) {
-    error(props.errorMessage);
+    error(props.message);
     router.push(props.redirect);
     return null;
   }
@@ -130,14 +139,13 @@ export async function getServerSideProps(context: any) {
 
     const { uid, email } = token;
 
-    const isAdminResult = await getUserFunction(uid);
-    const isAdmin = isAdminResult.result.role == "admin" ? true : false;
+    const isAdmin = await isUserAuthorizedFunction(uid);
 
     if (!isAdmin) {
       return {
         props: {
           isError: true,
-          errorMessage: "Unauthorized access",
+          message: "Unauthorized access",
           redirect: "/",
         },
       };
@@ -145,10 +153,9 @@ export async function getServerSideProps(context: any) {
 
     return {
       props: {
-        message: `Your email is ${email} and your UID is ${uid}.`,
         authorized: isAdmin,
         isError: false,
-        errorMessage: "",
+        message: "",
         redirect: "",
       },
     };
@@ -156,7 +163,7 @@ export async function getServerSideProps(context: any) {
     return {
       props: {
         isError: true,
-        errorMessage: "Unauthenticated access",
+        message: "Unauthenticated access",
         redirect: "/login",
       },
     };

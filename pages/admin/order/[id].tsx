@@ -1,20 +1,23 @@
 import { useRouter } from "next/router";
 import nookies from "nookies";
 import { useState, useEffect } from "react";
-import { getOrderViaIdFunction } from "@/firebase/firebase_functions/orders_functions";
+import { useForm } from "react-hook-form";
+import Image from "next/image";
+
+import admin from "@/firebase/admin-config";
 import { useAuthContext } from "@/context/AuthContext";
+
+import { OrdersDatabaseType } from "@/firebase/constants/orders_constants";
 import {
-  OrdersDatabaseType,
   OrderStatusEnum,
   PaymentMethodEnum,
-} from "@/firebase/constants";
-import Image from "next/image";
-import admin from "@/firebase/admin-config";
-import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
+  CollectionsEnum,
+} from "@/firebase/constants/enum_constants";
+import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
+import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_functions";
 import { updateOrderFunction } from "@/firebase/firebase_functions/orders_functions";
-import RadioButton from "@/components/forms/RadioButton";
 
-import { useForm } from "react-hook-form";
+import RadioButton from "@/components/forms/RadioButton";
 
 export default function OrderShow(props: any) {
   const router = useRouter();
@@ -75,14 +78,19 @@ export default function OrderShow(props: any) {
       }
     }
 
-    const result = await getOrderViaIdFunction(idInput);
+    const result = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.ORDER,
+      idInput
+    );
+
+    const orderObject: OrdersDatabaseType = result.result as OrdersDatabaseType;
 
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
       router.push("/");
     } else {
-      setOrder(result.result);
-      setStatus(result.result.status);
+      setOrder(orderObject);
+      setStatus(orderObject.status);
     }
   }
 
@@ -103,10 +111,10 @@ export default function OrderShow(props: any) {
     const result = await updateOrderFunction(previousOrder, idInput);
 
     if (result.isSuccess) {
-      success(result.resultText);
+      success(result.message);
       router.push("/admin/order");
     } else {
-      error(result.errorMessage);
+      error(result.message);
     }
   };
 
@@ -400,7 +408,7 @@ export async function getServerSideProps(context: any) {
     user: null,
     order: null,
     isError: false,
-    errorMessage: "",
+    message: "",
     redirect: "/",
   };
   try {
@@ -417,9 +425,7 @@ export async function getServerSideProps(context: any) {
 
       props.user = uid;
 
-      const isAdminResult = await getUserFunction(uid);
-
-      const isAdmin = isAdminResult.result.role == "admin" ? true : false;
+      const isAdmin = await isUserAuthorizedFunction(uid);
 
       props.authorized = isAdmin;
     }
@@ -432,7 +438,7 @@ export async function getServerSideProps(context: any) {
         user: null,
         order: null,
         isError: true,
-        errorMessage: "Error with getting order",
+        message: "Error with getting order",
         redirect: "/",
       },
     };

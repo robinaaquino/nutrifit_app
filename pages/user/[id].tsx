@@ -1,24 +1,29 @@
 import nookies from "nookies";
 import admin from "@/firebase/admin-config";
-import {
-  getUserFunction,
-  updateUserFunction,
-} from "@/firebase/firebase_functions/users_functions";
-import { useAuthContext } from "@/context/AuthContext";
-import no_image from "../../public/no_image.png";
 import Image from "next/image";
-import { UsersDatabaseType, RoleEnum } from "@/firebase/constants";
+import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { User } from "firebase/auth";
+
+import no_image from "../../public/no_image.png";
+
+import { useAuthContext } from "@/context/AuthContext";
+
+import { UsersDatabaseType } from "@/firebase/constants/user_constants";
+import { OrdersDatabaseType } from "@/firebase/constants/orders_constants";
+import { WellnessDatabaseType } from "@/firebase/constants/wellness_constants";
+import { CollectionsEnum, RoleEnum } from "@/firebase/constants/enum_constants";
+
+import {
+  getDocumentGivenTypeAndIdFunction,
+  getAllDocumentsGivenTypeAndUserIdFunction,
+} from "@/firebase/firebase_functions/general_functions";
+import { updateUserFunction } from "@/firebase/firebase_functions/users_functions";
+
 import { resetPassword } from "@/firebase/firebase_functions/auth_functions";
-import { getAllOrdersViaIdFunction } from "@/firebase/firebase_functions/orders_functions";
-import { getAllWellnessSurveyResultsViaIdFunction } from "@/firebase/firebase_functions/wellness_functions";
+
 import TableComponent from "@/components/admin/TableComponent";
-
-import { useForm } from "react-hook-form";
 import WarningMessage from "@/components/forms/WarningMessage";
-
 import HeadingOne from "@/components/forms/HeadingOne";
 
 export default function UserShow(props: any) {
@@ -50,11 +55,13 @@ export default function UserShow(props: any) {
   const [city, setCity] = useState("");
   const [province, setProvince] = useState("");
 
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<OrdersDatabaseType[]>([]);
   const orderHeaders = ["ID", "Status", "Date ordered", "Total Price"];
   const orderKeys = ["id", "status", "created_at", "total_price"];
 
-  const [wellnessSurveyResult, setWellnessSurveyResults] = useState([]);
+  const [wellnessSurveyResult, setWellnessSurveyResults] = useState<
+    WellnessDatabaseType[]
+  >([]);
   const wellnessSurveyResultHeaders = ["ID", "Status", "Program"];
   const wellnessSurveyResultKeys = ["id", "reviewed_by_admin", "program"];
 
@@ -85,81 +92,74 @@ export default function UserShow(props: any) {
       }
     }
 
-    const result = await getUserFunction(idInput);
+    const result = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.USER,
+      idInput
+    );
+    const userResult: UsersDatabaseType = result.result as UsersDatabaseType;
 
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
       router.push("/");
     } else {
       if (props.authorized) {
-        setUserInfo(result.result);
+        setUserInfo(userResult);
 
-        setFirstName(result.result.shipping_details?.first_name || "");
-        setLastName(result.result.shipping_details?.last_name || "");
-        setContactNumber(result.result.shipping_details?.contact_number || "");
-        setAddress(result.result.shipping_details?.address || "");
-        setCity(result.result.shipping_details?.city || "");
-        setProvince(result.result.shipping_details?.province || "");
+        setFirstName(userResult.shipping_details?.first_name || "");
+        setLastName(userResult.shipping_details?.last_name || "");
+        setContactNumber(userResult.shipping_details?.contact_number || "");
+        setAddress(userResult.shipping_details?.address || "");
+        setCity(userResult.shipping_details?.city || "");
+        setProvince(userResult.shipping_details?.province || "");
 
         setValue(
           "inputFirstName",
-          result.result.shipping_details?.first_name || ""
+          userResult.shipping_details?.first_name || ""
         );
-        setValue(
-          "inputLastName",
-          result.result.shipping_details?.last_name || ""
-        );
+        setValue("inputLastName", userResult.shipping_details?.last_name || "");
         setValue(
           "inputContactNumber",
-          result.result.shipping_details?.contact_number || ""
+          userResult.shipping_details?.contact_number || ""
         );
-        setValue("inputAddress", result.result.shipping_details?.address || "");
-        setValue("inputCity", result.result.shipping_details?.city || "");
-        setValue(
-          "inputProvince",
-          result.result.shipping_details?.province || ""
-        );
+        setValue("inputAddress", userResult.shipping_details?.address || "");
+        setValue("inputCity", userResult.shipping_details?.city || "");
+        setValue("inputProvince", userResult.shipping_details?.province || "");
 
-        setImage(result.result.image);
+        setImage(userResult.image);
       } else {
         if (idInput != user) {
           error("Unauthorized viewing");
           router.push("/");
         } else {
-          setUserInfo(result.result);
+          setUserInfo(userResult);
 
-          setFirstName(result.result.shipping_details?.first_name || "");
-          setLastName(result.result.shipping_details?.last_name || "");
-          setContactNumber(
-            result.result.shipping_details?.contact_number || ""
-          );
-          setAddress(result.result.shipping_details?.address || "");
-          setCity(result.result.shipping_details?.city || "");
-          setProvince(result.result.shipping_details?.province || "");
+          setFirstName(userResult.shipping_details?.first_name || "");
+          setLastName(userResult.shipping_details?.last_name || "");
+          setContactNumber(userResult.shipping_details?.contact_number || "");
+          setAddress(userResult.shipping_details?.address || "");
+          setCity(userResult.shipping_details?.city || "");
+          setProvince(userResult.shipping_details?.province || "");
 
           setValue(
             "inputFirstName",
-            result.result.shipping_details?.first_name || ""
+            userResult.shipping_details?.first_name || ""
           );
           setValue(
             "inputLastName",
-            result.result.shipping_details?.last_name || ""
+            userResult.shipping_details?.last_name || ""
           );
           setValue(
             "inputContactNumber",
-            result.result.shipping_details?.contact_number || ""
+            userResult.shipping_details?.contact_number || ""
           );
-          setValue(
-            "inputAddress",
-            result.result.shipping_details?.address || ""
-          );
-          setValue("inputCity", result.result.shipping_details?.city || "");
+          setValue("inputAddress", userResult.shipping_details?.address || "");
+          setValue("inputCity", userResult.shipping_details?.city || "");
           setValue(
             "inputProvince",
-            result.result.shipping_details?.province || ""
+            userResult.shipping_details?.province || ""
           );
 
-          setImage(result.result.image);
+          setImage(userResult.image);
         }
       }
     }
@@ -175,23 +175,30 @@ export default function UserShow(props: any) {
       }
     }
 
-    const result = await getAllOrdersViaIdFunction(idInput);
-
-    if (result.isSuccess) {
-      setOrders(result.result);
-    } else {
-      error("result.errorMessage");
-    }
-
-    const surveyResults = await getAllWellnessSurveyResultsViaIdFunction(
+    const result = await getAllDocumentsGivenTypeAndUserIdFunction(
+      CollectionsEnum.ORDER,
       idInput
     );
 
-    console.log("survye", surveyResults);
-    if (surveyResults.isSuccess) {
-      setWellnessSurveyResults(surveyResults.result);
+    const resultObject = result.result as OrdersDatabaseType[];
+
+    if (result.isSuccess) {
+      setOrders(resultObject);
     } else {
-      error("surveyResults.errorMessage");
+      error("result.message");
+    }
+
+    const surveyResults = await getAllDocumentsGivenTypeAndUserIdFunction(
+      CollectionsEnum.WELLNESS,
+      idInput
+    );
+    const surveyResultsObject: WellnessDatabaseType[] =
+      surveyResults.result as WellnessDatabaseType[];
+
+    if (surveyResults.isSuccess) {
+      setWellnessSurveyResults(surveyResultsObject);
+    } else {
+      error("surveyResults.message");
     }
   }
 
@@ -273,21 +280,23 @@ export default function UserShow(props: any) {
     };
 
     const result = await updateUserFunction(newInfo, idInput);
+    const updateUserResult: UsersDatabaseType =
+      result.result as UsersDatabaseType;
 
     if (result.isSuccess) {
-      success(result.resultText);
-      setUserInfo(result.result);
+      success(result.message);
+      setUserInfo(updateUserResult);
     } else {
-      error(result.errorMessage);
+      error(result.message);
     }
   };
 
   const handleResetPassword = async () => {
     const resetPasswordResult = await resetPassword(userInfo.email);
     if (resetPasswordResult.isSuccess) {
-      success(resetPasswordResult.resultText);
+      success(resetPasswordResult.message);
     } else {
-      error(resetPasswordResult.errorMessage);
+      error(resetPasswordResult.message);
     }
   };
 
@@ -674,17 +683,24 @@ export async function getServerSideProps(context: any) {
 
       const { uid } = token;
 
-      const userDetails = await getUserFunction(uid);
+      const userDetails = await getDocumentGivenTypeAndIdFunction(
+        CollectionsEnum.USER,
+        uid
+      );
+
+      const userDetailsResult: UsersDatabaseType =
+        userDetails.result as UsersDatabaseType;
+
       //should return if user is admin
       if (userDetails.isSuccess) {
-        const isAdmin = userDetails.result.role == "admin" ? true : false;
+        const isAdmin = userDetailsResult.role == "admin" ? true : false;
         return {
           props: {
             user: uid,
             authorized: isAdmin,
             userDetails: userDetails.result,
             isError: false,
-            errorMessage: "",
+            message: "",
             redirect: "/",
           },
         };
@@ -695,7 +711,7 @@ export async function getServerSideProps(context: any) {
             authorized: false,
             userDetails: null,
             isError: false,
-            errorMessage: "",
+            message: "",
             redirect: "/",
           },
         };
@@ -707,7 +723,7 @@ export async function getServerSideProps(context: any) {
           authorized: false,
           userDetails: null,
           isError: false,
-          errorMessage: "",
+          message: "",
           redirect: "/",
         },
       };
@@ -718,7 +734,7 @@ export async function getServerSideProps(context: any) {
         user: null,
         userDetails: null,
         isError: true,
-        errorMessage: "Error with getting user info",
+        message: "Error with getting user info",
         redirect: "/login",
       },
     };

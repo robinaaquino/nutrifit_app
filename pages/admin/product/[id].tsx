@@ -1,29 +1,28 @@
 import { useRouter } from "next/router";
-import React, { useEffect, useState, useContext } from "react";
-import { useAuthContext, AuthContext } from "@/context/AuthContext";
-import {
-  PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY,
-  ProductsDatabaseType,
-} from "../../../firebase/constants";
-import {
-  addProductFunction,
-  getProductViaIdFunction,
-  updateProductFunction,
-} from "@/firebase/firebase_functions/products_functions";
+import { useEffect, useState, useContext } from "react";
 import Image from "next/image";
-import no_image from "../../../public/no_image.png";
-import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 import nookies from "nookies";
-import admin from "../../../firebase/admin-config";
-
 import { useForm } from "react-hook-form";
+
+import admin from "../../../firebase/admin-config";
+import { useAuthContext, AuthContext } from "@/context/AuthContext";
+
+import no_image from "../../../public/no_image.png";
+
+import {
+  ProductCategoriesList,
+  ProductsDatabaseType,
+  ProductsDatabaseTypeFromDB,
+} from "@/firebase/constants/product_constants";
+import { updateProductFunction } from "@/firebase/firebase_functions/products_functions";
+import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
+
 import WarningMessage from "@/components/forms/WarningMessage";
 
 import HeadingTwo from "@/components/forms/HeadingTwo";
-import InputButton from "@/components/forms/input/InputButton";
 import InputComponent from "@/components/forms/input/InputComponent";
-import InputSubmit from "@/components/forms/input/InputSubmit";
-import Label from "@/components/forms/Label";
+import { CollectionsEnum } from "@/firebase/constants/enum_constants";
+import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_functions";
 
 export default function AdminProductShow(props: any) {
   const router = useRouter();
@@ -64,8 +63,8 @@ export default function AdminProductShow(props: any) {
     defaultValues: {
       inputCategory: "",
       inputProductDescription: "",
-      inputPrice: "",
-      inputQuantity: "",
+      inputPrice: 0,
+      inputQuantity: 0,
       inputProductName: "",
     },
   });
@@ -79,27 +78,32 @@ export default function AdminProductShow(props: any) {
         idInput = id;
       }
     }
-    const result = await getProductViaIdFunction(idInput);
+    const result = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.PRODUCT,
+      idInput
+    );
+    const productResult: ProductsDatabaseTypeFromDB =
+      result.result as ProductsDatabaseTypeFromDB;
 
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
     } else {
-      setProduct(result.result);
+      setProduct(productResult);
 
-      setProductName(result.result.name);
-      setProductDescription(result.result.description);
-      setProductCategory(result.result.category);
-      setPrice(result.result.price);
-      setQuantityLeft(result.result.quantity_left);
-      setQuantityInCarts(result.result.quantity_in_carts);
-      setQuantitySold(result.result.quantity_sold);
-      setFiles(result.result.images);
+      setProductName(productResult.name);
+      setProductDescription(productResult.description);
+      setProductCategory(productResult.category);
+      setPrice(productResult.price);
+      setQuantityLeft(productResult.quantity_left);
+      setQuantityInCarts(productResult.quantity_in_carts);
+      setQuantitySold(productResult.quantity_sold);
+      setFiles(productResult.images);
 
-      setValue("inputCategory", result.result.category);
-      setValue("inputProductDescription", result.result.description);
-      setValue("inputPrice", result.result.price);
-      setValue("inputQuantity", result.result.quantity_left);
-      setValue("inputProductName", result.result.name);
+      setValue("inputCategory", productResult.category);
+      setValue("inputProductDescription", productResult.description);
+      setValue("inputPrice", productResult.price);
+      setValue("inputQuantity", productResult.quantity_left);
+      setValue("inputProductName", productResult.name);
     }
   }
 
@@ -169,15 +173,15 @@ export default function AdminProductShow(props: any) {
       const result = await updateProductFunction(productObject, idInput);
 
       if (result.isSuccess) {
-        authContextObject.success(result.resultText);
+        authContextObject.success(result.message);
         router.push("/admin/product");
       } else {
-        authContextObject.error(result.errorMessage);
+        authContextObject.error(result.message);
       }
     };
 
   if (props.isError) {
-    error(props.errorMessage);
+    error(props.message);
     router.push(props.redirect);
     return null;
   }
@@ -250,7 +254,7 @@ export default function AdminProductShow(props: any) {
                     })}
                     aria-invalid={errors.inputCategory ? "true" : "false"}
                   >
-                    {PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.map((category) => {
+                    {ProductCategoriesList.map((category) => {
                       return (
                         <option
                           value={category}
@@ -632,8 +636,7 @@ export async function getServerSideProps(context: any) {
 
     const { uid, email } = token;
 
-    const a = await getUserFunction(uid);
-    const isAdmin = a.result.role == "admin" ? true : false;
+    const isAdmin = await isUserAuthorizedFunction(uid);
 
     if (!isAdmin) {
       // context.res.writeHead(302, { Location: "/login" });
@@ -642,7 +645,7 @@ export async function getServerSideProps(context: any) {
       return {
         props: {
           isError: true,
-          errorMessage: "Unauthorized access",
+          message: "Unauthorized access",
           redirect: "/",
         },
       };
@@ -650,10 +653,9 @@ export async function getServerSideProps(context: any) {
 
     return {
       props: {
-        message: `Your email is ${email} and your UID is ${uid}.`,
         authorized: isAdmin,
         isError: false,
-        errorMessage: "",
+        message: "",
         redirect: "",
       },
     };
@@ -664,7 +666,7 @@ export async function getServerSideProps(context: any) {
     return {
       props: {
         isError: true,
-        errorMessage: "Unauthenticated access",
+        message: "Unauthenticated access",
         redirect: "/login",
       },
     };

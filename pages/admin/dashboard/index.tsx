@@ -1,16 +1,40 @@
 import nookies from "nookies";
-import admin from "@/firebase/admin-config";
-
-import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
-
-import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import React from "react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+import admin from "@/firebase/admin-config";
+import { useAuthContext } from "@/context/AuthContext";
+
 import { getAllAdminAnalytics } from "@/firebase/firebase_functions/dashboard_functions";
+import { splitLabel } from "@/firebase/helpers";
+
 import TableComponent from "@/components/admin/TableComponent";
 import CardStats from "@/components/admin/dashboard/CardStats";
 import CarouselProduct from "@/components/admin/dashboard/CarouselProduct";
-import { getBestSellingProducts } from "@/firebase/firebase_functions/products_functions";
+import { AdminAnalyticsType } from "@/firebase/constants/dashboard_constant";
+import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_functions";
+
+import HeadingTwo from "@/components/forms/HeadingTwo";
 
 export default function AdminDashboard(props: any) {
   const { error } = useAuthContext();
@@ -32,26 +56,77 @@ export default function AdminDashboard(props: any) {
   const [userCount, setUserCount] = useState<number>(0);
   const [productCount, setProductCount] = useState<number>(0);
 
+  const barChartOptions = {
+    indexAxis: "y" as const,
+    elements: {
+      bar: {
+        borderWidth: 2,
+      },
+    },
+    responsive: true,
+    plugins: {
+      legend: {
+        position: "right" as const,
+      },
+    },
+  };
+
+  const bestSellingProductsLabel =
+    props.adminAnalytics.highestGrossingProducts.map((element: any) =>
+      splitLabel(element.name)
+    );
+  const bestSellingProductsDataset =
+    props.adminAnalytics.highestGrossingProducts.map(
+      (element: any) => element.totalProfit
+    );
+
+  const bestSellingProductsData = {
+    labels: bestSellingProductsLabel,
+    datasets: [
+      {
+        label: "Total profit",
+        data: bestSellingProductsDataset,
+        borderColor: "rgb(255, 99, 132)",
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
+      },
+    ],
+  };
+
+  const frequentlyBoughtProductsLabel =
+    props.adminAnalytics.frequentlyBoughtProducts.map((element: any) =>
+      splitLabel(element.name)
+    );
+  const frequentlyBoughtProductsDataset =
+    props.adminAnalytics.frequentlyBoughtProducts.map(
+      (element: any) => element.quantity
+    );
+
+  const frequentlyBoughtProductsData = {
+    labels: frequentlyBoughtProductsLabel,
+    datasets: [
+      {
+        label: "Quantity sold",
+        data: frequentlyBoughtProductsDataset,
+        borderColor: "rgb(255, 99, 132)",
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
+      },
+    ],
+  };
+
   async function fetchAllDataForAdminDashboard() {
-    const getAllAdminAnalyticsResult = await getAllAdminAnalytics();
-    const adminAnalytics = getAllAdminAnalyticsResult.result;
-    console.log(getAllAdminAnalyticsResult);
+    const adminAnalytics: AdminAnalyticsType = props.adminAnalytics;
 
-    if (!getAllAdminAnalyticsResult.isSuccess) {
-      error(getAllAdminAnalyticsResult.resultText);
-    } else {
-      setSalesPerCategory(adminAnalytics.salesPerCategory);
-      setFrequentlyBoughtProducts(adminAnalytics.frequentlyBoughtProducts);
-      setBestSellingProducts(adminAnalytics.highestGrossingProducts);
+    setSalesPerCategory(adminAnalytics.salesPerCategory);
+    setFrequentlyBoughtProducts(adminAnalytics.frequentlyBoughtProducts);
+    setBestSellingProducts(adminAnalytics.highestGrossingProducts);
 
-      setOrderCount(adminAnalytics.numberOfTotalOrders);
-      setProductCount(adminAnalytics.numberOfTotalProducts);
-      setUserCount(adminAnalytics.numberOfTotalUsers);
+    setOrderCount(adminAnalytics.numberOfTotalOrders);
+    setProductCount(adminAnalytics.numberOfTotalProducts);
+    setUserCount(adminAnalytics.numberOfTotalUsers);
 
-      setPendingOrdersCount(adminAnalytics.numberOfPendingOrders);
-      setCancelledOrdersCount(adminAnalytics.numberOfCancelledOrders);
-      setDeliveredOrdersCount(adminAnalytics.numberOfDeliveredOrders);
-    }
+    setPendingOrdersCount(adminAnalytics.numberOfPendingOrders);
+    setCancelledOrdersCount(adminAnalytics.numberOfCancelledOrders);
+    setDeliveredOrdersCount(adminAnalytics.numberOfDeliveredOrders);
   }
 
   useEffect(() => {
@@ -59,7 +134,7 @@ export default function AdminDashboard(props: any) {
   }, []);
 
   if (props.isError) {
-    error(props.errorMessage);
+    error(props.message);
     router.push(props.redirect);
     return null;
   }
@@ -68,6 +143,7 @@ export default function AdminDashboard(props: any) {
     <>
       <div className="container px-4 mx-auto min-h-screen">
         {/* Stats */}
+
         <div className="relative">
           <div className="px-4 mx-auto w-full">
             <div className="flex">
@@ -100,14 +176,18 @@ export default function AdminDashboard(props: any) {
           <div className="px-4 w-full flex">
             {/* Product Rankings */}
             <div className="grid grid-cols-1 gap-4 w-full m-2 p-2 ">
-              <CarouselProduct
-                carouselName="Frequently bought products"
-                items={frequentlyBoughtProducts}
-              ></CarouselProduct>
-              <CarouselProduct
-                carouselName="Best selling products"
-                items={bestSellingProducts}
-              ></CarouselProduct>
+              <div>
+                <HeadingTwo label="Frequently bought products" />
+                <Bar
+                  options={barChartOptions}
+                  data={frequentlyBoughtProductsData}
+                />
+              </div>
+              <div>
+                <HeadingTwo label="Best selling products" />
+                <Bar options={barChartOptions} data={bestSellingProductsData} />
+                ;
+              </div>
             </div>
             {/* Sales per Category */}
             <div className="w-1/3 m-2 p-2">
@@ -138,33 +218,47 @@ export async function getServerSideProps(context: any) {
 
     const { uid, email } = token;
 
-    const isAdminResult = await getUserFunction(uid);
-    const isAdmin = isAdminResult.result.role == "admin" ? true : false;
+    const isAdmin = await isUserAuthorizedFunction(uid);
 
     if (!isAdmin) {
       return {
         props: {
           isError: true,
-          errorMessage: "Unauthorized access",
+          message: "Unauthorized access",
           redirect: "/",
         },
       };
     }
 
-    return {
-      props: {
-        message: `Your email is ${email} and your UID is ${uid}.`,
-        authorized: isAdmin,
-        isError: false,
-        errorMessage: "",
-        redirect: "",
-      },
-    };
+    const getAllAdminAnalyticsResult = await getAllAdminAnalytics();
+    let adminAnalytics: AdminAnalyticsType =
+      getAllAdminAnalyticsResult.result as AdminAnalyticsType;
+
+    if (getAllAdminAnalyticsResult.isSuccess) {
+      return {
+        props: {
+          authorized: isAdmin,
+          adminAnalytics: adminAnalytics,
+          isError: false,
+          message: "",
+          redirect: "",
+        },
+      };
+    } else {
+      return {
+        props: {
+          authorized: isAdmin,
+          isError: true,
+          message: "",
+          redirect: "",
+        },
+      };
+    }
   } catch (err) {
     return {
       props: {
         isError: true,
-        errorMessage: "Unauthenticated access",
+        message: "Unauthenticated access",
         redirect: "/login",
       },
     };

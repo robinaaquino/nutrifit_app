@@ -1,4 +1,4 @@
-import { WellnessRemarks } from "@/firebase/constants";
+import { WellnessRemarksEnum } from "@/firebase/constants/enum_constants";
 import RadioButton from "../forms/RadioButton";
 
 export default function FilterProgram({
@@ -19,24 +19,24 @@ export default function FilterProgram({
             name={"inputProgramType"}
             id={"gain"}
             register={register}
-            value={WellnessRemarks.GAIN}
-            label={WellnessRemarks.GAIN}
+            value={WellnessRemarksEnum.GAIN}
+            label={WellnessRemarksEnum.GAIN}
             handleInput={handleFilterProgram}
           />
           <RadioButton
             name={"inputProgramType"}
             id={"maintenance"}
             register={register}
-            value={WellnessRemarks.MAINTENANCE}
-            label={WellnessRemarks.MAINTENANCE}
+            value={WellnessRemarksEnum.MAINTENANCE}
+            label={WellnessRemarksEnum.MAINTENANCE}
             handleInput={handleFilterProgram}
           />
           <RadioButton
             name={"inputProgramType"}
             id={"loss"}
             register={register}
-            value={WellnessRemarks.LOSS}
-            label={WellnessRemarks.LOSS}
+            value={WellnessRemarksEnum.LOSS}
+            label={WellnessRemarksEnum.LOSS}
             handleInput={handleFilterProgram}
           />
         </div>

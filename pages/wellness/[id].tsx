@@ -1,21 +1,26 @@
 import { useState, useEffect } from "react";
-import { WellnessOverallResults } from "../../firebase/constants";
 import { useRouter } from "next/router";
-import { useAuthContext } from "@/context/AuthContext";
 import nookies from "nookies";
 import admin from "../../firebase/admin-config";
-import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
-
 import { useForm } from "react-hook-form";
-import WarningMessage from "@/components/forms/WarningMessage";
-import { WellnessQuestions, WellnessRemarks } from "../../firebase/constants";
+
+import { useAuthContext } from "@/context/AuthContext";
 
 import {
-  addWellnessSurveyResult,
-  getWellnessSurveyResultsViaIdFunction,
-} from "@/firebase/firebase_functions/wellness_functions";
+  WellnessDatabaseTypeFromDB,
+  WellnessDatabaseType,
+  WellnessQuestionsKeys,
+} from "@/firebase/constants/wellness_constants";
+
+import {
+  WellnessRemarksEnum,
+  CollectionsEnum,
+} from "@/firebase/constants/enum_constants";
+
+import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
 
 import InputComponent from "@/components/forms/input/InputComponent";
+import WarningMessage from "@/components/forms/WarningMessage";
 
 export default function WellnessSurveyShow(props: any) {
   const router = useRouter();
@@ -117,7 +122,7 @@ export default function WellnessSurveyShow(props: any) {
       inputReviewedByAdmin,
     } = data;
 
-    const resultObject: WellnessOverallResults = {
+    const resultObject: WellnessDatabaseType = {
       user_id: userId,
       wellness_survey: wellness,
       name: inputName,
@@ -151,13 +156,17 @@ export default function WellnessSurveyShow(props: any) {
       }
     }
 
-    const result = await getWellnessSurveyResultsViaIdFunction(idInput);
+    const result = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.WELLNESS,
+      idInput
+    );
     console.log(result);
 
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
     } else {
-      const wellnessSurveyResultObject = result.result;
+      const wellnessSurveyResultObject: WellnessDatabaseTypeFromDB =
+        result.result as WellnessDatabaseTypeFromDB;
 
       if (
         wellnessSurveyResultObject.user_id &&
@@ -228,7 +237,7 @@ export default function WellnessSurveyShow(props: any) {
     <>
       <form onSubmit={handleSubmit(handleForm)} className="w-1/2 mx-auto">
         <h2 className="mt-6 mb-10 text-center text-3xl font-bold tracking-tight text-gray-900">
-          Wellness Survey
+          Edit Wellness Survey Result
         </h2>
         <h3 className="mb-2 ml-2 text-2xl font-bold tracking-tight text-gray-900">
           Personal Details
@@ -352,7 +361,7 @@ export default function WellnessSurveyShow(props: any) {
           Please check the boxes for YES answers
         </p>
         <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-2 grid-rows-7">
-          {Object.keys(WellnessQuestions).map((key: string) => {
+          {Object.keys(WellnessQuestionsKeys).map((key: string) => {
             return (
               <>
                 <div className="flex text-black items-center mb-2">
@@ -364,7 +373,7 @@ export default function WellnessSurveyShow(props: any) {
                     {...register("wellness")}
                     className="mx-3 block checkbox checkbox-success"
                   />
-                  <label htmlFor={key}>{WellnessQuestions[key]}</label>
+                  <label htmlFor={key}>{WellnessQuestionsKeys[key]}</label>
                 </div>
               </>
             );
@@ -712,27 +721,29 @@ export default function WellnessSurveyShow(props: any) {
               aria-invalid={errors.inputProgram ? "true" : "false"}
             >
               <option
-                value={WellnessRemarks.GAIN}
+                value={WellnessRemarksEnum.GAIN}
                 key="gain"
-                selected={program == WellnessRemarks.GAIN ? true : false}
+                selected={program == WellnessRemarksEnum.GAIN ? true : false}
               >
-                {WellnessRemarks.GAIN}
+                {WellnessRemarksEnum.GAIN}
               </option>
 
               <option
-                value={WellnessRemarks.MAINTENANCE}
+                value={WellnessRemarksEnum.MAINTENANCE}
                 key="maintenance"
-                selected={program == WellnessRemarks.MAINTENANCE ? true : false}
+                selected={
+                  program == WellnessRemarksEnum.MAINTENANCE ? true : false
+                }
               >
-                {WellnessRemarks.MAINTENANCE}
+                {WellnessRemarksEnum.MAINTENANCE}
               </option>
 
               <option
-                value={WellnessRemarks.LOSS}
+                value={WellnessRemarksEnum.LOSS}
                 key="loss"
-                selected={program == WellnessRemarks.LOSS ? true : false}
+                selected={program == WellnessRemarksEnum.LOSS ? true : false}
               >
-                {WellnessRemarks.LOSS}
+                {WellnessRemarksEnum.LOSS}
               </option>
             </select>
           </div>
@@ -779,9 +790,8 @@ export async function getServerSideProps(context: any) {
   let props: any = {
     user: "",
     userInfo: null,
-    message: "",
     isError: true,
-    errorMessage: "Unauthorized access",
+    message: "Unauthorized access",
     redirect: "/login",
   };
 
@@ -794,10 +804,13 @@ export async function getServerSideProps(context: any) {
     props.user = uid;
     props.isError = false;
     props.message = `Your email is ${email} and your UID is ${uid}.`;
-    props.errorMessage = "";
+    props.message = "";
     props.redirect = "";
 
-    const getUserInfoResult = await getUserFunction(uid);
+    const getUserInfoResult = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.USER,
+      uid
+    );
 
     if (getUserInfoResult.isSuccess) props.userInfo = getUserInfoResult.result;
 

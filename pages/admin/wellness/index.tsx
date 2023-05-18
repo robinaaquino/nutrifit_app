@@ -5,21 +5,22 @@ import Filter from "@/components/filter/Filter";
 import SearchBar from "@/components/universal/SearchBar";
 import TableComponent from "@/components/admin/TableComponent";
 
+import { getAllDocumentsGivenTypeFunction } from "@/firebase/firebase_functions/general_functions";
 import {
-  getAllWellnessSurveyResultsFunction,
-  getAllWellnessSurveyResultsWithFilterFunction,
-  getAllWellnessSurveyResultsWithSearchFunction,
-} from "@/firebase/firebase_functions/wellness_functions";
-import { WellnessOverallResults } from "@/firebase/constants";
-import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
+  applyFilterFunction,
+  applySearchFunction,
+} from "@/firebase/firebase_functions/filter_and_search_functions";
+import { WellnessDatabaseType } from "@/firebase/constants/wellness_constants";
 
 import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { CollectionsEnum } from "@/firebase/constants/enum_constants";
+import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_functions";
 
 export default function AdminWellness(props: any) {
   const [wellnessSurveyResults, setWellnessSurveyResults] = useState<
-    WellnessOverallResults[]
+    WellnessDatabaseType[]
   >([]);
   const { error } = useAuthContext();
   const router = useRouter();
@@ -49,33 +50,46 @@ export default function AdminWellness(props: any) {
   ];
 
   async function fetchAllWellnessSurveyResults() {
-    const result = await getAllWellnessSurveyResultsFunction();
-    console.log(result);
+    const result = await getAllDocumentsGivenTypeFunction(
+      CollectionsEnum.WELLNESS
+    );
+
+    const resultObject: WellnessDatabaseType[] =
+      result.result as WellnessDatabaseType[];
 
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
     } else {
-      setWellnessSurveyResults(result.result);
+      setWellnessSurveyResults(resultObject);
     }
   }
 
   async function handleSearch(searchString: any) {
-    const result = await getAllWellnessSurveyResultsWithSearchFunction(
+    const result = await applySearchFunction(
+      CollectionsEnum.WELLNESS,
       searchString
     );
+
+    const resultObject: WellnessDatabaseType[] =
+      result.result as WellnessDatabaseType[];
+
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
     } else {
-      setWellnessSurveyResults(result.result);
+      setWellnessSurveyResults(resultObject);
     }
   }
 
   async function handleFilters(filter: any) {
-    const result = await getAllWellnessSurveyResultsWithFilterFunction(filter);
+    const result = await applyFilterFunction(CollectionsEnum.WELLNESS, filter);
+
+    const resultObject: WellnessDatabaseType[] =
+      result.result as WellnessDatabaseType[];
+
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
     } else {
-      setWellnessSurveyResults(result.result);
+      setWellnessSurveyResults(resultObject);
     }
   }
 
@@ -84,7 +98,7 @@ export default function AdminWellness(props: any) {
   }, []);
 
   if (props.isError) {
-    error(props.errorMessage);
+    error(props.message);
     router.push(props.redirect);
     return null;
   }
@@ -137,14 +151,13 @@ export async function getServerSideProps(context: any) {
 
     const { uid, email } = token;
 
-    const isAdminResult = await getUserFunction(uid);
-    const isAdmin = isAdminResult.result.role == "admin" ? true : false;
+    const isAdmin = await isUserAuthorizedFunction(uid);
 
     if (!isAdmin) {
       return {
         props: {
           isError: true,
-          errorMessage: "Unauthorized access",
+          message: "Unauthorized access",
           redirect: "/",
         },
       };
@@ -152,10 +165,9 @@ export async function getServerSideProps(context: any) {
 
     return {
       props: {
-        message: `Your email is ${email} and your UID is ${uid}.`,
         authorized: isAdmin,
         isError: false,
-        errorMessage: "",
+        message: "",
         redirect: "",
       },
     };
@@ -163,7 +175,7 @@ export async function getServerSideProps(context: any) {
     return {
       props: {
         isError: true,
-        errorMessage: "Unauthenticated access",
+        message: "Unauthenticated access",
         redirect: "/login",
       },
     };

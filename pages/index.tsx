@@ -1,9 +1,8 @@
-import Head from "next/head";
 import Image from "next/image";
-import { getAllUsers } from "../firebase/services/users_services";
-import React, { useEffect, useContext, useState } from "react";
-import { redirect, useRouter } from "next/navigation";
-import { AuthContext, useAuthContext } from "@/context/AuthContext";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useAuthContext } from "@/context/AuthContext";
+import nookies from "nookies";
 
 import no_image from "../public/no_image.png";
 import digestive_health from "../public/digestive_health.jpg";
@@ -18,28 +17,19 @@ import banana from "../public/banana.jpg";
 import rice from "../public/rice.jpg";
 import salmon from "../public/salmon.jpg";
 
-import landing_page from "../public/landing_page.jpg";
-import {
-  PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY,
-  ProductsDatabaseType,
-} from "@/firebase/constants";
-import nookies from "nookies";
-import { getBestSellingProducts } from "@/firebase/firebase_functions/products_functions";
-
 import admin from "../firebase/admin-config";
+
+import { ProductCategoriesList } from "@/firebase/constants/product_constants";
+
+import { getBestSellingProducts } from "@/firebase/firebase_functions/products_functions";
 
 import Button from "@/components/common/Button";
 import ProductCard from "@/components/product/ProductCard";
 
 export default function Home(props: any) {
   const router = useRouter();
-  // const authContextObject = useContext(AuthContext);
-  const { user, success, error, addToCart } = useAuthContext();
-  const landingPageCategories = [
-    ...PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.slice(0, 4),
-  ];
+  const { user, success, error, addToCart, isAuthorized } = useAuthContext();
   const [categoryIndex, setCategoryIndex] = useState(0);
-  const numberOfShownCategories = 3;
   const [bestProducts, setBestProducts] = useState<any>([]);
   const categoryImages = {
     "Digestive Health": digestive_health,
@@ -51,16 +41,12 @@ export default function Home(props: any) {
   };
 
   function returnCategoryName(index: number) {
-    if (index >= PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.length) {
-      return PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY[
-        index - PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.length
-      ];
+    if (index >= ProductCategoriesList.length) {
+      return ProductCategoriesList[index - ProductCategoriesList.length];
     } else if (index < 0) {
-      return PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY[
-        PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.length - index
-      ];
+      return ProductCategoriesList[ProductCategoriesList.length - index];
     } else {
-      return PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY[index];
+      return ProductCategoriesList[index];
     }
   }
 
@@ -77,7 +63,7 @@ export default function Home(props: any) {
 
   function decrementCategoryIndex() {
     if (categoryIndex <= 0) {
-      let newCategoryIndex = PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.length;
+      let newCategoryIndex = ProductCategoriesList.length;
       setCategoryIndex(newCategoryIndex);
     } else {
       let newCategoryIndex = categoryIndex - 1;
@@ -86,7 +72,7 @@ export default function Home(props: any) {
   }
 
   function incrementCategoryIndex() {
-    if (categoryIndex > PRODUCT_CATEGORIES_PUBLIC_NAME_ARRAY.length) {
+    if (categoryIndex > ProductCategoriesList.length) {
       let newCategoryIndex = 0;
       setCategoryIndex(newCategoryIndex);
     } else {
@@ -103,7 +89,7 @@ export default function Home(props: any) {
     const result = await getBestSellingProducts();
 
     if (!result.isSuccess) {
-      error(result.resultText);
+      error(result.message);
     } else {
       let limit: number = result.result.length > 4 ? 4 : result.result.length;
       setBestProducts(result.result.slice(0, limit));
@@ -120,8 +106,6 @@ export default function Home(props: any) {
   }
 
   useEffect(() => {
-    if (process.env.TEST_KEY === `uwu`) {
-    }
     fetchBestProducts();
   }, []);
 
@@ -138,7 +122,7 @@ export default function Home(props: any) {
             More likely than you think!
           </h3>
           <Button
-            text="Get started"
+            text="Fill up your wellness survey"
             round={true}
             headline={true}
             handleClick={navigateToSurvey}
@@ -333,7 +317,7 @@ export async function getServerSideProps(context: any) {
     category: null,
     orders: null,
     isError: true,
-    errorMessage: "Error with getting user info",
+    message: "Error with getting user info",
     redirect: "/login",
   };
 
@@ -347,13 +331,13 @@ export async function getServerSideProps(context: any) {
 
       props.user = uid;
       props.isError = false;
-      props.errorMessage = "";
+      props.message = "";
       props.redirect = "/";
     }
 
     return { props };
   } catch (err) {
-    props.errorMessage = "Error with getting user info";
+    props.message = "Error with getting user info";
     props.redirect = "/";
 
     return { props };

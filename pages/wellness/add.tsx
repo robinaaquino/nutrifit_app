@@ -1,19 +1,20 @@
-import { useContext, useState, useEffect } from "react";
-import { WellnessOverallResults } from "../../firebase/constants";
-import { addProductFunction } from "@/firebase/firebase_functions/products_functions";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuthContext, AuthContext } from "@/context/AuthContext";
+import { useAuthContext } from "@/context/AuthContext";
+import { useForm } from "react-hook-form";
 import nookies from "nookies";
 import admin from "../../firebase/admin-config";
-import { getUserFunction } from "@/firebase/firebase_functions/users_functions";
 
-import { useForm } from "react-hook-form";
-import WarningMessage from "@/components/forms/WarningMessage";
-import { WellnessQuestions } from "../../firebase/constants";
-
+import {
+  WellnessDatabaseType,
+  WellnessQuestionsKeys,
+} from "@/firebase/constants/wellness_constants";
+import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
 import { addWellnessSurveyResult } from "@/firebase/firebase_functions/wellness_functions";
+
 import InputComponent from "@/components/forms/input/InputComponent";
 import InputSubmit from "@/components/forms/input/InputSubmit";
+import { CollectionsEnum } from "@/firebase/constants/enum_constants";
 
 export default function WellnessSurvey(props: any) {
   const [userId, setUserId] = useState<string>("");
@@ -90,7 +91,7 @@ export default function WellnessSurvey(props: any) {
       inputWater,
     } = data;
 
-    const resultObject: WellnessOverallResults = {
+    const resultObject: WellnessDatabaseType = {
       user_id: userId,
       wellness_survey: wellness,
       name: inputName,
@@ -116,11 +117,11 @@ export default function WellnessSurvey(props: any) {
     const addResultResult = await addWellnessSurveyResult(resultObject);
 
     if (addResultResult.isSuccess) {
-      success(addResultResult.resultText);
+      success(addResultResult.message);
 
       router.push("/");
     } else {
-      error(addResultResult.resultText);
+      error(addResultResult.message);
     }
   };
 
@@ -150,7 +151,7 @@ export default function WellnessSurvey(props: any) {
   }, [props]);
 
   if (props.isError) {
-    error(props.errorMessage);
+    error(props.message);
     router.push(props.redirect);
     return null;
   }
@@ -159,8 +160,12 @@ export default function WellnessSurvey(props: any) {
     <>
       <form onSubmit={handleSubmit(handleForm)} className="w-1/2 mx-auto py-2">
         <h2 className="mt-6 mb-10 text-center text-3xl font-bold tracking-tight text-gray-900">
-          Wellness Survey
+          Wellness Survey Fill Up
         </h2>
+        <p className="mt-6 mb-10 text-center tracking-tight text-gray-700">
+          After filling this up, please wait for the administrators to contact
+          you about your suggested meal plan.
+        </p>
         <h3 className="mb-2 ml-2 text-2xl font-bold tracking-tight text-gray-900">
           Personal Details
         </h3>
@@ -182,30 +187,6 @@ export default function WellnessSurvey(props: any) {
             error={errors}
             aria-invalid={errors.inputName ? "true" : "false"}
           />
-          {/* <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="name"
-            >
-              Name
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="name"
-              type="text"
-              placeholder={"Type your name..."}
-              value={name}
-              {...register("inputName", {
-                required: "Name is required",
-                onChange: (e: any) => setName(e.target.value),
-
-              })}
-              aria-invalid={errors.inputName ? "true" : "false"}
-            />
-            {errors.inputName && (
-              <WarningMessage text={errors.inputName?.message} />
-            )}
-          </div> */}
           {/* Contact Number */}
           <InputComponent
             id={"contactNumber"}
@@ -217,35 +198,15 @@ export default function WellnessSurvey(props: any) {
             register={register}
             rules={{
               required: "Contact number is required",
+              pattern: {
+                value: /^[+]?[0-9]*$/,
+                message: "Please, enter a valid contact number",
+              },
               onChange: (e: any) => setContactNumber(e.target.value),
             }}
             error={errors}
             aria-invalid={errors.inputContactNumber ? "true" : "false"}
           />
-          {/* <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="contactNumber"
-            >
-              Contact Number
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="name"
-              type="contactNumber"
-              value={contactNumber}
-              placeholder="Type your contact number..."
-              {...register("inputContactNumber", {
-                required: "Contact number is required",
-                onChange: (e: any) => setContactNumber(e.target.value),
-
-              })}
-              aria-invalid={errors.inputContactNumber ? "true" : "false"}
-            />
-            {errors.inputContactNumber && (
-              <WarningMessage text={errors.inputContactNumber?.message} />
-            )}
-          </div> */}
           {/* Gender */}
           <InputComponent
             id={"gender"}
@@ -294,35 +255,15 @@ export default function WellnessSurvey(props: any) {
             register={register}
             rules={{
               required: "Age is required",
+              pattern: {
+                value: /^[0-9]*$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setAge(e.target.value),
             }}
             error={errors}
             aria-invalid={errors.inputAge ? "true" : "false"}
           />
-          {/* <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="age"
-            >
-              Age
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="age"
-              type="number"
-              value={age}
-              placeholder="Type your age..."
-              {...register("inputAge", {
-                required: "Age is required",
-                onChange: (e: any) => setAge(e.target.value),
-
-              })}
-              aria-invalid={errors.inputAge ? "true" : "false"}
-            />
-            {errors.inputAge && (
-              <WarningMessage text={errors.inputAge?.message} />
-            )}
-          </div> */}
           {/* Height */}
           <InputComponent
             id={"height"}
@@ -334,35 +275,15 @@ export default function WellnessSurvey(props: any) {
             register={register}
             rules={{
               required: "Height is required",
+              pattern: {
+                value: /^[0-9]*$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setHeight(e.target.value),
             }}
             error={errors}
             aria-invalid={errors.inputHeight ? "true" : "false"}
           />
-          {/* <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="height"
-            >
-              Height in meters
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="height"
-              type="number"
-              value={height}
-              placeholder="Type your height..."
-              {...register("inputHeight", {
-                required: "Height is required",
-                onChange: (e: any) => setHeight(e.target.value),
-
-              })}
-              aria-invalid={errors.inputHeight ? "true" : "false"}
-            />
-            {errors.inputHeight && (
-              <WarningMessage text={errors.inputHeight?.message} />
-            )}
-          </div> */}
           {/* Weight */}
           <InputComponent
             id={"weight"}
@@ -374,35 +295,15 @@ export default function WellnessSurvey(props: any) {
             register={register}
             rules={{
               required: "Weight is required",
+              pattern: {
+                value: /^[0-9]*$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setWeight(e.target.value),
             }}
             error={errors}
             aria-invalid={errors.inputWeight ? "true" : "false"}
           />
-          {/* <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="weight"
-            >
-              Weight in kilograms
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-red-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="weight"
-              type="number"
-              value={weight}
-              placeholder="Type your weight..."
-              {...register("inputWeight", {
-                required: "Weight is required",
-                onChange: (e: any) => setWeight(e.target.value),
-
-              })}
-              aria-invalid={errors.inputWeight ? "true" : "false"}
-            />
-            {errors.inputWeight && (
-              <WarningMessage text={errors.inputWeight?.message} />
-            )}
-          </div> */}
         </div>
         {/* Questions */}
         <h3 className="mt-5 mb-2 ml-2 text-2xl font-bold tracking-tight text-gray-900">
@@ -412,7 +313,7 @@ export default function WellnessSurvey(props: any) {
           Please check the boxes for YES answers
         </p>
         <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-2 grid-rows-7">
-          {Object.keys(WellnessQuestions).map((key: string) => {
+          {Object.keys(WellnessQuestionsKeys).map((key: string) => {
             return (
               <>
                 <div className="flex text-black items-center mb-2">
@@ -423,7 +324,7 @@ export default function WellnessSurvey(props: any) {
                     {...register("wellness")}
                     className="mx-3 block checkbox checkbox-success"
                   />
-                  <label htmlFor={key}>{WellnessQuestions[key]}</label>
+                  <label htmlFor={key}>{WellnessQuestionsKeys[key]}</label>
                 </div>
               </>
             );
@@ -444,7 +345,7 @@ export default function WellnessSurvey(props: any) {
             name={"inputDate"}
             label={"Date"}
             type={"date"}
-            placeholder={"Type your date..."}
+            placeholder={"Type the date..."}
             value={date}
             register={register}
             rules={{
@@ -454,29 +355,6 @@ export default function WellnessSurvey(props: any) {
             error={errors}
             aria-invalid={errors.inputDate ? "true" : "false"}
           />
-          {/* <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="date"
-            >
-              Date
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="date_trainer_info"
-              type="date"
-              value={date}
-              {...register("inputDate", {
-                required: false,
-                onChange: (e: any) => setDate(e.target.value),
-
-              })}
-              aria-invalid={errors.inputDate ? "true" : "false"}
-            />
-            {errors.inputDate && (
-              <WarningMessage text={errors.inputDate?.message} />
-            )}
-          </div> */}
 
           {/* Fat */}
           <InputComponent
@@ -489,35 +367,15 @@ export default function WellnessSurvey(props: any) {
             register={register}
             rules={{
               required: false,
+              pattern: {
+                value: /^[0-9]*.?[0-9]+$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setFat(e.target.value),
             }}
             error={errors}
             aria-invalid={errors.inputFat ? "true" : "false"}
           />
-          {/* <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="fat"
-            >
-              Fat %
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="fat"
-              type="text"
-              placeholder="Type the fat %..."
-              value={fat}
-              {...register("inputFat", {
-                required: false,
-                onChange: (e: any) => setFat(e.target.value),
-
-              })}
-              aria-invalid={errors.inputFat ? "true" : "false"}
-            />
-            {errors.inputFat && (
-              <WarningMessage text={errors.inputFat?.message} />
-            )}
-          </div> */}
 
           {/* Visceral Fat */}
           <InputComponent
@@ -530,35 +388,15 @@ export default function WellnessSurvey(props: any) {
             register={register}
             rules={{
               required: false,
+              pattern: {
+                value: /^[0-9]*.?[0-9]+$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setVisceralFat(e.target.value),
             }}
             error={errors}
             aria-invalid={errors.inputVisceralFat ? "true" : "false"}
           />
-          {/* <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="visceral_fat"
-            >
-              Visceral Fat
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="visceral_fat"
-              type="text"
-              placeholder="Type the visceral fat..."
-              value={visceralFat}
-              {...register("inputVisceralFat", {
-                required: false,
-                onChange: (e: any) => setVisceralFat(e.target.value),
-
-              })}
-              aria-invalid={errors.inputVisceralFat ? "true" : "false"}
-            />
-            {errors.inputVisceralFat && (
-              <WarningMessage text={errors.inputVisceralFat?.message} />
-            )}
-          </div> */}
 
           {/* Bone Mass */}
           <InputComponent
@@ -571,6 +409,10 @@ export default function WellnessSurvey(props: any) {
             register={register}
             rules={{
               required: false,
+              pattern: {
+                value: /^[0-9]*.?[0-9]+$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setBoneMass(e.target.value),
             }}
             error={errors}
@@ -612,37 +454,15 @@ export default function WellnessSurvey(props: any) {
             register={register}
             rules={{
               required: false,
+              pattern: {
+                value: /^[0-9]*.?[0-9]+$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setRestingMetabolicRate(e.target.value),
             }}
             error={errors}
             aria-invalid={errors.inputRestingMetabolicRate ? "true" : "false"}
           />
-          {/* <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="resting_metabolic_rate"
-            >
-              Resting Metabolic Rate {`(Calories burned at rest)`}
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="resting_metabolic_rate"
-              type="text"
-              placeholder="Type the resting metabolic rate..."
-              value={restingMetabolicRate}
-              {...register("inputRestingMetabolicRate", {
-                required: false,
-                onChange: (e: any) => setRestingMetabolicRate(e.target.value),
-
-              })}
-              aria-invalid={errors.inputRestingMetabolicRate ? "true" : "false"}
-            />
-            {errors.inputRestingMetabolicRate && (
-              <WarningMessage
-                text={errors.inputRestingMetabolicRate?.message}
-              />
-            )}
-          </div> */}
 
           {/* Metabolic Age */}
           <InputComponent
@@ -655,35 +475,15 @@ export default function WellnessSurvey(props: any) {
             register={register}
             rules={{
               required: false,
+              pattern: {
+                value: /^[0-9]*.?[0-9]+$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setMetabolicAge(e.target.value),
             }}
             error={errors}
             aria-invalid={errors.inputMetabolicAge ? "true" : "false"}
           />
-          {/* <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="metabolic_age"
-            >
-              Metabolic Age
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="metabolic_age"
-              type="text"
-              placeholder="Type the metabolic age..."
-              value={metabolicAge}
-              {...register("inputMetabolicAge", {
-                required: false,
-                onChange: (e: any) => setMetabolicAge(e.target.value),
-
-              })}
-              aria-invalid={errors.inputMetabolicAge ? "true" : "false"}
-            />
-            {errors.inputMetabolicAge && (
-              <WarningMessage text={errors.inputMetabolicAge?.message} />
-            )}
-          </div> */}
 
           {/* Muscle Mass */}
           <InputComponent
@@ -696,35 +496,15 @@ export default function WellnessSurvey(props: any) {
             register={register}
             rules={{
               required: false,
+              pattern: {
+                value: /^[0-9]*.?[0-9]+$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setMuscleMass(e.target.value),
             }}
             error={errors}
             aria-invalid={errors.inputMuscleMass ? "true" : "false"}
           />
-          {/* <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="muscle_mass"
-            >
-              Muscle Mass
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="muscle_mass"
-              type="text"
-              placeholder="Type the muscle mass..."
-              value={muscleMass}
-              {...register("inputMuscleMass", {
-                required: false,
-                onChange: (e: any) => setMuscleMass(e.target.value),
-
-              })}
-              aria-invalid={errors.inputMuscleMass ? "true" : "false"}
-            />
-            {errors.inputMuscleMass && (
-              <WarningMessage text={errors.inputMuscleMass?.message} />
-            )}
-          </div> */}
 
           {/* Physique Rating */}
           <InputComponent
@@ -742,30 +522,6 @@ export default function WellnessSurvey(props: any) {
             error={errors}
             aria-invalid={errors.inputPhysiqueRating ? "true" : "false"}
           />
-          {/* <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="physique_rating"
-            >
-              Physique Rating
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="physique_rating"
-              type="text"
-              placeholder="Type the physique rating..."
-              value={physiqueRating}
-              {...register("inputPhysiqueRating", {
-                required: false,
-                onChange: (e: any) => setPhysiqueRating(e.target.value),
-
-              })}
-              aria-invalid={errors.inputPhysiqueRating ? "true" : "false"}
-            />
-            {errors.inputPhysiqueRating && (
-              <WarningMessage text={errors.inputPhysiqueRating?.message} />
-            )}
-          </div> */}
 
           {/* Water % */}
           <InputComponent
@@ -778,35 +534,15 @@ export default function WellnessSurvey(props: any) {
             register={register}
             rules={{
               required: false,
+              pattern: {
+                value: /^[0-9]*.?[0-9]+$/,
+                message: "Please, enter a valid number",
+              },
               onChange: (e: any) => setWater(e.target.value),
             }}
             error={errors}
             aria-invalid={errors.inputWater ? "true" : "false"}
           />
-          {/* <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="water"
-            >
-              Water %
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="water"
-              type="text"
-              placeholder="Type the water %..."
-              value={water}
-              {...register("inputWater", {
-                required: false,
-                onChange: (e: any) => setWater(e.target.value),
-
-              })}
-              aria-invalid={errors.inputWater ? "true" : "false"}
-            />
-            {errors.inputWater && (
-              <WarningMessage text={errors.inputWater?.message} />
-            )}
-          </div> */}
         </div>
 
         {/* <div className="mx-auto"> */}
@@ -825,7 +561,6 @@ export async function getServerSideProps(context: any) {
     userInfo: null,
     message: "",
     isError: false,
-    errorMessage: "",
     redirect: "",
   };
 
@@ -838,10 +573,13 @@ export async function getServerSideProps(context: any) {
     props.user = uid;
     props.isError = false;
     props.message = `Your email is ${email} and your UID is ${uid}.`;
-    props.errorMessage = "";
+    props.message = "";
     props.redirect = "";
 
-    const getUserInfoResult = await getUserFunction(uid);
+    const getUserInfoResult = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.USER,
+      uid
+    );
 
     if (getUserInfoResult.isSuccess) props.userInfo = getUserInfoResult.result;
 

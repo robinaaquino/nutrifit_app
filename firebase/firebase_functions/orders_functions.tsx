@@ -11,356 +11,30 @@ import {
   getDoc,
   addDoc,
 } from "firebase/firestore";
-import * as Constants from "../constants";
-import { FunctionResult } from "@/firebase/constants";
+import { FunctionResult } from "../constants/function_constants";
 import { parseError } from "../helpers";
+import { getDocumentGivenTypeAndIdFunction } from "./general_functions";
 import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  deleteObject,
-} from "firebase/storage";
-import { v4 } from "uuid";
-import { getProductViaIdFunction } from "./products_functions";
-import { getUserFunction } from "./users_functions";
+  CollectionsEnum,
+  OrderStatusEnum,
+  ResultTypeEnum,
+} from "../constants/enum_constants";
+import { OrdersDatabaseType } from "../constants/orders_constants";
+import { SuccessCodes, ErrorCodes } from "../constants/success_and_error_codes";
+import { ProductsDatabaseType } from "../constants/product_constants";
+import { CartsDatabaseType } from "../constants/cart_constants";
 
-export const getAllOrdersFunction = async () => {
+export const addOrderFunction = async (order: OrdersDatabaseType) => {
   let resultObject: FunctionResult = {
-    result: "",
+    result: {},
+    resultType: ResultTypeEnum.OBJECT,
     isSuccess: false,
-    resultText: "",
-    errorMessage: "",
+    message: "",
   };
-  let datas: any[] = [];
+  let data: OrdersDatabaseType = {} as OrdersDatabaseType;
 
   try {
-    const docs = await getDocs(collection(db, "orders"));
-
-    docs.forEach((doc) => {
-      const id = doc.id;
-      const data = doc.data();
-      datas.push({
-        id,
-        ...data,
-      });
-    });
-
-    for (let i = 0; i < datas.length; i++) {
-      let currentData = datas[i];
-      if (currentData.user_id) {
-        const userDataResult = await getUserFunction(currentData.user_id);
-        if (userDataResult.isSuccess) {
-          currentData["email"] = userDataResult.result.email;
-        }
-      } else {
-        currentData["email"] = "Guest";
-      }
-
-      if (currentData.shipping_details) {
-        currentData["first_name"] = currentData.shipping_details.first_name;
-        currentData["last_name"] = currentData.shipping_details.last_name;
-      }
-    }
-
-    resultObject = {
-      result: datas,
-      isSuccess: true,
-      resultText: "Successful in getting all orders",
-      errorMessage: "",
-    };
-  } catch (e: unknown) {
-    console.log(e);
-    resultObject = {
-      result: datas,
-      isSuccess: false,
-      resultText: "Failed in getting all orders",
-      errorMessage: parseError(e),
-    };
-  }
-
-  return resultObject;
-};
-
-export const getAllOrdersViaIdFunction = async (userId: string) => {
-  let resultObject: FunctionResult = {
-    result: "",
-    isSuccess: false,
-    resultText: "",
-    errorMessage: "",
-  };
-  let datas: any[] = [];
-
-  try {
-    const docs = await getDocs(collection(db, "orders"));
-
-    docs.forEach((doc) => {
-      const id = doc.id;
-      const data = doc.data();
-      if (data.user_id == userId) {
-        datas.push({
-          id,
-          ...data,
-        });
-      }
-    });
-
-    resultObject = {
-      result: datas,
-      isSuccess: true,
-      resultText: "Successful in getting all orders for user",
-      errorMessage: "",
-    };
-  } catch (e: unknown) {
-    console.log(e);
-    resultObject = {
-      result: datas,
-      isSuccess: false,
-      resultText: "Failed in getting all orders for user",
-      errorMessage: parseError(e),
-    };
-  }
-
-  return resultObject;
-};
-
-export const getAllOrdersWithFilterFunction = async (filter: any) => {
-  let resultObject: FunctionResult = {
-    result: "",
-    isSuccess: false,
-    resultText: "",
-    errorMessage: "",
-  };
-  let datas: any[] = [];
-  let orderQuery: any[] = [];
-
-  try {
-    if (filter.status) {
-      orderQuery.push(where("status", "==", filter.status));
-    }
-
-    if (filter.deliveryMode) {
-      orderQuery.push(where("delivery_mode", "==", filter.deliveryMode));
-    }
-
-    if (filter.minPrice != 0) {
-      orderQuery.push(where("total_price", ">=", filter.minPrice));
-    }
-
-    if (filter.maxPrice != 0) {
-      orderQuery.push(where("total_price", "<=", filter.maxPrice));
-    }
-
-    const orderReference = query(collection(db, "orders"), ...orderQuery);
-
-    const docs = await getDocs(orderReference);
-    docs.forEach((doc) => {
-      const id = doc.id;
-      const data = doc.data();
-      datas.push({
-        id,
-        ...data,
-      });
-    });
-
-    for (let i = 0; i < datas.length; i++) {
-      let currentData = datas[i];
-      if (currentData.user_id) {
-        const userDataResult = await getUserFunction(currentData.user_id);
-        if (userDataResult.isSuccess) {
-          currentData["email"] = userDataResult.result.email;
-        }
-      } else {
-        currentData["email"] = "Guest";
-      }
-
-      if (currentData.shipping_details) {
-        currentData["first_name"] = currentData.shipping_details.first_name;
-        currentData["last_name"] = currentData.shipping_details.last_name;
-      }
-    }
-
-    resultObject = {
-      result: datas,
-      isSuccess: true,
-      resultText: "Successful in getting all orders with filter",
-      errorMessage: "",
-    };
-  } catch (e: unknown) {
-    console.log(e);
-    resultObject = {
-      result: datas,
-      isSuccess: false,
-      resultText: "Failed in getting all orders with filter",
-      errorMessage: parseError(e),
-    };
-  }
-
-  return resultObject;
-};
-
-export const getAllOrdersWithSearchFunction = async (searchString: any) => {
-  let resultObject: FunctionResult = {
-    result: "",
-    isSuccess: false,
-    resultText: "",
-    errorMessage: "",
-  };
-  let datas: any[] = [];
-
-  try {
-    const result = await getAllOrdersFunction();
-
-    if (!result.isSuccess) {
-      resultObject = {
-        result: datas,
-        isSuccess: false,
-        resultText: "Failed in getting all orders with search string",
-        errorMessage: result.errorMessage,
-      };
-    }
-
-    const orders = result.result;
-
-    for (let i = 0; i < orders.length; i++) {
-      let currentData = orders[i];
-      if (currentData.user_id) {
-        const userDataResult = await getUserFunction(currentData.user_id);
-        if (userDataResult.isSuccess) {
-          currentData["email"] = userDataResult.result.email;
-        }
-      } else {
-        currentData["email"] = "Guest";
-      }
-
-      if (currentData.shipping_details) {
-        currentData["first_name"] = currentData.shipping_details.first_name;
-        currentData["last_name"] = currentData.shipping_details.last_name;
-      }
-    }
-    console.log("orders", orders);
-
-    const individualStrings = searchString.toLowerCase().split(" ");
-    for (let i = 0; i < orders.length; i++) {
-      let matchedString = false;
-      for (let j = 0; j < individualStrings.length; j++) {
-        let regexExpression = `^.*` + individualStrings[j] + `.*$`;
-        if (
-          orders[i].email.toLowerCase().match(regexExpression) ||
-          orders[i].total_price.toString().match(regexExpression) ||
-          orders[i].delivery_mode.toLowerCase().match(regexExpression) ||
-          orders[i].status.toLowerCase().match(regexExpression) ||
-          orders[i].id.toLowerCase().match(regexExpression)
-        ) {
-          matchedString = true;
-          break;
-        } else if (
-          (orders[i].shipping_details &&
-            orders[i].shipping_details.first_name
-              .toLowerCase()
-              .match(regexExpression)) ||
-          orders[i].shipping_details.last_name
-            .toLowerCase()
-            .match(regexExpression)
-        ) {
-          matchedString = true;
-          break;
-        }
-      }
-      if (matchedString) {
-        datas.push(orders[i]);
-      }
-    }
-
-    resultObject = {
-      result: datas,
-      isSuccess: true,
-      resultText: "Successful in getting all orders with search string",
-      errorMessage: "",
-    };
-  } catch (e: unknown) {
-    console.log(e);
-    resultObject = {
-      result: datas,
-      isSuccess: false,
-      resultText: "Failed in getting all orders with search string",
-      errorMessage: parseError(e),
-    };
-  }
-
-  return resultObject;
-};
-
-export const getOrderViaIdFunction = async (id: string) => {
-  let resultObject: FunctionResult = {
-    result: "",
-    isSuccess: false,
-    resultText: "",
-    errorMessage: "",
-  };
-  let data: string = "";
-
-  try {
-    const orderReference = doc(db, "orders", id);
-
-    const orderSnapshot = await getDoc(orderReference);
-
-    if (orderSnapshot.exists()) {
-      resultObject = {
-        result: { id: orderSnapshot.id, ...orderSnapshot.data() },
-        isSuccess: true,
-        resultText: "Successful in getting order information",
-        errorMessage: "",
-      };
-    } else {
-      resultObject = {
-        result: data,
-        isSuccess: false,
-        resultText: "Order does not exist",
-        errorMessage: "",
-      };
-    }
-  } catch (e: unknown) {
-    console.log(e);
-    resultObject = {
-      result: data,
-      isSuccess: false,
-      resultText: "Failed in getting order information",
-      errorMessage: parseError(e),
-    };
-  }
-
-  return resultObject;
-};
-
-export const addOrderFunction = async (order: Constants.OrdersDatabaseType) => {
-  let resultObject: FunctionResult = {
-    result: "",
-    isSuccess: false,
-    resultText: "",
-    errorMessage: "",
-  };
-  let data: string = "";
-
-  try {
-    const documentRef = await addDoc(collection(db, "orders"), {
-      created_at: new Date().toString(),
-      updated_at: new Date().toString(),
-
-      total_price: order.total_price,
-      date_cleared: "",
-
-      payment: order.payment,
-      products: order.products,
-      status: order.status,
-
-      user_id: order.user_id,
-      note: order.note,
-      delivery_mode: order.delivery_mode,
-      shipping_details: order.shipping_details,
-    });
-
-    const data = {
-      id: documentRef.id,
+    data = {
       created_at: new Date().toString(),
       updated_at: new Date().toString(),
 
@@ -377,19 +51,62 @@ export const addOrderFunction = async (order: Constants.OrdersDatabaseType) => {
       shipping_details: order.shipping_details,
     };
 
+    const productInfo: any[] = [];
+    let promises: any[] = [];
+
+    for (let i = 0; i < data.products.length; i++) {
+      const currentProduct = data.products[i];
+      const productPromise = await getDocumentGivenTypeAndIdFunction(
+        CollectionsEnum.PRODUCT,
+        currentProduct.id
+      ).then((value) => {
+        productInfo.push(value.result);
+      });
+      promises.push(productPromise);
+    }
+
+    let isError = false;
+    await Promise.all(promises).then(async (e) => {
+      for (let i = 0; i < productInfo.length; i++) {
+        const currentProductQuantity = productInfo[i].quantity_left
+          ? productInfo[i].quantity_left
+          : 0;
+        if (currentProductQuantity < data.products[i].quantity) {
+          isError = true;
+          const errorMessage = `Error with product name: ${productInfo[i].name}. Remove from cart and try again.`;
+
+          //return error
+          resultObject = {
+            result: data,
+            resultType: ResultTypeEnum.OBJECT,
+            isSuccess: false,
+            message: errorMessage,
+          };
+          break;
+        }
+      }
+
+      if (!isError) {
+        const documentRef = await addDoc(collection(db, "orders"), data);
+
+        data.id = documentRef.id;
+
+        resultObject = {
+          result: data,
+          resultType: ResultTypeEnum.OBJECT,
+          isSuccess: true,
+          message: SuccessCodes["add-order"],
+        };
+      }
+    });
+  } catch (e: unknown) {
+    const errorMessage = parseError(e);
+
     resultObject = {
       result: data,
-      isSuccess: true,
-      resultText: "Successful in adding order",
-      errorMessage: "",
-    };
-  } catch (e: unknown) {
-    console.log(e);
-    resultObject = {
-      result: "",
+      resultType: ResultTypeEnum.OBJECT,
       isSuccess: false,
-      resultText: "Failed in adding order",
-      errorMessage: parseError(e),
+      message: errorMessage ? errorMessage : ErrorCodes["add-order"],
     };
   }
 
@@ -397,14 +114,14 @@ export const addOrderFunction = async (order: Constants.OrdersDatabaseType) => {
 };
 
 export const updateOrderFunction = async (
-  order: Constants.OrdersDatabaseType,
+  order: OrdersDatabaseType,
   orderId: string
 ) => {
   let resultObject: FunctionResult = {
-    result: "",
+    result: null,
+    resultType: ResultTypeEnum.NULL,
     isSuccess: false,
-    resultText: "",
-    errorMessage: "",
+    message: "",
   };
   let data: string = "";
 
@@ -414,7 +131,10 @@ export const updateOrderFunction = async (
       updated_at: new Date().toString(),
 
       total_price: order.total_price,
-      date_cleared: order.date_cleared,
+      date_cleared:
+        order.status == OrderStatusEnum.DELIVERED
+          ? new Date().toString()
+          : order.date_cleared,
 
       payment: order.payment,
       products: order.products,
@@ -426,32 +146,27 @@ export const updateOrderFunction = async (
       shipping_details: order.shipping_details,
     });
 
-    //update product quantity_sold
+    //todo: update product quantity_sold
     if (order.status == "delivered") {
       for (let i = 0; i < order.products.length; i++) {
         const currentProduct = order.products[i];
-        const getProductInfo = await getProductViaIdFunction(currentProduct.id);
+        const getProductInfo = await getDocumentGivenTypeAndIdFunction(
+          CollectionsEnum.PRODUCT,
+          currentProduct.id
+        );
+        const productInfo: ProductsDatabaseType =
+          getProductInfo.result as ProductsDatabaseType;
 
         if (!getProductInfo.isSuccess) {
-          return (resultObject = {
-            result: "",
-            isSuccess: false,
-            resultText: getProductInfo.resultText,
-            errorMessage: getProductInfo.errorMessage,
-          });
+          return getProductInfo;
         }
 
-        const getProductResult = getProductInfo.result;
-
         await setDoc(
-          doc(db, "products", getProductResult.id),
+          doc(db, "products", productInfo.id || ""),
           {
-            quantity_left:
-              parseInt(getProductResult.quantity_left) -
-              currentProduct.quantity,
+            quantity_left: productInfo.quantity_left - currentProduct.quantity,
             quantity_sold:
-              parseInt(getProductResult.quantity_sold) +
-              currentProduct.quantity,
+              (productInfo.quantity_sold || 0) + currentProduct.quantity,
           },
           { merge: true }
         );
@@ -459,48 +174,74 @@ export const updateOrderFunction = async (
     }
 
     resultObject = {
-      result: orderId,
+      result: null,
+      resultType: ResultTypeEnum.NULL,
       isSuccess: true,
-      resultText: "Successful in updating order",
-      errorMessage: "",
+      message: SuccessCodes["update-order"],
     };
   } catch (e: unknown) {
-    console.log(e);
+    const errorMessage = parseError(e);
+
     resultObject = {
-      result: "",
+      result: null,
+      resultType: ResultTypeEnum.NULL,
       isSuccess: false,
-      resultText: "Failed in updating order",
-      errorMessage: parseError(e),
+      message: errorMessage ? errorMessage : ErrorCodes["update-order"],
     };
   }
 
   return resultObject;
 };
 
-export const deleteOrderFunction = async (orderId: string) => {
+export const getAllPendingOrdersGivenUserId = async (userId: string) => {
   let resultObject: FunctionResult = {
-    result: "",
+    result: [],
+    resultType: ResultTypeEnum.ARRAY,
     isSuccess: false,
-    resultText: "",
-    errorMessage: "",
+    message: "",
   };
+  let datas: OrdersDatabaseType[] = [];
 
   try {
-    await deleteDoc(doc(db, "orders", orderId));
+    const orderReference = query(
+      collection(db, "orders"),
+      where("user_id", "==", userId)
+    );
+
+    const docs = await getDocs(orderReference);
+    docs.forEach((doc) => {
+      const id = doc.id;
+      const data = doc.data();
+      if (data.status && data.status == OrderStatusEnum.PENDING) {
+        datas.push({
+          id: id,
+          total_price: data.total_price,
+          payment: data.payment,
+          products: data.products,
+          status: data.status,
+          delivery_mode: data.delivery_mode,
+          shipping_details: data.shipping_details,
+          ...data,
+        });
+      }
+    });
 
     resultObject = {
-      result: {},
+      result: datas,
+      resultType: ResultTypeEnum.ARRAY,
       isSuccess: true,
-      resultText: "Successful in deleting product",
-      errorMessage: "",
+      message: SuccessCodes["user-pending-orders"],
     };
   } catch (e: unknown) {
-    console.log(e);
+    const errorMessage = parseError(e);
+
     resultObject = {
-      result: {},
+      result: [],
+      resultType: ResultTypeEnum.ARRAY,
       isSuccess: false,
-      resultText: "Failed in deleting order",
-      errorMessage: parseError(e),
+      message: errorMessage
+        ? errorMessage
+        : ErrorCodes["user-pending-orders-error"],
     };
   }
 

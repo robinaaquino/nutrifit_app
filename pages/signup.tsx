@@ -1,11 +1,14 @@
 "use client";
-import React, { useContext } from "react";
-import { signUp } from "@/firebase/firebase_functions/auth_functions";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { AuthContext, useAuthContext } from "@/context/AuthContext";
-import { addUserFunction } from "@/firebase/firebase_functions/users_functions";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
+
+import { useAuthContext } from "@/context/AuthContext";
+
+import { createAccount } from "@/firebase/firebase_functions/auth_functions";
+import { addUserFunction } from "@/firebase/firebase_functions/users_functions";
+
 import WarningMessage from "@/components/forms/WarningMessage";
 import SocialMediaLogin from "@/components/common/SocialMediaLogin";
 
@@ -21,10 +24,9 @@ export default function Signup() {
       inputPassword: "",
     },
   });
-  const [email, setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const router = useRouter();
-  // const authContextObject = useContext(AuthContext);
   const { success, error } = useAuthContext();
 
   const handleForm = async (data: any, e?: any) =>
@@ -33,7 +35,7 @@ export default function Signup() {
       e.preventDefault();
       const { inputEmail, inputPassword } = data;
 
-      const result = await signUp(inputEmail, inputPassword);
+      const result = await createAccount(inputEmail, inputPassword);
 
       const addResult = await addUserFunction({
         email: inputEmail,
@@ -42,13 +44,13 @@ export default function Signup() {
 
       if (result.isSuccess) {
         if (addResult.isSuccess) {
-          success(result.resultText);
+          success(result.message);
           router.push("/");
         } else {
-          error(addResult.errorMessage);
+          error(addResult.message);
         }
       } else {
-        error(result.errorMessage);
+        error(result.message);
       }
     };
 
