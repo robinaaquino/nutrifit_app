@@ -36,6 +36,7 @@ import WarningMessage from "@/components/forms/WarningMessage";
 import HeadingOne from "@/components/forms/HeadingOne";
 import InputButton from "@/components/forms/input/InputButton";
 import Button from "@/components/common/Button";
+import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
 
 export default function UserShow(props: any) {
   const router = useRouter();
@@ -153,7 +154,7 @@ export default function UserShow(props: any) {
         setImage(userResult.image);
       } else {
         if (idInput != user) {
-          error("Unauthorized viewing");
+          error(ErrorCodes["unauthorized-access"]);
           router.push("/");
         } else {
           setUserInfo(userResult);
@@ -210,7 +211,7 @@ export default function UserShow(props: any) {
     if (result.isSuccess) {
       setOrders(resultObject);
     } else {
-      error("result.message");
+      error(result.message);
     }
 
     const surveyResults = await getAllDocumentsGivenTypeAndUserIdFunction(
@@ -223,7 +224,7 @@ export default function UserShow(props: any) {
     if (surveyResults.isSuccess) {
       setWellnessSurveyResults(surveyResultsObject);
     } else {
-      error("surveyResults.message");
+      error(surveyResults.message);
     }
 
     await auth.currentUser?.reload();
@@ -242,7 +243,7 @@ export default function UserShow(props: any) {
       if (validImageTypes.includes(fileType)) {
         previousImage = file[0];
       } else {
-        error("Only images accepted");
+        error(ErrorCodes["invalid-format"]);
       }
     } else {
       previousImage = file[0];
@@ -342,7 +343,7 @@ export default function UserShow(props: any) {
       await sendEmailVerification(auth.currentUser)
         .then((user: any) => {
           success(
-            "Successfully sent a verification email. Please, log back in once you've verified your account"
+            "Successfully sent a verification email. Please, log back in once you've verified your account or reload your status verification status"
           );
         })
         .catch((error: any) => {

@@ -21,6 +21,7 @@ import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions
 
 import InputComponent from "@/components/forms/input/InputComponent";
 import WarningMessage from "@/components/forms/WarningMessage";
+import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
 
 export default function WellnessSurveyShow(props: any) {
   const router = useRouter();
@@ -171,7 +172,7 @@ export default function WellnessSurveyShow(props: any) {
         wellnessSurveyResultObject.user_id &&
         wellnessSurveyResultObject.user_id != props.user
       ) {
-        error("Unauthorized access");
+        error(ErrorCodes["unauthorized-access"]);
         router.push("/");
       }
 

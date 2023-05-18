@@ -31,6 +31,7 @@ import InputSubmit from "@/components/forms/input/InputSubmit";
 import Label from "@/components/forms/Label";
 
 import HeadingTwo from "@/components/forms/HeadingTwo";
+import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
 
 export default function Cart(props: any) {
   const [firstName, setFirstName] = useState("");
@@ -160,7 +161,7 @@ export default function Cart(props: any) {
       const emailVerified = auth.currentUser?.emailVerified;
 
       if (!emailVerified && props.user) {
-        error("Verify your email before checkout");
+        error(ErrorCodes["email-not-verified"]);
       } else {
         const result = await addOrderFunction(orderDetails);
         const resultOrder: OrdersDatabaseType =
@@ -187,7 +188,7 @@ export default function Cart(props: any) {
         }
       }
     } else {
-      error("No items in cart");
+      error(ErrorCodes["no-items-in-cart"]);
     }
     e.preventDefault();
   };
