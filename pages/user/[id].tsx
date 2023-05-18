@@ -4,10 +4,11 @@ import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { sendEmailVerification } from "firebase/auth";
 
 import no_image from "../../public/no_image.png";
 
-import { useAuthContext } from "@/context/AuthContext";
+import { logout, useAuthContext } from "@/context/AuthContext";
 
 import { UsersDatabaseType } from "@/firebase/constants/user_constants";
 import { OrdersDatabaseType } from "@/firebase/constants/orders_constants";
@@ -20,11 +21,17 @@ import {
 } from "@/firebase/firebase_functions/general_functions";
 import { updateUserFunction } from "@/firebase/firebase_functions/users_functions";
 
-import { resetPassword } from "@/firebase/firebase_functions/auth_functions";
+import {
+  auth,
+  resetPassword,
+} from "@/firebase/firebase_functions/auth_functions";
+import { parseError } from "@/firebase/helpers";
 
 import TableComponent from "@/components/admin/TableComponent";
 import WarningMessage from "@/components/forms/WarningMessage";
 import HeadingOne from "@/components/forms/HeadingOne";
+import InputButton from "@/components/forms/input/InputButton";
+import Button from "@/components/common/Button";
 
 export default function UserShow(props: any) {
   const router = useRouter();
@@ -64,6 +71,10 @@ export default function UserShow(props: any) {
   >([]);
   const wellnessSurveyResultHeaders = ["ID", "Status", "Program"];
   const wellnessSurveyResultKeys = ["id", "reviewed_by_admin", "program"];
+
+  const [emailVerified, setEmailVerified] = useState<boolean>(
+    props.email_verified
+  );
 
   const {
     register,
@@ -200,6 +211,9 @@ export default function UserShow(props: any) {
     } else {
       error("surveyResults.message");
     }
+
+    await auth.currentUser?.reload();
+    setEmailVerified(auth.currentUser?.emailVerified || false);
   }
 
   //change image functions for user
@@ -297,6 +311,32 @@ export default function UserShow(props: any) {
       success(resetPasswordResult.message);
     } else {
       error(resetPasswordResult.message);
+    }
+  };
+
+  const handleReloadVerificationStatus = async () => {
+    console.log(auth.currentUser);
+    await auth.currentUser?.reload();
+    setEmailVerified(auth.currentUser?.emailVerified || false);
+
+    const token = await auth.currentUser?.getIdToken();
+    nookies.set(undefined, "token", JSON.stringify(token), { path: "/" });
+    success("Reloaded user status");
+  };
+
+  const handleVerifyEmail = async () => {
+    if (auth.currentUser) {
+      await sendEmailVerification(auth.currentUser)
+        .then((user: any) => {
+          success(
+            "Successfully sent a verification email. Please, log back in once you've verified your account"
+          );
+          // logout();
+        })
+        .catch((error: any) => {
+          const errorMessage = parseError(error);
+          error(errorMessage);
+        });
     }
   };
 
@@ -520,6 +560,31 @@ export default function UserShow(props: any) {
                     </button>
                   </div>
                 </div>
+                {/* Send verification email */}
+                {!emailVerified ? (
+                  <div className="flex flex-wrap -mx-3 ">
+                    <div className="w-full px-3 mb-6">
+                      <label
+                        className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        htmlFor="grid-category"
+                      >
+                        Verify Email
+                      </label>
+                      <button
+                        className="appearance-none block w-full bg-nf_green text-white border  rounded py-3 px-4 mb-3 leading-tight hover:bg-nf_dark_blue"
+                        onClick={() => {
+                          handleVerifyEmail();
+                        }}
+                      >
+                        Verify Email
+                      </button>
+                      <InputButton
+                        label="Reload verification status"
+                        handleClick={handleReloadVerificationStatus}
+                      />
+                    </div>
+                  </div>
+                ) : null}
               </div>
               {/* Contact Number Field */}
               <div className="flex flex-wrap -mx-3 ">
@@ -680,8 +745,7 @@ export async function getServerSideProps(context: any) {
 
     if (cookies.token) {
       const token = await admin.auth().verifyIdToken(cookies.token);
-
-      const { uid } = token;
+      const { uid, email_verified } = token;
 
       const userDetails = await getDocumentGivenTypeAndIdFunction(
         CollectionsEnum.USER,
@@ -696,7 +760,9 @@ export async function getServerSideProps(context: any) {
         const isAdmin = userDetailsResult.role == "admin" ? true : false;
         return {
           props: {
+            token,
             user: uid,
+            email_verified,
             authorized: isAdmin,
             userDetails: userDetails.result,
             isError: false,
@@ -707,7 +773,9 @@ export async function getServerSideProps(context: any) {
       } else {
         return {
           props: {
+            token,
             user: uid,
+            email_verified,
             authorized: false,
             userDetails: null,
             isError: false,
@@ -719,7 +787,9 @@ export async function getServerSideProps(context: any) {
     } else {
       return {
         props: {
+          token: null,
           user: null,
+          email_verified: null,
           authorized: false,
           userDetails: null,
           isError: false,
@@ -731,7 +801,9 @@ export async function getServerSideProps(context: any) {
   } catch (err) {
     return {
       props: {
+        token: null,
         user: null,
+        email_verified: null,
         userDetails: null,
         isError: true,
         message: "Error with getting user info",

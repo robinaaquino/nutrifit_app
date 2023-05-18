@@ -5,6 +5,8 @@ import admin from "../firebase/admin-config";
 import Link from "next/link";
 import Image from "next/image";
 
+import { auth } from "@/firebase/firebase_functions/auth_functions";
+
 import { OrdersDatabaseType } from "@/firebase/constants/orders_constants";
 import {
   PaymentMethodEnum,
@@ -159,30 +161,35 @@ export default function Cart(props: any) {
         shipping_details: shipping_details,
       };
 
-      console.log(orderDetails);
+      await auth.currentUser?.reload();
+      const emailVerified = auth.currentUser?.emailVerified;
 
-      const result = await addOrderFunction(orderDetails);
-      const resultOrder: OrdersDatabaseType =
-        result.result as OrdersDatabaseType;
+      if (!emailVerified && props.user) {
+        error("Verify your email before checkout");
+      } else {
+        const result = await addOrderFunction(orderDetails);
+        const resultOrder: OrdersDatabaseType =
+          result.result as OrdersDatabaseType;
 
-      if (result.isSuccess) {
-        success(result.message);
-        router.push(`/order/${resultOrder.id}`);
-        nookies.set(undefined, "order", JSON.stringify(result.result));
+        if (result.isSuccess) {
+          success(result.message);
+          router.push(`/order/${resultOrder.id}`);
+          nookies.set(undefined, "order", JSON.stringify(result.result));
 
-        if (props.user || user) {
-          const clearCartResult = await clearCartFunction(props.user || user);
+          if (props.user || user) {
+            const clearCartResult = await clearCartFunction(props.user || user);
 
-          if (clearCartResult.isSuccess) {
-            deleteCartInCookiesAndContext();
+            if (clearCartResult.isSuccess) {
+              deleteCartInCookiesAndContext();
+            } else {
+              error(result.message);
+            }
           } else {
-            error(result.message);
+            deleteCartInCookiesAndContext();
           }
         } else {
-          deleteCartInCookiesAndContext();
+          error(result.message);
         }
-      } else {
-        error(result.message);
       }
     } else {
       error("No items in cart");
@@ -772,9 +779,7 @@ export async function getServerSideProps(context: any) {
 
     if (cookies.token) {
       const token = await admin.auth().verifyIdToken(cookies.token);
-
       const { uid, email } = token;
-
       const getCartResult = await getCartViaIdFunction(uid);
       return {
         props: {

@@ -98,6 +98,8 @@ export const ErrorCodes = {
     "User still has pending orders. Resolve all pending orders before deleting the user",
   "user-pending-orders-error":
     "An error has occurred while we were retrieving the pending orders of the user. Try again or contact the administrator",
+  "email-verification":
+    "An error has occurred while we were sending a verification email. Try again or contact the administrator",
 };
 
 export const SuccessCodes = {
@@ -145,4 +147,6 @@ export const SuccessCodes = {
     "You have successfully retrieved the top best selling products",
   "user-pending-orders":
     "You have successfully retrieved all the pending orders of the user",
+  "email-verification":
+    "We have sent you a verification email. Please, check your email",
 };
