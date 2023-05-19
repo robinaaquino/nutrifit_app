@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 import { useAuthContext } from "@/context/AuthContext";
 import { addMessageFunction } from "@/firebase/firebase_functions/messages_functions";
@@ -24,6 +26,15 @@ export default function ContactUs() {
     },
   });
 
+  const mapContainer = useRef<any>(null);
+  const geocoderContainer = useRef<any>(null);
+  const map = useRef<any>(null);
+  const [lng, setLng] = useState(120.46851434051715);
+  const [lat, setLat] = useState(14.86645035829063);
+  const [zoom, setZoom] = useState(15);
+
+  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOXGL_ACCESS_TOKEN || "";
+
   const handleForm = async (data: any, e: any) => {
     e.preventDefault();
     const { inputName, inputEmail, inputMessage } = data;
@@ -42,8 +53,21 @@ export default function ContactUs() {
   };
 
   useEffect(() => {
-    // eme();
-  }, []);
+    if (!mapContainer.current) {
+      return;
+    }
+
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current || "",
+      style: "mapbox://styles/mapbox/streets-v12",
+      center: [120.46851434051715, 14.86645035829063],
+      zoom: zoom,
+    });
+
+    const marker = new mapboxgl.Marker({})
+      .setLngLat([120.46851434051715, 14.86645035829063])
+      .addTo(map.current);
+  }, [mapContainer, map]);
 
   return (
     <>
@@ -165,7 +189,12 @@ export default function ContactUs() {
                     </p>
                   </div>
                 </div>
-                <div className="mb-8 flex w-full max-w-[370px]">
+                <div
+                  id="mapId"
+                  ref={mapContainer}
+                  className="map-container w-full h-96"
+                ></div>
+                <div className="mt-4 mb-8 flex w-full max-w-[370px]">
                   <div className="bg-nf_green text-nf_yellow mr-6 flex h-[60px] w-full max-w-[60px] items-center justify-center overflow-hidden rounded  sm:h-[70px] sm:max-w-[70px]">
                     <svg
                       width="24"

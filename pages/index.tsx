@@ -225,7 +225,7 @@ export default function Home(props: any) {
                 >
                   <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-white">
                     <Image
-                      className="h-full w-full object-fill object-center group-hover:opacity-75 max-w-64 max-h-64"
+                      className="h-48 w-48 object-cover group-hover:opacity-75 max-w-64 max-h-64"
                       src={returnCategoryImage(categoryIndex)}
                       alt="Sunset in the mountains"
                       width="256"
@@ -251,9 +251,9 @@ export default function Home(props: any) {
                   }}
                   className="grid grid-cols-1 grid-rows-2 gap-2"
                 >
-                  <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-white max-w-64 max-h-64">
+                  <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-white">
                     <Image
-                      className="h-full w-full object-fill object-center group-hover:opacity-75 "
+                      className="h-48 w-48 object-cover group-hover:opacity-75 max-w-64 max-h-64"
                       src={returnCategoryImage(categoryIndex + 1)}
                       alt="Sunset in the mountains"
                       width="256"
@@ -279,9 +279,9 @@ export default function Home(props: any) {
                   }}
                   className="grid grid-cols-1 grid-rows-2 gap-2"
                 >
-                  <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-white max-w-64 max-h-64">
+                  <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-white">
                     <Image
-                      className="h-full w-full object-fill object-center group-hover:opacity-75 "
+                      className="h-48 w-48 object-cover group-hover:opacity-75 max-w-64 max-h-64"
                       src={returnCategoryImage(categoryIndex + 2)}
                       alt="Sunset in the mountains"
                       width="256"

@@ -103,8 +103,8 @@ export const createAccount = async (email: string, password: string) => {
     message: "",
   };
 
-  await createUserWithEmailAndPassword(auth, email, password).then(
-    async (result: any) => {
+  await createUserWithEmailAndPassword(auth, email, password)
+    .then(async (result: any) => {
       const userUid = result.user.uid;
 
       await sendEmailVerification(result.user)
@@ -128,8 +128,17 @@ export const createAccount = async (email: string, password: string) => {
               : ErrorCodes["email-verification"],
           };
         });
-    }
-  );
+    })
+    .catch((error: any) => {
+      const errorMessage = parseError(error);
+
+      resultObject = {
+        result: "",
+        resultType: ResultTypeEnum.TEXT,
+        isSuccess: false,
+        message: errorMessage ? errorMessage : ErrorCodes["email-verification"],
+      };
+    });
   return resultObject;
 };
 

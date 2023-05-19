@@ -23,6 +23,7 @@ import HeadingTwo from "@/components/forms/HeadingTwo";
 import InputComponent from "@/components/forms/input/InputComponent";
 import { CollectionsEnum } from "@/firebase/constants/enum_constants";
 import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_functions";
+import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
 
 export default function AdminProductShow(props: any) {
   const router = useRouter();
@@ -123,7 +124,7 @@ export default function AdminProductShow(props: any) {
       if (validImageTypes.includes(fileType)) {
         previousFiles[index] = file[0];
       } else {
-        authContextObject.error("Only images accepted");
+        authContextObject.error(ErrorCodes["invalid-format"]);
       }
     } else {
       previousFiles[index] = file[0];

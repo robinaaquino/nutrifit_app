@@ -22,6 +22,7 @@ import { getAllDocumentsGivenTypeAndUserIdFunction } from "@/firebase/firebase_f
 
 import TableComponent from "@/components/admin/TableComponent";
 import WarningMessage from "@/components/forms/WarningMessage";
+import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
 
 export default function AdminUserShow(props: any) {
   const router = useRouter();
@@ -143,7 +144,7 @@ export default function AdminUserShow(props: any) {
     if (result.isSuccess) {
       setOrders(resultObject);
     } else {
-      error("result.message");
+      error(result.message);
     }
   }
 
@@ -159,7 +160,7 @@ export default function AdminUserShow(props: any) {
       if (validImageTypes.includes(fileType)) {
         previousImage = file[0];
       } else {
-        error("Only images accepted");
+        error(ErrorCodes["invalid-format"]);
       }
     } else {
       previousImage = file[0];
