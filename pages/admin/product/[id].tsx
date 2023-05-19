@@ -160,8 +160,8 @@ export default function AdminProductShow(props: any) {
     const productObject: ProductsDatabaseType = {
       category: inputCategory,
       description: inputProductDescription,
-      price: inputPrice,
-      quantity_left: inputQuantity,
+      price: parseInt(inputPrice),
+      quantity_left: parseInt(inputQuantity),
       name: inputProductName,
       images: files,
       quantity_in_carts: quantityInCarts,
