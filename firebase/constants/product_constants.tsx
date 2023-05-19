@@ -7,6 +7,8 @@ export const ProductCategoriesList = [
   "Personalized Weight Management",
   "Sports Nutrition",
   "Targeted Nutrition",
+  "Skin",
+  "Vitamin Mask",
 ];
 
 export type ProductsDatabaseType = {
