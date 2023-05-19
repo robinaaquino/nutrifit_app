@@ -68,7 +68,7 @@ export const applyFilterFunction = async (
       }
 
       const productReference = query(
-        collection(db, "resultingArray"),
+        collection(db, CollectionsEnum.PRODUCT),
         ...queryList
       );
 
@@ -128,7 +128,7 @@ export const applyFilterFunction = async (
       }
 
       const orderReference = query(
-        collection(db, "resultingArray"),
+        collection(db, CollectionsEnum.ORDER),
         ...queryList
       );
 
@@ -178,7 +178,7 @@ export const applyFilterFunction = async (
       }
 
       const resultReference = query(
-        collection(db, "resultingArray"),
+        collection(db, CollectionsEnum.WELLNESS),
         ...queryList
       );
 
