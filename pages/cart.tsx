@@ -1,9 +1,15 @@
 import { useAuthContext } from "@/context/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import nookies from "nookies";
 import admin from "../firebase/admin-config";
 import Link from "next/link";
 import Image from "next/image";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
+import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
+
+import { auth } from "@/firebase/firebase_functions/auth_functions";
 
 import { OrdersDatabaseType } from "@/firebase/constants/orders_constants";
 import {
@@ -25,6 +31,7 @@ import InputSubmit from "@/components/forms/input/InputSubmit";
 import Label from "@/components/forms/Label";
 
 import HeadingTwo from "@/components/forms/HeadingTwo";
+import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
 
 export default function Cart(props: any) {
   const [firstName, setFirstName] = useState("");
@@ -33,7 +40,7 @@ export default function Cart(props: any) {
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [province, setProvince] = useState("");
-  const [deliveryMode, setDeliveryMode] = useState("pickup");
+  const [deliveryMode, setDeliveryMode] = useState("delivery");
   const [notes, setNotes] = useState("");
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodEnum>(
@@ -71,30 +78,22 @@ export default function Cart(props: any) {
   } = useAuthContext();
   const router = useRouter();
 
+  const mapContainer = useRef<any>(null);
+  const geocoderContainer = useRef<any>(null);
+  const map = useRef<any>(null);
+  const [lng, setLng] = useState(120.46851434051715);
+  const [lat, setLat] = useState(14.86645035829063);
+  const [zoom, setZoom] = useState(15);
+  const cityCoordinates = [120.46851434051715, 14.86645035829063];
+
+  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOXGL_ACCESS_TOKEN || "";
+
   async function fetchCarts() {
     if (props.cart) {
       //if cart exists in cookies
       setCartContents(props.cart);
       setCartProducts(props.cart.products);
     }
-    // else {
-    //   if (cart) {
-    //     //check cart in context
-    //     setCartContents(cart);
-    //     setCartProducts(products);
-    //   } else {
-    //     let newCart: any = {
-    //       created_at: new Date().toString(),
-    //       products: [],
-    //       subtotal_price: 0,
-    //       updated_at: new Date().toString(),
-    //       user_id: null,
-    //     };
-
-    //     setCartContents(newCart);
-    //     setCartProducts([]);
-    //   }
-    // }
   }
 
   function handleRemoveFromCart(product: any) {
@@ -112,7 +111,6 @@ export default function Cart(props: any) {
 
     setCartContents(previousCart);
     setCartProducts(previousCart.products);
-    console.log("prev", previousCart);
   }
 
   const handleFormForPayment = async (data: any, e: any) => {
@@ -159,33 +157,38 @@ export default function Cart(props: any) {
         shipping_details: shipping_details,
       };
 
-      console.log(orderDetails);
+      await auth.currentUser?.reload();
+      const emailVerified = auth.currentUser?.emailVerified;
 
-      const result = await addOrderFunction(orderDetails);
-      const resultOrder: OrdersDatabaseType =
-        result.result as OrdersDatabaseType;
+      if (!emailVerified && props.user) {
+        error(ErrorCodes["email-not-verified"]);
+      } else {
+        const result = await addOrderFunction(orderDetails);
+        const resultOrder: OrdersDatabaseType =
+          result.result as OrdersDatabaseType;
 
-      if (result.isSuccess) {
-        success(result.message);
-        router.push(`/order/${resultOrder.id}`);
-        nookies.set(undefined, "order", JSON.stringify(result.result));
+        if (result.isSuccess) {
+          success(result.message);
+          router.push(`/order/${resultOrder.id}`);
+          nookies.set(undefined, "order", JSON.stringify(result.result));
 
-        if (props.user || user) {
-          const clearCartResult = await clearCartFunction(props.user || user);
+          if (props.user || user) {
+            const clearCartResult = await clearCartFunction(props.user || user);
 
-          if (clearCartResult.isSuccess) {
-            deleteCartInCookiesAndContext();
+            if (clearCartResult.isSuccess) {
+              deleteCartInCookiesAndContext();
+            } else {
+              error(result.message);
+            }
           } else {
-            error(result.message);
+            deleteCartInCookiesAndContext();
           }
         } else {
-          deleteCartInCookiesAndContext();
+          error(result.message);
         }
-      } else {
-        error(result.message);
       }
     } else {
-      error("No items in cart");
+      error(ErrorCodes["no-items-in-cart"]);
     }
     e.preventDefault();
   };
@@ -198,13 +201,70 @@ export default function Cart(props: any) {
     setPaymentMethod(PaymentMethodEnum.GCASH);
   }
 
+  async function convertLatLngToAddress(inputLat: number, inputLng: number) {
+    const reverseGeocodingUrl = `https://api.geoapify.com/v1/geocode/reverse?lat=${inputLat}&lon=${inputLng}&apiKey=${"d2728093e4394f759d8e7a8f0c9644e7"}`;
+
+    const res = await fetch(reverseGeocodingUrl);
+    const data = await res.json();
+    const address =
+      data.features && data.features.length > 0
+        ? data.features[0].properties
+        : null;
+    setAddress(address.formatted);
+    setCity(address.city);
+    setProvince(address.state);
+  }
+
   useEffect(() => {
-    console.log("what comes first, the cart or this");
-    console.log(cart);
-    console.log(props);
     clear();
     fetchCarts();
-  }, []);
+
+    const coordinates: HTMLElement = document.getElementById(
+      "coordinates"
+    ) as HTMLElement;
+
+    if (!mapContainer.current) {
+      return;
+    }
+
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current || "",
+      style: "mapbox://styles/mapbox/streets-v12",
+      center: [120.46851434051715, 14.86645035829063],
+      zoom: zoom,
+    });
+
+    const marker = new mapboxgl.Marker({
+      draggable: true,
+    })
+      .setLngLat([120.46851434051715, 14.86645035829063])
+      .addTo(map.current);
+
+    marker.on("dragend", onDragEnd);
+
+    function onDragEnd() {
+      const lngLat = marker.getLngLat();
+      coordinates.style.display = "block";
+      setLng(lngLat.lng);
+      setLat(lngLat.lat);
+      convertLatLngToAddress(lngLat.lat, lngLat.lng);
+    }
+
+    const geocoder = new MapboxGeocoder({
+      accessToken: mapboxgl.accessToken,
+      mapboxgl: mapboxgl,
+    });
+
+    map.current.addControl(geocoder);
+
+    geocoder.on("results", function (results, error) {
+      if (results && results.features?.length > 0) {
+        const inputLng = results.features[0].geometry.coordinates[0];
+        const inputLat = results.features[0].geometry.coordinates[1];
+        convertLatLngToAddress(inputLat, inputLng);
+      }
+    });
+  }, [mapContainer, map, deliveryMode]);
 
   return (
     <>
@@ -336,9 +396,14 @@ export default function Cart(props: any) {
               </div>
 
               {/* Shipping Address */}
+
               {deliveryMode == "delivery" ? (
                 <div className="bg-gray-50 rounded-lg p-2">
                   <HeadingTwo label={"Shipping Address"} />
+                  <p className="text-sm text-gray-500">
+                    Manually input your shipping address or drag the marker in
+                    the map below to find your location
+                  </p>
                   {/* Address */}
                   <div className="mt-4">
                     <InputComponent
@@ -396,27 +461,6 @@ export default function Cart(props: any) {
                       error={errors}
                       aria-invalid={errors.inputCity ? "true" : "false"}
                     />
-                    {/* <div className="w-full lg:w-1/2">
-                    <label
-                      htmlFor="city"
-                      className="block mb-3 text-sm font-semibold text-gray-500"
-                    >
-                      City
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="City"
-                      className="w-full px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 bg-white text-black"
-                      {...register("inputCity", {
-                        required: "City is required",
-                        onChange: (e: any) => setCity(e.target.value),
-                      })}
-                      aria-invalid={errors.inputCity ? "true" : "false"}
-                    />
-                  </div>
-                  {errors.inputCity && (
-                    <WarningMessage text={errors.inputCity?.message} />
-                  )} */}
                     <InputComponent
                       id={"province"}
                       name={"inputProvince"}
@@ -453,6 +497,19 @@ export default function Cart(props: any) {
                   {errors.inputProvince && (
                     <WarningMessage text={errors.inputProvince?.message} />
                   )} */}
+                  </div>
+                  <div className="mt-4 px-4">
+                    <div
+                      id="mapId"
+                      ref={mapContainer}
+                      className="map-container w-96 h-96 "
+                    ></div>
+                    <pre id="coordinates" className="bg-red-500"></pre>
+                    <div
+                      id="geocoder"
+                      // ref={geocoderContainer}
+                      className="geocoder"
+                    ></div>
                   </div>
                 </div>
               ) : null}
@@ -545,28 +602,12 @@ export default function Cart(props: any) {
                         label={"Payment upon Pickup"}
                         handleClick={handlePaymentUponPickup}
                       />
-                      {/* <button
-                        className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900 mt-2"
-                        onClick={(e) => {
-                          setPaymentMethod(
-                            PaymentMethodEnum.PAYMENT_UPON_PICK_UP
-                          );
-                        }}
-                      >
-                        Payment Upon Pickup
-                      </button> */}
                     </>
                   ) : (
                     <InputSubmit
                       label={"Process Payment"}
                       handleClick={handleCashlessPayment}
                     />
-                    // <button
-                    //   className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900 disabled"
-                    //   type="submit"
-                    // >
-                    //   Process Payment
-                    // </button>
                   )}
                 </div>
               </div>
@@ -772,9 +813,7 @@ export async function getServerSideProps(context: any) {
 
     if (cookies.token) {
       const token = await admin.auth().verifyIdToken(cookies.token);
-
       const { uid, email } = token;
-
       const getCartResult = await getCartViaIdFunction(uid);
       return {
         props: {

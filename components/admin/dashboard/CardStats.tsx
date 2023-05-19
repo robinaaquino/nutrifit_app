@@ -94,19 +94,7 @@ export default function CardStats({
                 return (
                   <>
                     <p className="text-sm text-white">
-                      <span className="text-white text-sm ">
-                        {/* <i
-                        className={
-                          "fas fa-arrow-up"
-                          // statArrow === "up"
-                          //   ? "fas fa-arrow-up"
-                          //   : statArrow === "down"
-                          //   ? "fas fa-arrow-down"
-                          //   : ""
-                        }
-                      ></i>{" "} */}
-                        {count}{" "}
-                      </span>
+                      <span className="text-white text-sm ">{count} </span>
                       <span className="whitespace-nowrap">{key}</span>
                     </p>
                   </>

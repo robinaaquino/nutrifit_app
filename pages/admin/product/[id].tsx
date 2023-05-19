@@ -23,6 +23,7 @@ import HeadingTwo from "@/components/forms/HeadingTwo";
 import InputComponent from "@/components/forms/input/InputComponent";
 import { CollectionsEnum } from "@/firebase/constants/enum_constants";
 import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_functions";
+import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
 
 export default function AdminProductShow(props: any) {
   const router = useRouter();
@@ -108,7 +109,6 @@ export default function AdminProductShow(props: any) {
   }
 
   useEffect(() => {
-    // router.replace("/maintenance");
     fetchProduct();
   }, []);
 
@@ -124,7 +124,7 @@ export default function AdminProductShow(props: any) {
       if (validImageTypes.includes(fileType)) {
         previousFiles[index] = file[0];
       } else {
-        authContextObject.error("Only images accepted");
+        authContextObject.error(ErrorCodes["invalid-format"]);
       }
     } else {
       previousFiles[index] = file[0];
@@ -139,46 +139,44 @@ export default function AdminProductShow(props: any) {
     setFiles(previousFiles);
   };
 
-  const handleForm = async (data: any, e: any) =>
-    // event: any
-    {
-      e.preventDefault();
-      const {
-        inputCategory,
-        inputProductDescription,
-        inputPrice,
-        inputQuantity,
-        inputProductName,
-      } = data;
+  const handleForm = async (data: any, e: any) => {
+    e.preventDefault();
+    const {
+      inputCategory,
+      inputProductDescription,
+      inputPrice,
+      inputQuantity,
+      inputProductName,
+    } = data;
 
-      var idInput = "";
-      if (id) {
-        if (id[0]) {
-          idInput = id.toString();
-        } else if (typeof id == "string") {
-          idInput = id;
-        }
+    var idInput = "";
+    if (id) {
+      if (id[0]) {
+        idInput = id.toString();
+      } else if (typeof id == "string") {
+        idInput = id;
       }
-      const productObject: ProductsDatabaseType = {
-        category: inputCategory,
-        description: inputProductDescription,
-        price: inputPrice,
-        quantity_left: inputQuantity,
-        name: inputProductName,
-        images: files,
-        quantity_in_carts: quantityInCarts,
-        quantity_sold: quantitySold,
-        created_at: product.created_at,
-      };
-      const result = await updateProductFunction(productObject, idInput);
-
-      if (result.isSuccess) {
-        authContextObject.success(result.message);
-        router.push("/admin/product");
-      } else {
-        authContextObject.error(result.message);
-      }
+    }
+    const productObject: ProductsDatabaseType = {
+      category: inputCategory,
+      description: inputProductDescription,
+      price: inputPrice,
+      quantity_left: inputQuantity,
+      name: inputProductName,
+      images: files,
+      quantity_in_carts: quantityInCarts,
+      quantity_sold: quantitySold,
+      created_at: product.created_at,
     };
+    const result = await updateProductFunction(productObject, idInput);
+
+    if (result.isSuccess) {
+      authContextObject.success(result.message);
+      router.push("/admin/product");
+    } else {
+      authContextObject.error(result.message);
+    }
+  };
 
   if (props.isError) {
     error(props.message);
@@ -630,7 +628,6 @@ export default function AdminProductShow(props: any) {
 
 export async function getServerSideProps(context: any) {
   try {
-    console.log("server side auth be like");
     const cookies = nookies.get(context);
     const token = await admin.auth().verifyIdToken(cookies.token);
 
@@ -639,9 +636,6 @@ export async function getServerSideProps(context: any) {
     const isAdmin = await isUserAuthorizedFunction(uid);
 
     if (!isAdmin) {
-      // context.res.writeHead(302, { Location: "/login" });
-      // context.res.end();
-
       return {
         props: {
           isError: true,
@@ -660,9 +654,6 @@ export async function getServerSideProps(context: any) {
       },
     };
   } catch (err) {
-    // context.res.writeHead(302, { Location: "/login" });
-    // context.res.end();
-
     return {
       props: {
         isError: true,

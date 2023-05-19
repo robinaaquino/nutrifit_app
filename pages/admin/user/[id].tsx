@@ -22,6 +22,7 @@ import { getAllDocumentsGivenTypeAndUserIdFunction } from "@/firebase/firebase_f
 
 import TableComponent from "@/components/admin/TableComponent";
 import WarningMessage from "@/components/forms/WarningMessage";
+import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
 
 export default function AdminUserShow(props: any) {
   const router = useRouter();
@@ -143,7 +144,7 @@ export default function AdminUserShow(props: any) {
     if (result.isSuccess) {
       setOrders(resultObject);
     } else {
-      error("result.message");
+      error(result.message);
     }
   }
 
@@ -159,7 +160,7 @@ export default function AdminUserShow(props: any) {
       if (validImageTypes.includes(fileType)) {
         previousImage = file[0];
       } else {
-        error("Only images accepted");
+        error(ErrorCodes["invalid-format"]);
       }
     } else {
       previousImage = file[0];
@@ -183,8 +184,6 @@ export default function AdminUserShow(props: any) {
       inputProvince,
       inputRole,
     } = data;
-
-    console.log(data);
 
     var idInput = "";
     if (id) {
@@ -350,14 +349,6 @@ export default function AdminUserShow(props: any) {
                   <button
                     className="appearance-none block w-full bg-nf_green text-white border  rounded py-3 px-4 mb-3 leading-tight hover:bg-nf_dark_blue"
                     onClick={() => {
-                      // if (props?.user) {
-                      //   nookies.set(
-                      //     undefined,
-                      //     "user",
-                      //     JSON.stringify(props?.user)
-                      //   );
-                      // }
-                      // router.push("/resetPassword");
                       handleResetPassword();
                     }}
                   >
@@ -599,7 +590,6 @@ export default function AdminUserShow(props: any) {
 
 export async function getServerSideProps(context: any) {
   try {
-    console.log("server side auth be like");
     const cookies = nookies.get(context);
     const token = await admin.auth().verifyIdToken(cookies.token);
 
@@ -608,9 +598,6 @@ export async function getServerSideProps(context: any) {
     const isAdmin = await isUserAuthorizedFunction(uid);
 
     if (!isAdmin) {
-      // context.res.writeHead(302, { Location: "/login" });
-      // context.res.end();
-
       return {
         props: {
           isError: true,
@@ -629,9 +616,6 @@ export async function getServerSideProps(context: any) {
       },
     };
   } catch (err) {
-    // context.res.writeHead(302, { Location: "/login" });
-    // context.res.end();
-
     return {
       props: {
         isError: true,

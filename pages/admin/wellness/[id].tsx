@@ -25,6 +25,7 @@ import { updateWellnessSurveyResultFunction } from "@/firebase/firebase_function
 import InputComponent from "@/components/forms/input/InputComponent";
 import InputSubmit from "@/components/forms/input/InputSubmit";
 import InputButton from "@/components/forms/input/InputButton";
+import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
 
 export default function AdminWellnessSurveyShow(props: any) {
   const router = useRouter();
@@ -182,8 +183,6 @@ export default function AdminWellnessSurveyShow(props: any) {
       reviewed_by_admin: inputReviewedByAdmin == "true" ? true : false,
     };
 
-    console.log(resultObject);
-
     const updateWellnessSurveyResult = await updateWellnessSurveyResultFunction(
       resultObject,
       idInput
@@ -221,7 +220,7 @@ export default function AdminWellnessSurveyShow(props: any) {
       setOriginalSurveyResult(resultObject);
 
       if (resultObject.user_id && resultObject.user_id != props.user) {
-        error("Unauthorized access");
+        error(ErrorCodes["unauthorized-access"]);
         router.push("/");
       }
 

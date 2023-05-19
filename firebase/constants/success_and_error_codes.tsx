@@ -92,12 +92,21 @@ export const ErrorCodes = {
     "An error has occurred while we were looking for the best selling products. Try again or contact the administrator",
   "no-product-quantity-left":
     "There's insufficient quantity to add the product to your cart",
+  "no-items-in-cart":
+    "There are no items in your cart. Add products before trying again",
   "error-in-cart-product-quantity":
     "Your cart has a product with too much quantity. This product has been removed. Please, try again",
   "user-pending-orders":
     "User still has pending orders. Resolve all pending orders before deleting the user",
   "user-pending-orders-error":
     "An error has occurred while we were retrieving the pending orders of the user. Try again or contact the administrator",
+  "email-verification":
+    "An error has occurred while we were sending a verification email. Try again or contact the administrator",
+  "email-not-verified":
+    "Your email is not yet verified. Please, verify your email in your profile before checkout",
+  "invalid-format":
+    "You have uploaded the incorrect file. Only images are accepted",
+  "unauthorized-access": "You are not authorized to view this page",
 };
 
 export const SuccessCodes = {
@@ -145,4 +154,6 @@ export const SuccessCodes = {
     "You have successfully retrieved the top best selling products",
   "user-pending-orders":
     "You have successfully retrieved all the pending orders of the user",
+  "email-verification":
+    "We have sent you a verification email. Please, check your email",
 };

@@ -126,7 +126,7 @@ export const addUserFunction = async (user: UsersDatabaseType) => {
     resultObject = {
       result: data,
       resultType: ResultTypeEnum.OBJECT,
-      isSuccess: false,
+      isSuccess: true,
       message: SuccessCodes["add-user"],
     };
   } catch (e: unknown) {

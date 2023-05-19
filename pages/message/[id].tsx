@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
-import nookies from "nookies";
 import { useRouter } from "next/router";
 
-import admin from "@/firebase/admin-config";
 import { useAuthContext } from "@/context/AuthContext";
 
 import {
@@ -10,7 +8,6 @@ import {
   MessageStatusEnum,
 } from "@/firebase/constants/enum_constants";
 import { MessagesDatabaseType } from "@/firebase/constants/messages_constants";
-import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_functions";
 import { FunctionResult } from "@/firebase/constants/function_constants";
 
 import { updateMessageFunction } from "@/firebase/firebase_functions/messages_functions";
@@ -18,7 +15,7 @@ import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions
 
 import HeadingTwo from "@/components/forms/HeadingTwo";
 
-export default function MessageEdit(props: any) {
+export default function MessageView() {
   const router = useRouter();
   const { id } = router.query;
   const [name, setName] = useState("");
@@ -83,7 +80,7 @@ export default function MessageEdit(props: any) {
 
     if (result.isSuccess) {
       success(result.message);
-      router.push("/admin/message");
+      router.push("/");
     } else {
       error(result.message);
     }
@@ -92,12 +89,6 @@ export default function MessageEdit(props: any) {
   useEffect(() => {
     fetchMessage();
   }, []);
-
-  if (props.isError) {
-    error(props.message);
-    router.push(props.redirect);
-    return null;
-  }
 
   return (
     <>
@@ -146,35 +137,6 @@ export default function MessageEdit(props: any) {
                       className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                       htmlFor="grid-last-name"
                     >
-                      Status
-                    </label>
-                    <select
-                      name="status"
-                      id="status"
-                      className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                      onChange={(e) => {
-                        setStatus(
-                          e.target.value == MessageStatusEnum.REPLIED
-                            ? MessageStatusEnum.REPLIED
-                            : MessageStatusEnum.UNREAD
-                        );
-                      }}
-                      value={status}
-                    >
-                      <option value={"unread"} key={"unread"}>
-                        Unread
-                      </option>
-                      <option value={"replied"} key={"replied"}>
-                        Replied
-                      </option>
-                    </select>
-                  </div>
-
-                  <div className="mb-6">
-                    <label
-                      className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-                      htmlFor="grid-last-name"
-                    >
                       Message
                     </label>
                     <textarea
@@ -187,13 +149,13 @@ export default function MessageEdit(props: any) {
                     ></textarea>
                   </div>
                   <div>
-                    <button
+                    {/* <button
                       type="submit"
                       className=" w-1/2 cursor-pointer rounded-md border bg-nf_green py-3 px-5 text-base text-white transition hover:bg-nf_dark_green"
                       onClick={(e: any) => handleForm(e)}
                     >
                       Update message
-                    </button>
+                    </button> */}
                   </div>
                 </form>
               </div>
@@ -203,47 +165,4 @@ export default function MessageEdit(props: any) {
       </section>
     </>
   );
-}
-
-export async function getServerSideProps(context: any) {
-  var props: any = {
-    authorized: false,
-    user: null,
-    order: null,
-    isError: false,
-    message: "",
-    redirect: "/",
-  };
-  try {
-    const cookies = nookies.get(context);
-    if (cookies.order) {
-      const order = JSON.parse(cookies.order);
-
-      props.order = order;
-    }
-
-    if (cookies.token) {
-      const token = await admin.auth().verifyIdToken(cookies.token);
-      const { uid } = token;
-
-      props.user = uid;
-
-      const isAdmin = await isUserAuthorizedFunction(uid);
-
-      props.authorized = isAdmin;
-    }
-
-    return { props };
-  } catch (err) {
-    return {
-      props: {
-        authorized: false,
-        user: null,
-        order: null,
-        isError: true,
-        message: "Error with getting order",
-        redirect: "/",
-      },
-    };
-  }
 }

@@ -33,27 +33,25 @@ export default function Login() {
     },
   });
 
-  const handleForm = async (data: any, e: any) =>
-    // event: any
-    {
-      e.preventDefault();
-      const { inputEmail, inputPassword } = data;
-      const result = await logInWithEmailAndPassword(inputEmail, inputPassword);
+  const handleForm = async (data: any, e: any) => {
+    e.preventDefault();
+    const { inputEmail, inputPassword } = data;
+    const result = await logInWithEmailAndPassword(inputEmail, inputPassword);
 
-      if (result.isSuccess) {
-        const getUserResult = await getDocumentGivenTypeAndIdFunction(
-          CollectionsEnum.USER,
-          result.result
-        );
+    if (result.isSuccess) {
+      const getUserResult = await getDocumentGivenTypeAndIdFunction(
+        CollectionsEnum.USER,
+        result.result
+      );
 
-        if (getUserResult.isSuccess) {
-          success(result.message);
-          router.push("/");
-        }
-      } else {
-        error(result.message);
+      if (getUserResult.isSuccess) {
+        success(result.message);
+        router.push("/");
       }
-    };
+    } else {
+      error(result.message);
+    }
+  };
 
   useEffect(() => {
     if (user) {

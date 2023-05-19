@@ -69,32 +69,7 @@ export default function ProductCard({
               handleClick={handleClick}
               type="multiple"
             />
-          ) : // <button
-          //   className="w-40 flex items-center h-8  text-white px-2 ml-4 rounded bg-nf_green hover:bg-nf_dark_blue text-lg"
-          //   onClick={() =>
-          //     handleAddToCart ? handleAddToCart(product, 1) : null
-          //   }
-          // >
-          //   Add to cart
-          // </button>
-          null}
-
-          {/* <div className="flex items-center justify-between px-3 py-2">
-            <button className="px-2 py-1 text-xs font-semibold text-white uppercase transition-colors duration-300 transform m-auto bg-nf_green hover:bg-nf_dark_blue">
-              Add to cart
-            </button>
-          </div> */}
-          {/* <span className="flex items-center h-8 bg-indigo-200 text-indigo-600 text-sm px-2 rounded">
-            $34
-          </span> */}
-          {/* <div className="flex justify-between mt-3 item-center"> */}
-          {/* <h1 className="text-lg font-bold text-gray-700 dark:text-gray-200 md:text-xl">
-              $220
-            </h1>
-            <button className="px-2 py-1 text-xs font-bold text-white uppercase transition-colors duration-300 transform bg-gray-800 rounded dark:bg-gray-700 hover:bg-gray-700 dark:hover:bg-gray-600 focus:outline-none focus:bg-gray-700 dark:focus:bg-gray-600">
-              Add to Cart
-            </button> */}
-          {/* </div> */}
+          ) : null}
         </div>
       </div>
     </>

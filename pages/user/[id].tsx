@@ -3,11 +3,16 @@ import admin from "@/firebase/admin-config";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { sendEmailVerification } from "firebase/auth";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
+import "@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css";
 
 import no_image from "../../public/no_image.png";
 
-import { useAuthContext } from "@/context/AuthContext";
+import { logout, useAuthContext } from "@/context/AuthContext";
 
 import { UsersDatabaseType } from "@/firebase/constants/user_constants";
 import { OrdersDatabaseType } from "@/firebase/constants/orders_constants";
@@ -20,11 +25,18 @@ import {
 } from "@/firebase/firebase_functions/general_functions";
 import { updateUserFunction } from "@/firebase/firebase_functions/users_functions";
 
-import { resetPassword } from "@/firebase/firebase_functions/auth_functions";
+import {
+  auth,
+  resetPassword,
+} from "@/firebase/firebase_functions/auth_functions";
+import { parseError } from "@/firebase/helpers";
 
 import TableComponent from "@/components/admin/TableComponent";
 import WarningMessage from "@/components/forms/WarningMessage";
 import HeadingOne from "@/components/forms/HeadingOne";
+import InputButton from "@/components/forms/input/InputButton";
+import Button from "@/components/common/Button";
+import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
 
 export default function UserShow(props: any) {
   const router = useRouter();
@@ -65,6 +77,10 @@ export default function UserShow(props: any) {
   const wellnessSurveyResultHeaders = ["ID", "Status", "Program"];
   const wellnessSurveyResultKeys = ["id", "reviewed_by_admin", "program"];
 
+  const [emailVerified, setEmailVerified] = useState<boolean>(
+    props.email_verified
+  );
+
   const {
     register,
     handleSubmit,
@@ -81,6 +97,16 @@ export default function UserShow(props: any) {
       inputProvince: "",
     },
   });
+
+  const mapContainer = useRef<any>(null);
+  const geocoderContainer = useRef<any>(null);
+  const map = useRef<any>(null);
+  const [lng, setLng] = useState(120.46851434051715);
+  const [lat, setLat] = useState(14.86645035829063);
+  const [zoom, setZoom] = useState(15);
+  const cityCoordinates = [120.46851434051715, 14.86645035829063];
+
+  mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOXGL_ACCESS_TOKEN || "";
 
   async function fetchUser() {
     var idInput = "";
@@ -128,7 +154,7 @@ export default function UserShow(props: any) {
         setImage(userResult.image);
       } else {
         if (idInput != user) {
-          error("Unauthorized viewing");
+          error(ErrorCodes["unauthorized-access"]);
           router.push("/");
         } else {
           setUserInfo(userResult);
@@ -185,7 +211,7 @@ export default function UserShow(props: any) {
     if (result.isSuccess) {
       setOrders(resultObject);
     } else {
-      error("result.message");
+      error(result.message);
     }
 
     const surveyResults = await getAllDocumentsGivenTypeAndUserIdFunction(
@@ -198,8 +224,11 @@ export default function UserShow(props: any) {
     if (surveyResults.isSuccess) {
       setWellnessSurveyResults(surveyResultsObject);
     } else {
-      error("surveyResults.message");
+      error(surveyResults.message);
     }
+
+    await auth.currentUser?.reload();
+    setEmailVerified(auth.currentUser?.emailVerified || false);
   }
 
   //change image functions for user
@@ -214,7 +243,7 @@ export default function UserShow(props: any) {
       if (validImageTypes.includes(fileType)) {
         previousImage = file[0];
       } else {
-        error("Only images accepted");
+        error(ErrorCodes["invalid-format"]);
       }
     } else {
       previousImage = file[0];
@@ -300,6 +329,30 @@ export default function UserShow(props: any) {
     }
   };
 
+  const handleReloadVerificationStatus = async () => {
+    await auth.currentUser?.reload();
+    setEmailVerified(auth.currentUser?.emailVerified || false);
+
+    const token = await auth.currentUser?.getIdToken();
+    nookies.set(undefined, "token", JSON.stringify(token), { path: "/" });
+    success("Reloaded user status");
+  };
+
+  const handleVerifyEmail = async () => {
+    if (auth.currentUser) {
+      await sendEmailVerification(auth.currentUser)
+        .then((user: any) => {
+          success(
+            "Successfully sent a verification email. Please, log back in once you've verified your account or reload your status verification status"
+          );
+        })
+        .catch((error: any) => {
+          const errorMessage = parseError(error);
+          error(errorMessage);
+        });
+    }
+  };
+
   const discardChanges = async (e: any) => {
     e.preventDefault();
     (document.getElementById("grid-first-name") as HTMLInputElement).value = "";
@@ -310,6 +363,21 @@ export default function UserShow(props: any) {
     (document.getElementById("grid-city") as HTMLInputElement).value = "";
     (document.getElementById("grid-province") as HTMLInputElement).value = "";
   };
+
+  async function convertLatLngToAddress(inputLat: number, inputLng: number) {
+    const reverseGeocodingUrl = `https://api.geoapify.com/v1/geocode/reverse?lat=${inputLat}&lon=${inputLng}&apiKey=${"d2728093e4394f759d8e7a8f0c9644e7"}`;
+
+    const res = await fetch(reverseGeocodingUrl);
+    const data = await res.json();
+    const address =
+      data.features && data.features.length > 0
+        ? data.features[0].properties
+        : null;
+
+    setAddress(address.formatted);
+    setCity(address.city);
+    setProvince(address.state);
+  }
 
   useEffect(() => {
     if (props.isAuthorized || (id == props.user && props.userDetails)) {
@@ -352,6 +420,49 @@ export default function UserShow(props: any) {
     }
     fetchOrder();
   }, [id, props]);
+
+  useEffect(() => {
+    if (!mapContainer.current) {
+      return;
+    }
+
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current || "",
+      style: "mapbox://styles/mapbox/streets-v12",
+      center: [120.46851434051715, 14.86645035829063],
+      zoom: zoom,
+    });
+
+    const marker = new mapboxgl.Marker({
+      draggable: true,
+    })
+      .setLngLat([120.46851434051715, 14.86645035829063])
+      .addTo(map.current);
+
+    marker.on("dragend", onDragEnd);
+
+    function onDragEnd() {
+      const lngLat = marker.getLngLat();
+      setLng(lngLat.lng);
+      setLat(lngLat.lat);
+      convertLatLngToAddress(lngLat.lat, lngLat.lng);
+    }
+
+    const geocoder = new MapboxGeocoder({
+      accessToken: mapboxgl.accessToken,
+      mapboxgl: mapboxgl,
+    });
+
+    map.current.addControl(geocoder);
+
+    geocoder.on("results", function (results, error) {
+      if (results && results.features?.length > 0) {
+        const inputLng = results.features[0].geometry.coordinates[0];
+        const inputLat = results.features[0].geometry.coordinates[1];
+        convertLatLngToAddress(inputLat, inputLng);
+      }
+    });
+  }, [mapContainer, map]);
 
   return (
     <>
@@ -520,6 +631,31 @@ export default function UserShow(props: any) {
                     </button>
                   </div>
                 </div>
+                {/* Send verification email */}
+                {!emailVerified ? (
+                  <div className="flex flex-wrap -mx-3 ">
+                    <div className="w-full px-3 mb-6">
+                      <label
+                        className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                        htmlFor="grid-category"
+                      >
+                        Verify Email
+                      </label>
+                      <button
+                        className="appearance-none block w-full bg-nf_green text-white border  rounded py-3 px-4 mb-3 leading-tight hover:bg-nf_dark_blue"
+                        onClick={() => {
+                          handleVerifyEmail();
+                        }}
+                      >
+                        Verify Email
+                      </button>
+                      <InputButton
+                        label="Reload verification status"
+                        handleClick={handleReloadVerificationStatus}
+                      />
+                    </div>
+                  </div>
+                ) : null}
               </div>
               {/* Contact Number Field */}
               <div className="flex flex-wrap -mx-3 ">
@@ -558,6 +694,7 @@ export default function UserShow(props: any) {
                     className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
                     id="grid-address"
                     type="text"
+                    value={address}
                     placeholder={userInfo.shipping_details?.address}
                     {...register("inputAddress", {
                       onChange: (e: any) => setAddress(e.target.value),
@@ -582,6 +719,7 @@ export default function UserShow(props: any) {
                     className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
                     id="grid-city"
                     type="text"
+                    value={city}
                     placeholder={userInfo.shipping_details?.city}
                     {...register("inputCity", {
                       onChange: (e: any) => setCity(e.target.value),
@@ -606,6 +744,7 @@ export default function UserShow(props: any) {
                     className="appearance-none block w-full bg-gray-200 text-gray-700 border  rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
                     id="grid-province"
                     type="text"
+                    value={province}
                     placeholder={userInfo.shipping_details?.province}
                     {...register("inputProvince", {
                       onChange: (e: any) => setProvince(e.target.value),
@@ -617,7 +756,19 @@ export default function UserShow(props: any) {
                   <WarningMessage text={errors.inputProvince?.message} />
                 )}
               </div>
-
+              <div className="mb-4 px-4">
+                <div
+                  id="mapId"
+                  ref={mapContainer}
+                  className="map-container w-full h-96 "
+                ></div>
+                <pre id="coordinates" className="bg-red-500"></pre>
+                <div
+                  id="geocoder"
+                  // ref={geocoderContainer}
+                  className="geocoder"
+                ></div>
+              </div>
               <div>
                 <input
                   type="button"
@@ -680,8 +831,7 @@ export async function getServerSideProps(context: any) {
 
     if (cookies.token) {
       const token = await admin.auth().verifyIdToken(cookies.token);
-
-      const { uid } = token;
+      const { uid, email_verified } = token;
 
       const userDetails = await getDocumentGivenTypeAndIdFunction(
         CollectionsEnum.USER,
@@ -696,7 +846,9 @@ export async function getServerSideProps(context: any) {
         const isAdmin = userDetailsResult.role == "admin" ? true : false;
         return {
           props: {
+            token,
             user: uid,
+            email_verified,
             authorized: isAdmin,
             userDetails: userDetails.result,
             isError: false,
@@ -707,7 +859,9 @@ export async function getServerSideProps(context: any) {
       } else {
         return {
           props: {
+            token,
             user: uid,
+            email_verified,
             authorized: false,
             userDetails: null,
             isError: false,
@@ -719,7 +873,9 @@ export async function getServerSideProps(context: any) {
     } else {
       return {
         props: {
+          token: null,
           user: null,
+          email_verified: null,
           authorized: false,
           userDetails: null,
           isError: false,
@@ -731,7 +887,9 @@ export async function getServerSideProps(context: any) {
   } catch (err) {
     return {
       props: {
+        token: null,
         user: null,
+        email_verified: null,
         userDetails: null,
         isError: true,
         message: "Error with getting user info",

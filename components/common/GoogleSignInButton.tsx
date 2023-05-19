@@ -6,13 +6,11 @@ export default function GoogleSignInButton() {
   const { success } = useAuthContext();
   const router = useRouter();
 
-  const handleFormGoogle = async () =>
-    // event: any
-    {
-      await signInWithGoogle();
-      success("Successful in logging in");
-      router.push("/");
-    };
+  const handleFormGoogle = async () => {
+    await signInWithGoogle();
+    success("Successful in logging in");
+    router.push("/");
+  };
 
   return (
     <>

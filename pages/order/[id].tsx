@@ -19,6 +19,7 @@ import {
 import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_functions";
 
 import RadioButton from "@/components/forms/RadioButton";
+import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
 
 export default function OrderShow(props: any) {
   const router = useRouter();
@@ -89,7 +90,7 @@ export default function OrderShow(props: any) {
       if (props.user == orderResult.user_id || props.authorized) {
         setOrder(orderResult);
       } else {
-        error("Unauthorized viewing");
+        error(ErrorCodes["unauthorized-access"]);
         router.push("/");
       }
     }

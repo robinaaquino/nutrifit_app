@@ -70,7 +70,7 @@ export default function AdminOrder(props: any) {
 
   async function handleFilters(filter: any) {
     const result = await applyFilterFunction(CollectionsEnum.USER, filter);
-    console.log(result);
+
     if (!result.isSuccess) {
       error(result.message);
     } else {

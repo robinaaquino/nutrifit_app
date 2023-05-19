@@ -21,6 +21,7 @@ import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions
 
 import InputComponent from "@/components/forms/input/InputComponent";
 import WarningMessage from "@/components/forms/WarningMessage";
+import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
 
 export default function WellnessSurveyShow(props: any) {
   const router = useRouter();
@@ -160,7 +161,6 @@ export default function WellnessSurveyShow(props: any) {
       CollectionsEnum.WELLNESS,
       idInput
     );
-    console.log(result);
 
     if (!result.isSuccess) {
       error(result.message);
@@ -172,7 +172,7 @@ export default function WellnessSurveyShow(props: any) {
         wellnessSurveyResultObject.user_id &&
         wellnessSurveyResultObject.user_id != props.user
       ) {
-        error("Unauthorized access");
+        error(ErrorCodes["unauthorized-access"]);
         router.push("/");
       }
 
@@ -215,7 +215,6 @@ export default function WellnessSurveyShow(props: any) {
       setWeightStatus(
         wellnessSurveyResultObject.wellness_remarks.weight_status
       );
-      console.log(wellnessSurveyResultObject.wellness_remarks.weight_status);
       setWeightStatusNumber(
         wellnessSurveyResultObject.wellness_remarks.weight_status_number
       );

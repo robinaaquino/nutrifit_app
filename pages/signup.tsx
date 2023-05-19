@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 
-import { useAuthContext } from "@/context/AuthContext";
+import { logout, useAuthContext } from "@/context/AuthContext";
 
 import { createAccount } from "@/firebase/firebase_functions/auth_functions";
 import { addUserFunction } from "@/firebase/firebase_functions/users_functions";
@@ -29,30 +29,28 @@ export default function Signup() {
   const router = useRouter();
   const { success, error } = useAuthContext();
 
-  const handleForm = async (data: any, e?: any) =>
-    // event: any
-    {
-      e.preventDefault();
-      const { inputEmail, inputPassword } = data;
+  const handleForm = async (data: any, e?: any) => {
+    e.preventDefault();
+    const { inputEmail, inputPassword } = data;
 
-      const result = await createAccount(inputEmail, inputPassword);
+    const result = await createAccount(inputEmail, inputPassword);
 
+    if (result.isSuccess) {
       const addResult = await addUserFunction({
         email: inputEmail,
         id: result.result,
       });
 
-      if (result.isSuccess) {
-        if (addResult.isSuccess) {
-          success(result.message);
-          router.push("/");
-        } else {
-          error(addResult.message);
-        }
+      if (addResult.isSuccess) {
+        success(result.message);
+        router.push("/");
       } else {
         error(result.message);
       }
-    };
+    } else {
+      error(result.message);
+    }
+  };
 
   return (
     <>

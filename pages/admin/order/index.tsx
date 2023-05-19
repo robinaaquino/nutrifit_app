@@ -54,7 +54,6 @@ export default function AdminOrder(props: any) {
     );
 
     const resultInformation = result.result as OrdersDatabaseType[];
-    console.log(result);
 
     if (!result.isSuccess) {
       error(result.message);
@@ -112,10 +111,8 @@ export default function AdminOrder(props: any) {
             <SearchBar handleSearch={handleSearch} />
             <Filter
               handleFilters={handleFilters}
-              // isProductFilter={true}
               resetFilter={fetchAllOrders}
               isOrderFilter={true}
-              // isCustomerFilter={true}
             />
           </div>
         </div>

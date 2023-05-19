@@ -5,9 +5,11 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
+  sendEmailVerification,
 } from "firebase/auth";
 
 import app from "../config";
+import admin from "../admin-config";
 
 import { ResultTypeEnum } from "../constants/enum_constants";
 import { FunctionResult } from "../constants/function_constants";
@@ -100,16 +102,32 @@ export const createAccount = async (email: string, password: string) => {
     isSuccess: false,
     message: "",
   };
+
   await createUserWithEmailAndPassword(auth, email, password)
-    .then((result: any) => {
+    .then(async (result: any) => {
       const userUid = result.user.uid;
 
-      resultObject = {
-        result: userUid,
-        resultType: ResultTypeEnum.TEXT,
-        isSuccess: true,
-        message: SuccessCodes["signup-email"],
-      };
+      await sendEmailVerification(result.user)
+        .then((user: any) => {
+          resultObject = {
+            result: userUid,
+            resultType: ResultTypeEnum.TEXT,
+            isSuccess: true,
+            message: SuccessCodes["email-verification"],
+          };
+        })
+        .catch((error: any) => {
+          const errorMessage = parseError(error);
+
+          resultObject = {
+            result: "",
+            resultType: ResultTypeEnum.TEXT,
+            isSuccess: false,
+            message: errorMessage
+              ? errorMessage
+              : ErrorCodes["email-verification"],
+          };
+        });
     })
     .catch((error: any) => {
       const errorMessage = parseError(error);
@@ -118,10 +136,9 @@ export const createAccount = async (email: string, password: string) => {
         result: "",
         resultType: ResultTypeEnum.TEXT,
         isSuccess: false,
-        message: errorMessage ? errorMessage : ErrorCodes["signup-email"],
+        message: errorMessage ? errorMessage : ErrorCodes["email-verification"],
       };
     });
-
   return resultObject;
 };
 
@@ -144,14 +161,14 @@ export const resetPassword = async (email: string) => {
       };
     })
     .catch((error: any) => {
-      const errorMessage = error.message;
+      const errorMessage = parseError(error);
 
-      resultObject = {
-        result: null,
-        resultType: ResultTypeEnum.NULL,
+      return (resultObject = {
+        result: "",
+        resultType: ResultTypeEnum.TEXT,
         isSuccess: false,
-        message: errorMessage ? errorMessage : ErrorCodes["reset-password"],
-      };
+        message: errorMessage ? errorMessage : ErrorCodes["signup-email"],
+      });
     });
 
   return resultObject;
