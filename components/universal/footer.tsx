@@ -12,7 +12,11 @@ export default function Footer() {
                 <span className="font-bold">
                   &copy; 2023 Nutrifit Wellness Hub{" "}
                 </span>
-                All rights reserved
+                <br />
+                Trademarks and designs are the property of Herbalife Nutrition
+                International, Inc., or its licensors.
+                <br />
+                Used by permission of Herbalife Nutrition
               </span>
             </a>
           </div>
