@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import nookies from "nookies";
 import { useRouter } from "next/router";
 
+import admin from "@/firebase/admin-config";
 import { useAuthContext } from "@/context/AuthContext";
 
 import {
@@ -8,6 +10,7 @@ import {
   MessageStatusEnum,
 } from "@/firebase/constants/enum_constants";
 import { MessagesDatabaseType } from "@/firebase/constants/messages_constants";
+import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_functions";
 import { FunctionResult } from "@/firebase/constants/function_constants";
 
 import { updateMessageFunction } from "@/firebase/firebase_functions/messages_functions";
@@ -15,7 +18,7 @@ import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions
 
 import HeadingTwo from "@/components/forms/HeadingTwo";
 
-export default function ContactUs() {
+export default function MessageEdit(props: any) {
   const router = useRouter();
   const { id } = router.query;
   const [name, setName] = useState("");
@@ -89,6 +92,12 @@ export default function ContactUs() {
   useEffect(() => {
     fetchMessage();
   }, []);
+
+  if (props.isError) {
+    error(props.message);
+    router.push(props.redirect);
+    return null;
+  }
 
   return (
     <>
@@ -194,4 +203,47 @@ export default function ContactUs() {
       </section>
     </>
   );
+}
+
+export async function getServerSideProps(context: any) {
+  var props: any = {
+    authorized: false,
+    user: null,
+    order: null,
+    isError: false,
+    message: "",
+    redirect: "/",
+  };
+  try {
+    const cookies = nookies.get(context);
+    if (cookies.order) {
+      const order = JSON.parse(cookies.order);
+
+      props.order = order;
+    }
+
+    if (cookies.token) {
+      const token = await admin.auth().verifyIdToken(cookies.token);
+      const { uid } = token;
+
+      props.user = uid;
+
+      const isAdmin = await isUserAuthorizedFunction(uid);
+
+      props.authorized = isAdmin;
+    }
+
+    return { props };
+  } catch (err) {
+    return {
+      props: {
+        authorized: false,
+        user: null,
+        order: null,
+        isError: true,
+        message: "Error with getting order",
+        redirect: "/",
+      },
+    };
+  }
 }
