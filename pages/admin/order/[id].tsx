@@ -122,6 +122,12 @@ export default function OrderShow(props: any) {
     fetchOrder();
   }, []);
 
+  if (props.isError) {
+    error(props.message);
+    router.push(props.redirect);
+    return null;
+  }
+
   return (
     <>
       <div className="container p-12 mx-auto">
