@@ -11,6 +11,8 @@ import heart_health from "../public/heart_health.jpg";
 import personalized_weight_management from "../public/personalized_weight_management.jpg";
 import sports_nutrition from "../public/sports_nutrition.jpg";
 import targeted_nutrition from "../public/targeted_nutrition.jpg";
+import skin from "../public/skin.jpg";
+import vitamin_mask from "../public/vitamin_mask.jpg";
 
 import oats from "../public/oats.jpg";
 import banana from "../public/banana.jpg";
@@ -38,6 +40,8 @@ export default function Home(props: any) {
     "Personalized Weight Management": personalized_weight_management,
     "Sports Nutrition": sports_nutrition,
     "Targeted Nutrition": targeted_nutrition,
+    Skin: skin,
+    "Vitamin Mask": vitamin_mask,
   };
 
   function returnCategoryName(index: number) {
