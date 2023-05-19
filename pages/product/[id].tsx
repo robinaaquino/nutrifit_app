@@ -448,6 +448,12 @@ export default function ProductShow(props: any) {
                       </span>
                     </p> */}
                   </div>
+                  <div className="py-6 mb-6 ">
+                    <span className="text-base text-gray-500">
+                      Reproduced with the permission of Herbalife Nutrition. All
+                      rights reserved.
+                    </span>
+                  </div>
                   <div className="mb-6 "></div>
                   <div className="flex flex-wrap items-center mb-6">
                     <div className="mb-4 mr-4 lg:mb-0">

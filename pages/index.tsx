@@ -305,6 +305,15 @@ export default function Home(props: any) {
         </div>
         {/* </div> */}
       </div>
+      <span className="h-1 w-full bg-gray-700 bg-opacity-50"></span>
+      {/* Business Details */}
+      <div className="m-auto mb-6 px-32 pt-6">
+        <p>
+          Nutrifit Wellness Hub is ran by Independent Herbalife Nutrition Member
+          Melanie M. Laxamana
+        </p>
+        {/* </div> */}
+      </div>
     </>
   );
 }
