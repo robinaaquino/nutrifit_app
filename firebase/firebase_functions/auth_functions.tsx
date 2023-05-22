@@ -42,6 +42,7 @@ export const signInWithGoogle = async (): Promise<any> => {
       };
     })
     .catch((error: any) => {
+      alert(error);
       const errorMessage = parseError(error.message); //parse error message
 
       resultObject = {
