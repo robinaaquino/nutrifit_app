@@ -103,7 +103,7 @@ export const updateMessageFunction = async (
       process.env.NEXT_PUBLIC_TEMPLATE_REPLY_TO_MESSAGE || "",
       {
         to_name: message.name || "",
-        message_id: message.id || "",
+        message_id: messageId || "",
         message: message.message || "",
         reply: message.reply || "",
         reply_to: message.email || "",
