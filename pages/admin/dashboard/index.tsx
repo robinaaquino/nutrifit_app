@@ -56,6 +56,8 @@ export default function AdminDashboard(props: any) {
   const [userCount, setUserCount] = useState<number>(0);
   const [productCount, setProductCount] = useState<number>(0);
 
+  const [loading, setLoading] = useState(false);
+
   const barChartOptions = {
     indexAxis: "y" as const,
     elements: {
@@ -114,6 +116,7 @@ export default function AdminDashboard(props: any) {
   };
 
   async function fetchAllDataForAdminDashboard() {
+    setLoading(true);
     const adminAnalytics: AdminAnalyticsType = props.adminAnalytics;
 
     setSalesPerCategory(adminAnalytics.salesPerCategory);
@@ -127,6 +130,7 @@ export default function AdminDashboard(props: any) {
     setPendingOrdersCount(adminAnalytics.numberOfPendingOrders);
     setCancelledOrdersCount(adminAnalytics.numberOfCancelledOrders);
     setDeliveredOrdersCount(adminAnalytics.numberOfDeliveredOrders);
+    setLoading(false);
   }
 
   useEffect(() => {
@@ -200,6 +204,7 @@ export default function AdminDashboard(props: any) {
                 content={salesPerCategory}
                 type={"sale"}
                 disablePagination={true}
+                loading={loading}
               ></TableComponent>
             </div>
           </div>

@@ -21,6 +21,7 @@ import TableComponent from "@/components/admin/TableComponent";
 
 export default function AdminOrder(props: any) {
   const [users, setUsers] = useState<UsersDatabaseType[]>([]);
+  const [loading, setLoading] = useState(false);
   const { error } = useAuthContext();
   const router = useRouter();
 
@@ -45,6 +46,7 @@ export default function AdminOrder(props: any) {
   ];
 
   async function fetchAllUsers() {
+    setLoading(true);
     const result = await getAllDocumentsGivenTypeFunction(CollectionsEnum.USER);
     const userResult: UsersDatabaseType[] =
       result.result as UsersDatabaseType[];
@@ -54,6 +56,7 @@ export default function AdminOrder(props: any) {
     } else {
       setUsers(userResult);
     }
+    setLoading(false);
   }
 
   async function handleSearch(searchString: any) {
@@ -118,6 +121,7 @@ export default function AdminOrder(props: any) {
           content={users}
           type="user"
           isAdmin={true}
+          loading={loading}
         />
       </div>
     </>

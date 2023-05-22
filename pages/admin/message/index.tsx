@@ -19,6 +19,7 @@ import { MessagesDatabaseType } from "@/firebase/constants/messages_constants";
 
 export default function AdminMessage(props: any) {
   const [messages, setMessages] = useState<MessagesDatabaseType[]>([]);
+  const [loading, setLoading] = useState(false);
   const { error } = useAuthContext();
   const router = useRouter();
 
@@ -43,6 +44,7 @@ export default function AdminMessage(props: any) {
   ];
 
   async function fetchAllMessages() {
+    setLoading(true);
     const result = await getAllDocumentsGivenTypeFunction(
       CollectionsEnum.MESSAGE
     );
@@ -54,6 +56,7 @@ export default function AdminMessage(props: any) {
     } else {
       setMessages(messageResult);
     }
+    setLoading(false);
   }
 
   async function handleSearch(searchString: any) {
@@ -119,6 +122,7 @@ export default function AdminMessage(props: any) {
           content={messages}
           type="message"
           isAdmin={true}
+          loading={loading}
         />
       </div>
     </>
