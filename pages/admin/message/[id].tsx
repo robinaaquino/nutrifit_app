@@ -24,6 +24,7 @@ export default function MessageEdit(props: any) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [reply, setReply] = useState("");
   const [status, setStatus] = useState<MessageStatusEnum>(
     MessageStatusEnum.UNREAD
   );
@@ -56,6 +57,8 @@ export default function MessageEdit(props: any) {
       setMessage(messageResult.message);
       setEmail(messageResult.email);
       setStatus(messageResult.status);
+      setReply(messageResult.reply || "");
+      setCreatedAt(messageResult.created_at || "");
     }
   }
 
@@ -75,6 +78,7 @@ export default function MessageEdit(props: any) {
       email: email,
       message: message,
       status: status,
+      reply: reply,
       updated_at: new Date().toString(),
       created_at: createdAt,
     };
@@ -152,13 +156,7 @@ export default function MessageEdit(props: any) {
                       name="status"
                       id="status"
                       className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                      onChange={(e) => {
-                        setStatus(
-                          e.target.value == MessageStatusEnum.REPLIED
-                            ? MessageStatusEnum.REPLIED
-                            : MessageStatusEnum.UNREAD
-                        );
-                      }}
+                      disabled
                       value={status}
                     >
                       <option value={"unread"} key={"unread"}>
@@ -186,13 +184,34 @@ export default function MessageEdit(props: any) {
                       value={message}
                     ></textarea>
                   </div>
+
+                  <div className="mb-6">
+                    <label
+                      className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                      htmlFor="grid-reply"
+                    >
+                      Reply
+                    </label>
+                    <textarea
+                      rows={6}
+                      placeholder="Type your message..."
+                      className="text-black bg-white border-[f0f0f0] focus:border-primary w-full resize-none rounded border py-3 px-[14px]  outline-none focus-visible:shadow-none"
+                      disabled={
+                        status == MessageStatusEnum.REPLIED ? true : false
+                      }
+                      onChange={(e) => {
+                        setReply(e.target.value);
+                      }}
+                      value={reply}
+                    ></textarea>
+                  </div>
                   <div>
                     <button
                       type="submit"
                       className=" w-1/2 cursor-pointer rounded-md border bg-nf_green py-3 px-5 text-base text-white transition hover:bg-nf_dark_green"
                       onClick={(e: any) => handleForm(e)}
                     >
-                      Update message
+                      Send reply
                     </button>
                   </div>
                 </form>

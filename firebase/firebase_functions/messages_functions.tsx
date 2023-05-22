@@ -11,8 +11,9 @@ import {
   query,
   where,
 } from "firebase/firestore";
+import emailjs from "emailjs-com";
 
-import { ResultTypeEnum } from "../constants/enum_constants";
+import { MessageStatusEnum, ResultTypeEnum } from "../constants/enum_constants";
 import { FunctionResult } from "../constants/function_constants";
 import { parseError } from "../helpers";
 import {
@@ -33,12 +34,24 @@ export const addMessageFunction = async (message: any) => {
   };
 
   try {
-    await addDoc(collection(db, "messages"), {
+    const documentReference = await addDoc(collection(db, "messages"), {
       ...message,
       status: "unread",
       updated_at: new Date().toString(),
       created_at: new Date().toString(),
     });
+
+    emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || "");
+
+    emailjs.send(
+      process.env.NEXT_PUBLIC_SERVICE_ID || "",
+      process.env.NEXT_PUBLIC_TEMPLATE_AUTO_REPLY_RECEIVED || "",
+      {
+        to_name: message.name || "",
+        message_id: documentReference.id,
+        reply_to: message.email || "",
+      }
+    );
 
     resultObject = {
       result: null,
@@ -76,9 +89,26 @@ export const updateMessageFunction = async (
       updated_at: new Date().toString(),
       created_at: message.created_at,
       ...message,
+      status: message.reply
+        ? MessageStatusEnum.REPLIED
+        : MessageStatusEnum.UNREAD,
     };
 
     await setDoc(doc(db, "messages", messageId), messageToBeAdded);
+
+    emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || "");
+
+    emailjs.send(
+      process.env.NEXT_PUBLIC_SERVICE_ID || "",
+      process.env.NEXT_PUBLIC_TEMPLATE_REPLY_TO_MESSAGE || "",
+      {
+        to_name: message.name || "",
+        message_id: message.id || "",
+        message: message.message || "",
+        reply: message.reply || "",
+        reply_to: message.email || "",
+      }
+    );
 
     resultObject = {
       result: null,
