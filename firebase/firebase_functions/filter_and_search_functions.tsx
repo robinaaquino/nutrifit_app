@@ -245,7 +245,11 @@ export const applySearchFunction = async (
         for (let j = 0; j < individualStrings.length; j++) {
           let regexExpression = `^.*` + individualStrings[j] + `.*$`;
           if (
-            resultingArray[i].email.toLowerCase().match(regexExpression) ||
+            (resultingArray[i].email &&
+              resultingArray[i].email
+                .toString()
+                .toLowerCase()
+                .match(regexExpression)) ||
             (resultingArray[i].shipping_details?.first_name &&
               resultingArray[i].shipping_details?.first_name
                 .toString()
@@ -266,7 +270,11 @@ export const applySearchFunction = async (
               resultingArray[i].shipping_details?.city
                 .toString()
                 .match(regexExpression)) ||
-            resultingArray[i].role.toLowerCase().match(regexExpression)
+            (resultingArray[i].role &&
+              resultingArray[i].role
+                .toString()
+                .toLowerCase()
+                .match(regexExpression))
           ) {
             matchedString = true;
             break;
@@ -284,11 +292,14 @@ export const applySearchFunction = async (
         for (let j = 0; j < individualStrings.length; j++) {
           let regexExpression = `^.*` + individualStrings[j] + `.*$`;
           if (
-            resultingArray[i].name.toLowerCase().match(regexExpression) ||
-            resultingArray[i].description
-              .toLowerCase()
-              .match(regexExpression) ||
-            resultingArray[i].category.toLowerCase().match(regexExpression)
+            (resultingArray[i].name &&
+              resultingArray[i].name.toLowerCase().match(regexExpression)) ||
+            (resultingArray[i].description &&
+              resultingArray[i].description
+                .toLowerCase()
+                .match(regexExpression)) ||
+            (resultingArray[i].category &&
+              resultingArray[i].category.toLowerCase().match(regexExpression))
           ) {
             matchedString = true;
             break;
@@ -305,10 +316,14 @@ export const applySearchFunction = async (
         for (let j = 0; j < individualStrings.length; j++) {
           let regexExpression = `^.*` + individualStrings[j] + `.*$`;
           if (
-            resultingArray[i].name.toLowerCase().match(regexExpression) ||
-            resultingArray[i].email.toLowerCase().match(regexExpression) ||
-            resultingArray[i].status.toLowerCase().match(regexExpression) ||
-            resultingArray[i].message.toLowerCase().match(regexExpression)
+            (resultingArray[i].name &&
+              resultingArray[i].name.toLowerCase().match(regexExpression)) ||
+            (resultingArray[i].email &&
+              resultingArray[i].email.toLowerCase().match(regexExpression)) ||
+            (resultingArray[i].status &&
+              resultingArray[i].status.toLowerCase().match(regexExpression)) ||
+            (resultingArray[i].message &&
+              resultingArray[i].message.toLowerCase().match(regexExpression))
           ) {
             matchedString = true;
             break;
@@ -348,13 +363,23 @@ export const applySearchFunction = async (
         for (let j = 0; j < individualStrings.length; j++) {
           let regexExpression = `^.*` + individualStrings[j] + `.*$`;
           if (
-            resultingArray[i].email.toLowerCase().match(regexExpression) ||
-            resultingArray[i].total_price.toString().match(regexExpression) ||
-            resultingArray[i].delivery_mode
-              .toLowerCase()
-              .match(regexExpression) ||
-            resultingArray[i].status.toLowerCase().match(regexExpression) ||
-            resultingArray[i].id.toLowerCase().match(regexExpression)
+            (resultingArray[i].email &&
+              resultingArray[i].email
+                .toString()
+                .toLowerCase()
+                .match(regexExpression)) ||
+            (resultingArray[i].total_price &&
+              resultingArray[i].total_price
+                .toString()
+                .match(regexExpression)) ||
+            (resultingArray[i].delivery_mode &&
+              resultingArray[i].delivery_mode
+                .toLowerCase()
+                .match(regexExpression)) ||
+            (resultingArray[i].status &&
+              resultingArray[i].status.toLowerCase().match(regexExpression)) ||
+            (resultingArray[i].id &&
+              resultingArray[i].id.toLowerCase().match(regexExpression))
           ) {
             matchedString = true;
             break;
@@ -382,17 +407,25 @@ export const applySearchFunction = async (
         for (let j = 0; j < individualStrings.length; j++) {
           let regexExpression = `^.*` + individualStrings[j] + `.*$`;
           if (
-            resultingArray[i].name.toLowerCase().match(regexExpression) ||
-            resultingArray[i].contact_number
-              .toLowerCase()
-              .match(regexExpression) ||
-            resultingArray[i].reviewed_by_admin
-              .toString()
-              .toLowerCase()
-              .match(regexExpression) ||
-            resultingArray[i].program.toLowerCase().match(regexExpression) ||
-            resultingArray[i].meal_plan.toLowerCase().match(regexExpression) ||
-            resultingArray[i].gender.toLowerCase().match(regexExpression)
+            (resultingArray[i].name &&
+              resultingArray[i].name.toLowerCase().match(regexExpression)) ||
+            (resultingArray[i].contact_number &&
+              resultingArray[i].contact_number
+                .toLowerCase()
+                .match(regexExpression)) ||
+            (resultingArray[i].reviewed_by_admin &&
+              resultingArray[i].reviewed_by_admin
+                .toString()
+                .toLowerCase()
+                .match(regexExpression)) ||
+            (resultingArray[i].program &&
+              resultingArray[i].program.toLowerCase().match(regexExpression)) ||
+            (resultingArray[i].meal_plan &&
+              resultingArray[i].meal_plan
+                .toLowerCase()
+                .match(regexExpression)) ||
+            (resultingArray[i].gender &&
+              resultingArray[i].gender.toLowerCase().match(regexExpression))
           ) {
             matchedString = true;
             break;
