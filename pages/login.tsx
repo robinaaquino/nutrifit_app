@@ -14,12 +14,19 @@ import { logInWithEmailAndPassword } from "@/firebase/firebase_functions/auth_fu
 import SocialMediaLogin from "@/components/common/SocialMediaLogin";
 import InputComponent from "@/components/forms/input/InputComponent";
 import InputSubmit from "@/components/forms/input/InputSubmit";
+import { addUserFunction } from "@/firebase/firebase_functions/users_functions";
+import { UsersDatabaseType } from "@/firebase/constants/user_constants";
+import {
+  ErrorCodes,
+  SuccessCodes,
+} from "@/firebase/constants/success_and_error_codes";
+import { create } from "domain";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const { user, success, error } = useAuthContext();
+  const { user, success, error, userEmail } = useAuthContext();
 
   const {
     register,
@@ -53,8 +60,26 @@ export default function Login() {
     }
   };
 
+  const isExistingUser = async (userUid: string) => {
+    const isExisting = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.USER,
+      userUid
+    );
+    if (
+      isExisting.isSuccess &&
+      isExisting.message == SuccessCodes["document-does-not-exist"]
+    ) {
+      const userInfo: UsersDatabaseType = {
+        email: userEmail || "",
+        id: user || "",
+      };
+      await addUserFunction(userInfo);
+    }
+  };
+
   useEffect(() => {
     if (user) {
+      isExistingUser(user);
       router.push("/");
       success("Successfully logged in");
     }

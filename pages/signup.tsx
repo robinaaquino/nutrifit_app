@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -11,6 +11,10 @@ import { addUserFunction } from "@/firebase/firebase_functions/users_functions";
 
 import WarningMessage from "@/components/forms/WarningMessage";
 import SocialMediaLogin from "@/components/common/SocialMediaLogin";
+import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
+import { CollectionsEnum } from "@/firebase/constants/enum_constants";
+import { UsersDatabaseType } from "@/firebase/constants/user_constants";
+import { SuccessCodes } from "@/firebase/constants/success_and_error_codes";
 
 export default function Signup() {
   const {
@@ -27,7 +31,7 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
-  const { success, error } = useAuthContext();
+  const { success, error, user, userEmail } = useAuthContext();
 
   const handleForm = async (data: any, e?: any) => {
     e.preventDefault();
@@ -51,6 +55,31 @@ export default function Signup() {
       error(result.message);
     }
   };
+
+  const isExistingUser = async (userUid: string) => {
+    const isExisting = await getDocumentGivenTypeAndIdFunction(
+      CollectionsEnum.USER,
+      userUid
+    );
+    if (
+      isExisting.isSuccess &&
+      isExisting.message == SuccessCodes["document-does-not-exist"]
+    ) {
+      const userInfo: UsersDatabaseType = {
+        email: userEmail || "",
+        id: user || "",
+      };
+      await addUserFunction(userInfo);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      isExistingUser(user);
+      router.push("/");
+      success("Successfully logged in");
+    }
+  }, [user]);
 
   return (
     <>
