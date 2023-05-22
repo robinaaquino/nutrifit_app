@@ -160,10 +160,15 @@ export default function InputComponent({
               {...(register && register(name, rules))}
               className={
                 hasError
-                  ? `block appearance-none w-full bg-gray-200 text-gray-700 py-3 px-4 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500 border border-red-500`
-                  : `block appearance-none w-full bg-gray-200 text-gray-700 py-3 px-4 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500 border border-gray-200`
+                  ? `block appearance-none w-full bg-gray-200 ${
+                      disabled ? "text-gray-700" : "text-black"
+                    } py-3 px-4 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500 border border-red-500`
+                  : `block appearance-none w-full bg-gray-200 ${
+                      disabled ? "text-gray-700" : "text-black"
+                    } py-3 px-4 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500 border border-gray-200`
               }
             />
+
             {hasError && <WarningMessage text={errorObject.message} />}
           </div>
         </>
