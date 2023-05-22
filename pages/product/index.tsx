@@ -15,6 +15,7 @@ import { ProductsDatabaseType } from "@/firebase/constants/product_constants";
 
 import Filter from "@/components/filter/Filter";
 import { CollectionsEnum } from "@/firebase/constants/enum_constants";
+import Loading from "@/components/universal/loading";
 
 export default function Catalog(props: any) {
   const [productList, setProductList] = useState<ProductsDatabaseType[]>([]);
@@ -28,6 +29,8 @@ export default function Catalog(props: any) {
     Math.ceil(productList.length / pageSize) == 0
       ? 1
       : Math.ceil(productList.length / pageSize);
+
+  const [loading, setLoading] = useState(false);
 
   const onPageChange = (page: number, listOfProducts?: any) => {
     let listToUpdate = productList;
@@ -68,6 +71,7 @@ export default function Catalog(props: any) {
     }
   }
   async function fetchAllProducts() {
+    setLoading(true);
     if (props.searchString) {
       const result = await applySearchFunction(
         CollectionsEnum.PRODUCT,
@@ -94,6 +98,7 @@ export default function Catalog(props: any) {
         setCurrentProductList(productResult.slice(0, pageSize));
       }
     }
+    setLoading(false);
   }
 
   const sortBy = (text: string, order: string) => {
@@ -208,7 +213,9 @@ export default function Catalog(props: any) {
           />
         </div>
         <div>
-          {currentProductList?.length > 0 ? (
+          {loading ? (
+            <Loading />
+          ) : currentProductList?.length > 0 ? (
             <div className="grid 2xl:grid-cols-5 xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-x-6 gap-y-12 w-full mt-6">
               {/* Product Tile Start */}
               {currentProductList?.length > 0

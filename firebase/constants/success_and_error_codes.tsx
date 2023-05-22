@@ -107,6 +107,8 @@ export const ErrorCodes = {
   "invalid-format":
     "You have uploaded the incorrect file. Only images are accepted",
   "unauthorized-access": "You are not authorized to view this page",
+  "forbidden-reset":
+    "You are forbidden to reset the password of this test account. Contact the administrator if you have concerns involving this matter",
 };
 
 export const SuccessCodes = {
@@ -139,7 +141,7 @@ export const SuccessCodes = {
   "get-user-does-not-exist": "User does not exist",
   "update-user": "You have successfully updated your information",
   "update-product": "You have successfully updated your product",
-  "update-message": "You have successfully updated your message",
+  "update-message": "You have successfully sent a reply",
   "update-order": "You have successfully updated your order",
   "update-wellness-survey-result":
     "You have successfully updated the wellness survey",

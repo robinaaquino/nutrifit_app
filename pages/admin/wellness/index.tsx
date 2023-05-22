@@ -22,6 +22,7 @@ export default function AdminWellness(props: any) {
   const [wellnessSurveyResults, setWellnessSurveyResults] = useState<
     WellnessDatabaseType[]
   >([]);
+  const [loading, setLoading] = useState(false);
   const { error } = useAuthContext();
   const router = useRouter();
 
@@ -50,6 +51,7 @@ export default function AdminWellness(props: any) {
   ];
 
   async function fetchAllWellnessSurveyResults() {
+    setLoading(true);
     const result = await getAllDocumentsGivenTypeFunction(
       CollectionsEnum.WELLNESS
     );
@@ -62,6 +64,7 @@ export default function AdminWellness(props: any) {
     } else {
       setWellnessSurveyResults(resultObject);
     }
+    setLoading(false);
   }
 
   async function handleSearch(searchString: any) {
@@ -138,6 +141,7 @@ export default function AdminWellness(props: any) {
           content={wellnessSurveyResults}
           type="wellness"
           isAdmin={true}
+          loading={loading}
         />
       </div>
     </>

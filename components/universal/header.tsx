@@ -132,9 +132,9 @@ export default function Header() {
                   <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
                     <Link href={"/user/" + user}>View Profile</Link>
                   </li>
-                  {/* <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
-                    <Link href={"/wellness/add"}>Wellness Survey</Link>
-                  </li> */}
+                  <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
+                    <Link href={"/wellness/add"}>Fill Up Wellness Survey</Link>
+                  </li>
                   <li className="text-white text-xl hover:bg-nf_dark_green rounded-lg ">
                     <button
                       onClick={() => {

@@ -21,6 +21,7 @@ import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_fu
 
 export default function AdminOrder(props: any) {
   const [orders, setOrders] = useState<OrdersDatabaseType[]>([]);
+  const [loading, setLoading] = useState(false);
   const { error } = useAuthContext();
   const router = useRouter();
 
@@ -49,6 +50,7 @@ export default function AdminOrder(props: any) {
   ];
 
   async function fetchAllOrders() {
+    setLoading(true);
     const result = await getAllDocumentsGivenTypeFunction(
       CollectionsEnum.ORDER
     );
@@ -60,6 +62,7 @@ export default function AdminOrder(props: any) {
     } else {
       setOrders(resultInformation);
     }
+    setLoading(false);
   }
 
   async function handleSearch(searchString: any) {
@@ -123,6 +126,7 @@ export default function AdminOrder(props: any) {
           content={orders}
           type="order"
           isAdmin={true}
+          loading={loading}
         />
       </div>
     </>

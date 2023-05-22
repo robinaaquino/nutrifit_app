@@ -15,6 +15,7 @@ import { addWellnessSurveyResult } from "@/firebase/firebase_functions/wellness_
 import InputComponent from "@/components/forms/input/InputComponent";
 import InputSubmit from "@/components/forms/input/InputSubmit";
 import { CollectionsEnum } from "@/firebase/constants/enum_constants";
+import { returnDateForInput } from "@/firebase/helpers";
 
 export default function WellnessSurvey(props: any) {
   const [userId, setUserId] = useState<string>("");
@@ -42,6 +43,7 @@ export default function WellnessSurvey(props: any) {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     mode: "onChange",
@@ -102,7 +104,7 @@ export default function WellnessSurvey(props: any) {
       weight: inputWeight,
 
       wellness_trainer_information: {
-        date: inputDate,
+        date: date ? date : inputDate,
         fat: inputFat,
         visceral_fat: inputVisceralFat,
         bone_mass: inputBoneMass,
@@ -118,12 +120,36 @@ export default function WellnessSurvey(props: any) {
 
     if (addResultResult.isSuccess) {
       success(addResultResult.message);
-
+      await discardChanges();
       router.push("/");
     } else {
       error(addResultResult.message);
     }
   };
+
+  const discardChanges = async () => {
+    setName("");
+    setContactNumber("");
+    setGender("");
+    setHeight(0);
+    setAge(0);
+    setWeight(0);
+
+    setDate(returnDateForInput());
+    setFat("");
+    setVisceralFat("");
+    setBoneMass("");
+    setRestingMetabolicRate("");
+    setMetabolicAge("");
+    setMuscleMass("");
+    setPhysiqueRating("");
+    setWater("");
+    reset();
+  };
+
+  useEffect(() => {
+    setDate(returnDateForInput());
+  }, []);
 
   useEffect(() => {
     if (props.user) {
@@ -223,27 +249,6 @@ export default function WellnessSurvey(props: any) {
             error={errors}
             aria-invalid={errors.inputGender ? "true" : "false"}
           />
-          {/* <div className="w-full px-3 mb-6">
-            <label
-              className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-              htmlFor="gender"
-            >
-              Gender
-            </label>
-            <input
-              className="appearance-none block w-full bg-gray-200 text-gray-700 border border-gray-500 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white"
-              id="gender"
-              type="text"
-              placeholder="Type your gender..."
-              value={gender}
-              {...(register("inputGender"),
-              {
-                required: false,
-                onChange: (e: any) => setGender(e.target.value),
-
-              })}
-            />
-          </div> */}
           {/* Age */}
           <InputComponent
             id={"age"}
@@ -276,7 +281,7 @@ export default function WellnessSurvey(props: any) {
             rules={{
               required: "Height is required",
               pattern: {
-                value: /^[0-9]*$/,
+                value: /[0-9]*.?[0-9]+$/,
                 message: "Please, enter a valid number",
               },
               onChange: (e: any) => setHeight(e.target.value),
@@ -296,7 +301,7 @@ export default function WellnessSurvey(props: any) {
             rules={{
               required: "Weight is required",
               pattern: {
-                value: /^[0-9]*$/,
+                value: /[0-9]*.?[0-9]+$/,
                 message: "Please, enter a valid number",
               },
               onChange: (e: any) => setWeight(e.target.value),

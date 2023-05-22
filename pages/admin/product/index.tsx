@@ -24,7 +24,8 @@ import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_fu
 //clean getserversideprops calls for all admin routes
 export default function AdminProduct(props: any) {
   const [products, setProducts] = useState<ProductsDatabaseType[]>([]);
-  const { error, loading } = useAuthContext();
+  const [loading, setLoading] = useState(false);
+  const { error } = useAuthContext();
   // const authContextObject = useContext(AuthContext);
   const router = useRouter();
 
@@ -50,6 +51,7 @@ export default function AdminProduct(props: any) {
   ];
 
   async function fetchAllProducts() {
+    setLoading(true);
     const result = await getAllDocumentsGivenTypeFunction(
       CollectionsEnum.PRODUCT
     );
@@ -61,6 +63,7 @@ export default function AdminProduct(props: any) {
     } else {
       setProducts(productResult);
     }
+    setLoading(false);
   }
 
   async function handleSearch(searchString: any) {
@@ -153,6 +156,7 @@ export default function AdminProduct(props: any) {
           content={products}
           type="product"
           isAdmin={true}
+          loading={loading}
         />
 
         {/* <div className="mt-6 md:flex md:items-center md:justify-between">

@@ -5,6 +5,7 @@ export type MessagesDatabaseType = {
   name: string;
   email: string;
   message: string;
+  reply?: string;
   status: MessageStatusEnum;
 
   created_at?: string;

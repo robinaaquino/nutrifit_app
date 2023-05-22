@@ -22,11 +22,13 @@ import { useRouter } from "next/navigation";
 import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
 import { ProductsDatabaseType } from "@/firebase/constants/product_constants";
 import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
+import Loading from "@/components/universal/loading";
 
 const auth = getAuth(app);
 
 export const AuthContext = createContext({
   user: null,
+  userEmail: "",
   isAuthorized: false,
   loading: true,
   notification: "",
@@ -52,6 +54,7 @@ export const useAuthContext = () => useContext(AuthContext);
 
 export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
   const [user, setUser] = useState<any>(null);
+  const [userEmail, setUserEmail] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(true);
   const [isAuthorized, setAuthorized] = useState<boolean>(false);
   const [notification, setNotification] = useState<string>("");
@@ -343,14 +346,16 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
   };
 
   useEffect(() => {
-    const unsubscribe = onIdTokenChanged(auth, async (userInfo) => {
+    const unsubscribe = onIdTokenChanged(auth, async (userInfo: any) => {
       if (!userInfo) {
         setUser("");
+        setUserEmail(userInfo?.email || "");
         setAuthorized(false);
         nookies.set(undefined, "token", "", { path: "/" });
       } else {
         const token = await userInfo.getIdToken();
         setUser(userInfo.uid);
+        setUserEmail(userInfo?.email || "");
         nookies.set(undefined, "token", token, { path: "/" });
 
         const authorization = await isUserAuthorizedFunction(userInfo.uid);
@@ -374,7 +379,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
           }
         }
       }
-      setLoading(false);
+      // setLoading(false);
     });
     if (!cart) {
       const cookies = nookies.get(undefined);
@@ -401,6 +406,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
+        userEmail,
         isAuthorized,
         loading,
         success,
@@ -416,7 +422,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         deleteCartInCookiesAndContext,
       }}
     >
-      {loading ? <div>Loading...</div> : children}
+      {loading ? <Loading /> : children}
     </AuthContext.Provider>
   );
 };

@@ -21,6 +21,7 @@ export default function MessageView() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [reply, setReply] = useState("");
   const [status, setStatus] = useState<MessageStatusEnum>(
     MessageStatusEnum.UNREAD
   );
@@ -53,38 +54,9 @@ export default function MessageView() {
       setMessage(messageResult.message);
       setEmail(messageResult.email);
       setStatus(messageResult.status);
+      setReply(messageResult.reply || "");
     }
   }
-
-  const handleForm = async (e: any) => {
-    e.preventDefault();
-    var idInput = "";
-    if (id) {
-      if (id[0]) {
-        idInput = id.toString();
-      } else if (typeof id == "string") {
-        idInput = id;
-      }
-    }
-
-    const previousMessage: MessagesDatabaseType = {
-      name: name,
-      email: email,
-      message: message,
-      status: status,
-      updated_at: new Date().toString(),
-      created_at: createdAt,
-    };
-
-    const result = await updateMessageFunction(previousMessage, idInput);
-
-    if (result.isSuccess) {
-      success(result.message);
-      router.push("/");
-    } else {
-      error(result.message);
-    }
-  };
 
   useEffect(() => {
     fetchMessage();
@@ -131,6 +103,28 @@ export default function MessageView() {
                       value={email}
                     />
                   </div>
+                  <div className="mb-6">
+                    <label
+                      className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                      htmlFor="grid-last-name"
+                    >
+                      Status
+                    </label>
+                    <select
+                      name="status"
+                      id="status"
+                      className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                      disabled
+                      value={status}
+                    >
+                      <option value={"unread"} key={"unread"}>
+                        Unread
+                      </option>
+                      <option value={"replied"} key={"replied"}>
+                        Replied
+                      </option>
+                    </select>
+                  </div>
 
                   <div className="mb-6">
                     <label
@@ -146,6 +140,22 @@ export default function MessageView() {
                       disabled
                       onChange={(e) => setMessage(e.target.value)}
                       value={message}
+                    ></textarea>
+                  </div>
+                  <div className="mb-6">
+                    <label
+                      className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
+                      htmlFor="grid-reply"
+                    >
+                      Reply
+                    </label>
+                    <textarea
+                      rows={6}
+                      placeholder="Type your reply..."
+                      className="text-black bg-white border-[f0f0f0] focus:border-primary w-full resize-none rounded border py-3 px-[14px]  outline-none focus-visible:shadow-none"
+                      disabled
+                      onChange={(e) => setReply(e.target.value)}
+                      value={reply}
                     ></textarea>
                   </div>
                   <div>
