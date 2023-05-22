@@ -379,7 +379,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
           }
         }
       }
-      // setLoading(false);
+      setLoading(false);
     });
     if (!cart) {
       const cookies = nookies.get(undefined);
