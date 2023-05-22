@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
 import { ProductsDatabaseType } from "@/firebase/constants/product_constants";
 import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
+import Loading from "@/components/universal/loading";
 
 const auth = getAuth(app);
 
@@ -378,7 +379,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
           }
         }
       }
-      setLoading(false);
+      // setLoading(false);
     });
     if (!cart) {
       const cookies = nookies.get(undefined);
@@ -421,7 +422,7 @@ export const AuthContextProvider = ({ children }: { children?: ReactNode }) => {
         deleteCartInCookiesAndContext,
       }}
     >
-      {loading ? <div>Loading...</div> : children}
+      {loading ? <Loading /> : children}
     </AuthContext.Provider>
   );
 };
