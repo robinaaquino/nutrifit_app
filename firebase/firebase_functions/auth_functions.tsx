@@ -31,6 +31,7 @@ export const signInWithGoogle = async (): Promise<any> => {
 
   await signInWithRedirect(auth, provider)
     .then((result: any) => {
+      alert(result);
       const userUid = result.user; //returns user uid
 
       resultObject = {
