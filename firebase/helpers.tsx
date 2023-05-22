@@ -63,6 +63,26 @@ export function returnKeyByValue(text: string) {
     return "sales";
   } else if (text == "Message") {
     return "message";
+  } else if (text == "Date cleared") {
+    return "date_cleared";
+  } else if (text == "Date") {
+    return "date";
+  } else if (text == "Name") {
+    return "name";
+  } else if (text == "Contact Number") {
+    return "contact_number";
+  } else if (text == "Reviewed by Admin") {
+    return "reviewed_by_admin";
+  } else if (text == "Program") {
+    return "program";
+  } else if (text == "Height") {
+    return "height";
+  } else if (text == "Weight") {
+    return "weight";
+  } else if (text == "Age") {
+    return "age";
+  } else if (text == "Date submitted") {
+    return "date";
   }
 }
 

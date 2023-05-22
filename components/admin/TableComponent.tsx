@@ -76,12 +76,21 @@ export default function TableComponent({
       setItemList(newList);
       onPageChange(currentPage);
     } else if (
-      text == "updated_at" ||
-      text == "created_at" ||
-      text == "date_cleared"
+      key == "updated_at" ||
+      key == "created_at" ||
+      key == "date_cleared"
     ) {
-      let previousList = itemList;
-      let newList = previousList.sort((a, b) =>
+      let properList: any[] = [];
+      let otherList: any[] = [];
+      for (let i = 0; i < itemList.length; i++) {
+        if (itemList[i][key]) {
+          properList.push(itemList[i]);
+        } else {
+          otherList.push(itemList[i]);
+        }
+      }
+
+      let newList = properList.sort((a, b) =>
         new Date(a[key]) > new Date(b[key])
           ? sort
           : new Date(b[key]) > new Date(a[key])
@@ -89,16 +98,37 @@ export default function TableComponent({
           : 0
       );
       setSort(sort * -1);
-      setItemList(newList);
+      setItemList(newList.concat(otherList));
       onPageChange(currentPage);
-    } else if (text == "date") {
-      let previousList = itemList;
-      let newList = previousList.sort((a, b) =>
+    } else if (key == "date") {
+      let properList: any[] = [];
+      let otherList: any[] = [];
+      for (let i = 0; i < itemList.length; i++) {
+        if (itemList[i]["wellness_trainer_information"][key]) {
+          properList.push(itemList[i]);
+        } else {
+          otherList.push(itemList[i]);
+        }
+      }
+
+      let newList = properList.sort((a, b) =>
         new Date(a["wellness_trainer_information"][key]) >
         new Date(b["wellness_trainer_information"][key])
           ? sort
           : new Date(b["wellness_trainer_information"][key]) >
             new Date(a["wellness_trainer_information"][key])
+          ? sort * -1
+          : 0
+      );
+      setSort(sort * -1);
+      setItemList(newList.concat(otherList));
+      onPageChange(currentPage);
+    } else if (key == "height" || key == "weight" || key == "age") {
+      let previousList = itemList;
+      let newList = previousList.sort((a, b) =>
+        parseFloat(a[key]) > parseFloat(b[key])
+          ? sort
+          : parseFloat(b[key]) > parseFloat(a[key])
           ? sort * -1
           : 0
       );
@@ -114,6 +144,7 @@ export default function TableComponent({
       setItemList(newList);
       onPageChange(currentPage);
     }
+    console.log(itemList);
   };
 
   const deleteProduct = async (product: any) => {
