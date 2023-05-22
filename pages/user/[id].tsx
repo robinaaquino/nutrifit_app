@@ -388,7 +388,7 @@ export default function UserShow(props: any) {
   }
 
   useEffect(() => {
-    if (props.isAuthorized || (id == props.user && props.userDetails)) {
+    if (id == props.user && props.userDetails) {
       setUserInfo(props.userDetails);
 
       setFirstName(props.userDetails.shipping_details?.first_name || "");
