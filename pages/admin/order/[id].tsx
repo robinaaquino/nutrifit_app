@@ -18,6 +18,8 @@ import { isUserAuthorizedFunction } from "@/firebase/firebase_functions/users_fu
 import { updateOrderFunction } from "@/firebase/firebase_functions/orders_functions";
 
 import RadioButton from "@/components/forms/RadioButton";
+import InputButton from "@/components/forms/input/InputButton";
+import InputSubmit from "@/components/forms/input/InputSubmit";
 
 export default function OrderShow(props: any) {
   const router = useRouter();
@@ -63,6 +65,7 @@ export default function OrderShow(props: any) {
     mode: "onChange",
     defaultValues: {
       inputDeliveryMode: "pickup",
+      inputStatus: "",
     },
   });
 
@@ -94,7 +97,7 @@ export default function OrderShow(props: any) {
     }
   }
 
-  const handleForm = async (e: any) => {
+  const handleForm = async (data: any, e?: any) => {
     e.preventDefault();
     var idInput = "";
     if (id) {
@@ -105,8 +108,10 @@ export default function OrderShow(props: any) {
       }
     }
 
+    const { inputStatus } = data;
+
     const previousOrder: OrdersDatabaseType = order;
-    previousOrder.status = status;
+    previousOrder.status = inputStatus;
 
     const result = await updateOrderFunction(previousOrder, idInput);
 
@@ -131,17 +136,16 @@ export default function OrderShow(props: any) {
   return (
     <>
       <div className="container p-12 mx-auto">
-        <div className="flex flex-col w-full px-0 mx-auto md:flex-row">
-          <div className="flex flex-col w-2/5">
-            <h2 className="mb-4 font-bold md:text-xl text-heading text-black">
-              Shipping Address and Contact Details
-            </h2>
-            <form
-              className="justify-center w-full mx-auto"
-              onSubmit={(e) => {
-                e.preventDefault();
-              }}
-            >
+        <form
+          className="justify-center w-full mx-auto"
+          onSubmit={handleSubmit(handleForm)}
+        >
+          <div className="flex flex-col w-full px-0 mx-auto md:flex-row">
+            <div className="flex flex-col w-2/5">
+              <h2 className="mb-4 font-bold md:text-xl text-heading text-black">
+                Shipping Address and Contact Details
+              </h2>
+
               <div className="">
                 <div className="space-x-0 lg:flex lg:space-x-4">
                   <div className="w-full lg:w-1/2">
@@ -298,111 +302,113 @@ export default function OrderShow(props: any) {
                   ></textarea>
                 </div>
               </div>
-            </form>
-          </div>
-          <div className="flex flex-col w-2/5 ml-12">
-            <div className="pt-12 h-full">
-              <h2 className="text-xl font-bold text-black">Order Summary</h2>
-              <div className="mt-8">
-                <div className="flex flex-col space-y-4">
-                  {order && order.products && order.products.length > 0 ? (
-                    order.products.map((e: any, index) => {
-                      const imageLink = e.image.src ? e.image.src : e.image;
-                      return (
-                        <>
-                          <div className="flex space-x-4" key={index}>
-                            <div>
-                              <Image
-                                src={imageLink}
-                                alt="image"
-                                className="w-60"
-                                width="1024"
-                                height="1024"
-                              />
+            </div>
+            <div className="flex flex-col w-2/5 ml-12">
+              <div className="pt-12 h-full">
+                <h2 className="text-xl font-bold text-black">Order Summary</h2>
+                <div className="mt-8">
+                  <div className="flex flex-col space-y-4">
+                    {order && order.products && order.products.length > 0 ? (
+                      order.products.map((e: any, index) => {
+                        const imageLink = e.image.src ? e.image.src : e.image;
+                        return (
+                          <>
+                            <div className="flex space-x-4" key={index}>
+                              <div>
+                                <Image
+                                  src={imageLink}
+                                  alt="image"
+                                  className="w-60"
+                                  width="1024"
+                                  height="1024"
+                                />
+                              </div>
+                              <div className="w-full">
+                                <h2 className="text-xl font-bold text-black">
+                                  {e.name}
+                                </h2>
+                                <p className="text-sm">{e.description}</p>
+                                <span className="text-black">Price</span>
+                                <span className="ml-2">Php {e.price}</span>
+                                <p></p>
+                                <span className="text-black">
+                                  Quantity
+                                </span>{" "}
+                                <span className="ml-2">{e.quantity}</span>
+                              </div>
                             </div>
-                            <div className="w-full">
-                              <h2 className="text-xl font-bold text-black">
-                                {e.name}
-                              </h2>
-                              <p className="text-sm">{e.description}</p>
-                              <span className="text-black">Price</span>
-                              <span className="ml-2">Php {e.price}</span>
-                              <p></p>
-                              <span className="text-black">Quantity</span>{" "}
-                              <span className="ml-2">{e.quantity}</span>
-                            </div>
-                          </div>
-                        </>
-                      );
-                    })
-                  ) : (
-                    <div className="flex space-x-4">
-                      <div>
-                        <h2 className="text-xl font-bold text-black">
-                          No items in cart
-                        </h2>
+                          </>
+                        );
+                      })
+                    ) : (
+                      <div className="flex space-x-4">
+                        <div>
+                          <h2 className="text-xl font-bold text-black">
+                            No items in cart
+                          </h2>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
+                </div>
+                <div className="flex p-4 mt-4">
+                  <h2 className="text-xl font-bold">
+                    ITEMS: {order && order.products ? order.products.length : 0}
+                  </h2>
+                </div>
+                <div className="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0">
+                  Subtotal
+                  <span className="ml-2">
+                    Php {order?.total_price ? order?.total_price : 0}
+                  </span>
+                </div>
+                <div className="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0">
+                  Total
+                  <span className="ml-2">
+                    Php {order?.total_price ? order?.total_price : 0}
+                  </span>
+                </div>
+
+                <div className="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading text-black last:border-b-0 last:text-base last:pb-0">
+                  Order Status
+                  <select
+                    id="status"
+                    className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+                    {...register("inputStatus", {
+                      required: "Order status is required",
+                      onChange: (e: any) =>
+                        setStatus(
+                          OrderStatusEnum[
+                            e.target.value.toUpperCase() as keyof typeof OrderStatusEnum
+                          ]
+                        ),
+                    })}
+                    value={status}
+                  >
+                    <option value={"pending"} key={OrderStatusEnum.PENDING}>
+                      Pending
+                    </option>
+                    <option value={"delivered"} key={OrderStatusEnum.DELIVERED}>
+                      Delivered
+                    </option>
+                    <option value={"cancelled"} key={OrderStatusEnum.CANCELLED}>
+                      Cancelled
+                    </option>
+                  </select>
+                </div>
+                <div className="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading text-black last:border-b-0 last:text-base last:pb-0">
+                  Order ID{": "}
+                  <span className="my-2 text-gray-500">{order.id}</span>
                 </div>
               </div>
-              <div className="flex p-4 mt-4">
-                <h2 className="text-xl font-bold">
-                  ITEMS: {order && order.products ? order.products.length : 0}
-                </h2>
-              </div>
-              <div className="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0">
-                Subtotal
-                <span className="ml-2">
-                  Php {order?.total_price ? order?.total_price : 0}
-                </span>
-              </div>
-              <div className="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading last:border-b-0 last:text-base last:pb-0">
-                Total
-                <span className="ml-2">
-                  Php {order?.total_price ? order?.total_price : 0}
-                </span>
-              </div>
-
-              <div className="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading text-black last:border-b-0 last:text-base last:pb-0">
-                Order Status
-                <select
-                  name="status"
-                  id="status"
-                  className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                  onChange={(e) => {
-                    setStatus(
-                      OrderStatusEnum[
-                        e.target.value.toUpperCase() as keyof typeof OrderStatusEnum
-                      ]
-                    );
-                  }}
-                  value={status}
-                >
-                  <option value={"pending"} key={OrderStatusEnum.PENDING}>
-                    Pending
-                  </option>
-                  <option value={"delivered"} key={OrderStatusEnum.DELIVERED}>
-                    Delivered
-                  </option>
-                  <option value={"cancelled"} key={OrderStatusEnum.CANCELLED}>
-                    Cancelled
-                  </option>
-                </select>
-              </div>
-              <div className="flex items-center w-full py-4 text-sm font-semibold border-b border-gray-300 lg:py-5 lg:px-3 text-heading text-black last:border-b-0 last:text-base last:pb-0">
-                Order ID
-                <span className="ml-2 text-gray-500">{order.id}</span>
-              </div>
+              <InputButton
+                label={"Discard Changes"}
+                handleClick={() => setStatus(order.status)}
+              />
+              <InputSubmit label={"Save Changes"} />
             </div>
-            <button
-              className=" w-full cursor-pointer rounded-md border bg-nf_green py-3 px-5 text-base text-white transition hover:bg-nf_dark_green"
-              onClick={(e) => handleForm(e)}
-            >
-              Edit Order
-            </button>
           </div>
-        </div>
+        </form>
       </div>
     </>
   );
