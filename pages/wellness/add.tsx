@@ -103,7 +103,7 @@ export default function WellnessSurvey(props: any) {
       weight: inputWeight,
 
       wellness_trainer_information: {
-        date: inputDate,
+        date: date ? date : inputDate,
         fat: inputFat,
         visceral_fat: inputVisceralFat,
         bone_mass: inputBoneMass,
