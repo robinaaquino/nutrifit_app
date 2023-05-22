@@ -107,6 +107,8 @@ export const ErrorCodes = {
   "invalid-format":
     "You have uploaded the incorrect file. Only images are accepted",
   "unauthorized-access": "You are not authorized to view this page",
+  "forbidden-reset":
+    "You are forbidden to reset the password of this test account. Contact the administrator if you have concerns involving this matter",
 };
 
 export const SuccessCodes = {

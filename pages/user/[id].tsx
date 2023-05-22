@@ -18,6 +18,7 @@ import { UsersDatabaseType } from "@/firebase/constants/user_constants";
 import { OrdersDatabaseType } from "@/firebase/constants/orders_constants";
 import { WellnessDatabaseType } from "@/firebase/constants/wellness_constants";
 import { CollectionsEnum, RoleEnum } from "@/firebase/constants/enum_constants";
+import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
 
 import {
   getDocumentGivenTypeAndIdFunction,
@@ -35,8 +36,8 @@ import TableComponent from "@/components/admin/TableComponent";
 import WarningMessage from "@/components/forms/WarningMessage";
 import HeadingOne from "@/components/forms/HeadingOne";
 import InputButton from "@/components/forms/input/InputButton";
+import InputSubmit from "@/components/forms/input/InputSubmit";
 import Button from "@/components/common/Button";
-import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
 
 export default function UserShow(props: any) {
   const router = useRouter();
@@ -322,10 +323,18 @@ export default function UserShow(props: any) {
 
   const handleResetPassword = async () => {
     const resetPasswordResult = await resetPassword(userInfo.email);
-    if (resetPasswordResult.isSuccess) {
-      success(resetPasswordResult.message);
+
+    if (
+      userInfo.email == "nosuqa@afia.pro" ||
+      userInfo.email == "betege1665@aicogz.com"
+    ) {
+      error(ErrorCodes["forbidden-reset"]);
     } else {
-      error(resetPasswordResult.message);
+      if (resetPasswordResult.isSuccess) {
+        success(resetPasswordResult.message);
+      } else {
+        error(resetPasswordResult.message);
+      }
     }
   };
 
@@ -353,8 +362,7 @@ export default function UserShow(props: any) {
     }
   };
 
-  const discardChanges = async (e: any) => {
-    e.preventDefault();
+  const discardChanges = async () => {
     (document.getElementById("grid-first-name") as HTMLInputElement).value = "";
     (document.getElementById("grid-last-name") as HTMLInputElement).value = "";
     (document.getElementById("grid-contact-number") as HTMLInputElement).value =
@@ -621,14 +629,10 @@ export default function UserShow(props: any) {
                     >
                       Password
                     </label>
-                    <button
-                      className="appearance-none block w-full bg-nf_green text-white border  rounded py-3 px-4 mb-3 leading-tight hover:bg-nf_dark_blue"
-                      onClick={() => {
-                        handleResetPassword();
-                      }}
-                    >
-                      Reset Password
-                    </button>
+                    <InputButton
+                      label="Reset Password"
+                      handleClick={handleResetPassword}
+                    />
                   </div>
                 </div>
                 {/* Send verification email */}
@@ -641,14 +645,10 @@ export default function UserShow(props: any) {
                       >
                         Verify Email
                       </label>
-                      <button
-                        className="appearance-none block w-full bg-nf_green text-white border  rounded py-3 px-4 mb-3 leading-tight hover:bg-nf_dark_blue"
-                        onClick={() => {
-                          handleVerifyEmail();
-                        }}
-                      >
-                        Verify Email
-                      </button>
+                      <InputButton
+                        label="Verify Email"
+                        handleClick={handleVerifyEmail}
+                      />
                       <InputButton
                         label="Reload verification status"
                         handleClick={handleReloadVerificationStatus}
@@ -770,17 +770,22 @@ export default function UserShow(props: any) {
                 ></div>
               </div>
               <div>
-                <input
+                <InputButton
+                  label={"Discard Changes"}
+                  handleClick={discardChanges}
+                />
+                {/* <input
                   type="button"
                   value="Discard Changes"
                   className=" w-1/2 cursor-pointer rounded-md border bg-nf_green py-3 px-5 text-base text-white transition hover:bg-nf_dark_green"
                   onClick={(e) => discardChanges(e)}
-                />
-                <input
+                /> */}
+                <InputSubmit label={"Save Changes"} />
+                {/* <input
                   type="submit"
-                  value="Edit User"
+                  value="Save Changes"
                   className=" w-1/2 cursor-pointer rounded-md border bg-nf_green py-3 px-5 text-base text-white transition hover:bg-nf_dark_green"
-                />
+                /> */}
               </div>
             </div>
             <div>
