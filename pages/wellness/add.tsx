@@ -43,6 +43,7 @@ export default function WellnessSurvey(props: any) {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     mode: "onChange",
@@ -119,11 +120,31 @@ export default function WellnessSurvey(props: any) {
 
     if (addResultResult.isSuccess) {
       success(addResultResult.message);
-
+      await discardChanges();
       router.push("/");
     } else {
       error(addResultResult.message);
     }
+  };
+
+  const discardChanges = async () => {
+    setName("");
+    setContactNumber("");
+    setGender("");
+    setHeight(0);
+    setAge(0);
+    setWeight(0);
+
+    setDate(returnDateForInput());
+    setFat("");
+    setVisceralFat("");
+    setBoneMass("");
+    setRestingMetabolicRate("");
+    setMetabolicAge("");
+    setMuscleMass("");
+    setPhysiqueRating("");
+    setWater("");
+    reset();
   };
 
   useEffect(() => {

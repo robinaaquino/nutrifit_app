@@ -16,6 +16,7 @@ export default function ContactUs() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     mode: "onChange",
@@ -47,9 +48,17 @@ export default function ContactUs() {
 
     if (result.isSuccess) {
       success(result.message);
+      await discardChanges();
     } else {
       error(result.message);
     }
+  };
+
+  const discardChanges = async () => {
+    reset();
+    setName("");
+    setEmail("");
+    setMessage("");
   };
 
   useEffect(() => {
@@ -145,7 +154,7 @@ export default function ContactUs() {
                       className="text-black bg-white border-[f0f0f0] focus:border-primary w-full resize-none rounded border py-3 px-[14px]  outline-none focus-visible:shadow-none"
                       {...register("inputMessage", {
                         required: "Message is required",
-                        onChange: (e) => setName(e.target.value),
+                        onChange: (e) => setMessage(e.target.value),
                       })}
                       aria-invalid={errors.inputMessage ? "true" : "false"}
                     ></textarea>
