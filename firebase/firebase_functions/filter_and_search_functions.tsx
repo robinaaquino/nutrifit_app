@@ -405,7 +405,8 @@ export const applySearchFunction = async (
       for (let i = 0; i < resultingArray.length; i++) {
         let matchedString = false;
         for (let j = 0; j < individualStrings.length; j++) {
-          let regexExpression = `^.*` + individualStrings[j] + `.*$`;
+          let regexExpression =
+            `^.*` + individualStrings[j].toLowerCase() + `.*$`;
           if (
             (resultingArray[i].name &&
               resultingArray[i].name.toLowerCase().match(regexExpression)) ||
@@ -413,13 +414,6 @@ export const applySearchFunction = async (
               resultingArray[i].contact_number
                 .toLowerCase()
                 .match(regexExpression)) ||
-            (resultingArray[i].reviewed_by_admin &&
-              resultingArray[i].reviewed_by_admin
-                .toString()
-                .toLowerCase()
-                .match(regexExpression)) ||
-            (resultingArray[i].program &&
-              resultingArray[i].program.toLowerCase().match(regexExpression)) ||
             (resultingArray[i].meal_plan &&
               resultingArray[i].meal_plan
                 .toLowerCase()
@@ -429,6 +423,36 @@ export const applySearchFunction = async (
           ) {
             matchedString = true;
             break;
+          }
+
+          if (resultingArray[i].program || resultingArray[i].program == "") {
+            var parsedProgram = "No assigned program";
+            if (resultingArray[i].program) {
+              parsedProgram = resultingArray[i].program.toLowerCase();
+            }
+            if (parsedProgram.match(regexExpression)) {
+              matchedString = true;
+              break;
+            }
+          }
+
+          if (
+            resultingArray[i].reviewed_by_admin == false ||
+            resultingArray[i].reviewed_by_admin == true
+          ) {
+            const reviewedByAdminParse =
+              resultingArray[i].reviewed_by_admin == "true"
+                ? "replied"
+                : "unreviewed";
+            if (
+              reviewedByAdminParse
+                .toString()
+                .toLowerCase()
+                .match(regexExpression)
+            ) {
+              matchedString = true;
+              break;
+            }
           }
 
           if (
