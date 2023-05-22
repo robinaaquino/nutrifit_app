@@ -60,6 +60,7 @@ export default function AdminMessage(props: any) {
   }
 
   async function handleSearch(searchString: any) {
+    setLoading(true);
     const result = await applySearchFunction(
       CollectionsEnum.MESSAGE,
       searchString
@@ -69,9 +70,11 @@ export default function AdminMessage(props: any) {
     } else {
       setMessages(result.result);
     }
+    setLoading(false);
   }
 
   async function handleFilters(filter: any) {
+    setLoading(true);
     const result = await applyFilterFunction(CollectionsEnum.MESSAGE, filter);
 
     if (!result.isSuccess) {
@@ -79,6 +82,7 @@ export default function AdminMessage(props: any) {
     } else {
       setMessages(result.result);
     }
+    setLoading(false);
   }
 
   useEffect(() => {

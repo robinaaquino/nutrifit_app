@@ -68,6 +68,7 @@ export default function AdminWellness(props: any) {
   }
 
   async function handleSearch(searchString: any) {
+    setLoading(true);
     const result = await applySearchFunction(
       CollectionsEnum.WELLNESS,
       searchString
@@ -81,9 +82,11 @@ export default function AdminWellness(props: any) {
     } else {
       setWellnessSurveyResults(resultObject);
     }
+    setLoading(false);
   }
 
   async function handleFilters(filter: any) {
+    setLoading(true);
     const result = await applyFilterFunction(CollectionsEnum.WELLNESS, filter);
 
     const resultObject: WellnessDatabaseType[] =
@@ -94,6 +97,7 @@ export default function AdminWellness(props: any) {
     } else {
       setWellnessSurveyResults(resultObject);
     }
+    setLoading(false);
   }
 
   useEffect(() => {

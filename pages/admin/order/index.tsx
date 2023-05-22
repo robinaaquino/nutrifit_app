@@ -66,6 +66,7 @@ export default function AdminOrder(props: any) {
   }
 
   async function handleSearch(searchString: any) {
+    setLoading(true);
     const result = await applySearchFunction(
       CollectionsEnum.ORDER,
       searchString
@@ -75,15 +76,18 @@ export default function AdminOrder(props: any) {
     } else {
       setOrders(result.result);
     }
+    setLoading(false);
   }
 
   async function handleFilters(filter: any) {
+    setLoading(true);
     const result = await applyFilterFunction(CollectionsEnum.ORDER, filter);
     if (!result.isSuccess) {
       error(result.message);
     } else {
       setOrders(result.result);
     }
+    setLoading(false);
   }
 
   useEffect(() => {

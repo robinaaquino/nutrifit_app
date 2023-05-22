@@ -31,6 +31,7 @@ export default function Catalog(props: any) {
       : Math.ceil(productList.length / pageSize);
 
   const [loading, setLoading] = useState(false);
+  const [addCartLoading, setCartLoading] = useState(false);
 
   const onPageChange = (page: number, listOfProducts?: any) => {
     let listToUpdate = productList;
@@ -54,6 +55,7 @@ export default function Catalog(props: any) {
   };
 
   async function handleFilters(filter: any) {
+    setLoading(true);
     const result = await applyFilterFunction(CollectionsEnum.PRODUCT, filter);
     if (!result.isSuccess) {
       authContextObject.error(result.message);
@@ -61,6 +63,7 @@ export default function Catalog(props: any) {
       setProductList(result.result);
       onPageChange(currentPage, result.result);
     }
+    setLoading(false);
   }
 
   async function handleAddToCart(product: any, quantity: any) {

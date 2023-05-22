@@ -67,6 +67,7 @@ export default function AdminProduct(props: any) {
   }
 
   async function handleSearch(searchString: any) {
+    setLoading(true);
     const result = await applySearchFunction(
       CollectionsEnum.PRODUCT,
       searchString
@@ -77,9 +78,11 @@ export default function AdminProduct(props: any) {
     } else {
       setProducts(result.result);
     }
+    setLoading(false);
   }
 
   async function handleFilters(filter: any) {
+    setLoading(true);
     const result = await applyFilterFunction(CollectionsEnum.PRODUCT, filter);
 
     if (!result.isSuccess) {
@@ -87,6 +90,7 @@ export default function AdminProduct(props: any) {
     } else {
       setProducts(result.result);
     }
+    setLoading(false);
   }
 
   useEffect(() => {

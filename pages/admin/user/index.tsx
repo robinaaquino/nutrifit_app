@@ -60,6 +60,7 @@ export default function AdminOrder(props: any) {
   }
 
   async function handleSearch(searchString: any) {
+    setLoading(true);
     const result = await applySearchFunction(
       CollectionsEnum.USER,
       searchString
@@ -69,9 +70,11 @@ export default function AdminOrder(props: any) {
     } else {
       setUsers(result.result);
     }
+    setLoading(false);
   }
 
   async function handleFilters(filter: any) {
+    setLoading(true);
     const result = await applyFilterFunction(CollectionsEnum.USER, filter);
 
     if (!result.isSuccess) {
@@ -79,6 +82,7 @@ export default function AdminOrder(props: any) {
     } else {
       setUsers(result.result);
     }
+    setLoading(false);
   }
 
   useEffect(() => {
