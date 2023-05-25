@@ -219,9 +219,11 @@ export default function AdminWellnessSurveyShow(props: any) {
     } else {
       setOriginalSurveyResult(resultObject);
 
-      if (resultObject.user_id && resultObject.user_id != props.user) {
-        error(ErrorCodes["unauthorized-access"]);
-        router.push("/");
+      if (!props.isAdmin) {
+        if (resultObject.user_id && resultObject.user_id != props.user) {
+          error(ErrorCodes["unauthorized-access"]);
+          router.push("/");
+        }
       }
 
       setUserId(resultObject.user_id || "");
@@ -909,6 +911,7 @@ export async function getServerSideProps(context: any) {
     isError: true,
     message: "Unauthorized access",
     redirect: "/login",
+    isAdmin: false,
   };
 
   try {
@@ -944,6 +947,12 @@ export async function getServerSideProps(context: any) {
         },
       };
     }
+
+    props.userInfo = userInfoObject;
+    props.isError = false;
+    props.message = "";
+    props.redirect = "";
+    props.isAdmin = isAdmin;
 
     return { props };
   } catch (err) {
