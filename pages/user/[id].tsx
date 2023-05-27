@@ -382,6 +382,10 @@ export default function UserShow(props: any) {
         ? data.features[0].properties
         : null;
 
+    setValue("inputAddress", address.formatted);
+    setValue("inputCity", address.city);
+    setValue("inputProvince", address.state);
+
     setAddress(address.formatted);
     setCity(address.city);
     setProvince(address.state);

@@ -15,6 +15,7 @@ import { OrdersDatabaseType } from "@/firebase/constants/orders_constants";
 import {
   PaymentMethodEnum,
   OrderStatusEnum,
+  CollectionsEnum,
 } from "@/firebase/constants/enum_constants";
 import {
   getCartViaIdFunction,
@@ -32,6 +33,7 @@ import Label from "@/components/forms/Label";
 
 import HeadingTwo from "@/components/forms/HeadingTwo";
 import { ErrorCodes } from "@/firebase/constants/success_and_error_codes";
+import { getDocumentGivenTypeAndIdFunction } from "@/firebase/firebase_functions/general_functions";
 
 export default function Cart(props: any) {
   const [firstName, setFirstName] = useState("");
@@ -224,6 +226,44 @@ export default function Cart(props: any) {
   useEffect(() => {
     clear();
     fetchCarts();
+
+    if (props.userDetails) {
+      if (props.userDetails.shipping_details.first_name) {
+        setValue(
+          "inputFirstName",
+          props.userDetails.shipping_details.first_name
+        );
+        setFirstName(props.userDetails.shipping_details.first_name);
+      }
+
+      if (props.userDetails.shipping_details.last_name) {
+        setValue("inputLastName", props.userDetails.shipping_details.last_name);
+        setLastName(props.userDetails.shipping_details.last_name);
+      }
+
+      if (props.userDetails.shipping_details.contact_number) {
+        setValue(
+          "inputContactNumber",
+          props.userDetails.shipping_details.contact_number
+        );
+        setContactNumber(props.userDetails.shipping_details.contact_number);
+      }
+
+      if (props.userDetails.shipping_details.city) {
+        setValue("inputCity", props.userDetails.shipping_details.city);
+        setCity(props.userDetails.shipping_details.city);
+      }
+
+      if (props.userDetails.shipping_details.province) {
+        setValue("inputProvince", props.userDetails.shipping_details.province);
+        setProvince(props.userDetails.shipping_details.province);
+      }
+
+      if (props.userDetails.shipping_details.address) {
+        setValue("inputAddress", props.userDetails.shipping_details.address);
+        setAddress(props.userDetails.shipping_details.address);
+      }
+    }
 
     const coordinates: HTMLElement = document.getElementById(
       "coordinates"
@@ -821,15 +861,34 @@ export async function getServerSideProps(context: any) {
       const token = await admin.auth().verifyIdToken(cookies.token);
       const { uid, email } = token;
       const getCartResult = await getCartViaIdFunction(uid);
-      return {
-        props: {
-          user: uid,
-          cart: getCartResult.isSuccess ? getCartResult.result : null,
-          isError: false,
-          message: "",
-          redirect: "/",
-        },
-      };
+
+      const userDetails = await getDocumentGivenTypeAndIdFunction(
+        CollectionsEnum.USER,
+        uid
+      );
+
+      if (userDetails.isSuccess) {
+        return {
+          props: {
+            userDetails: userDetails.result,
+            user: uid,
+            cart: getCartResult.isSuccess ? getCartResult.result : null,
+            isError: false,
+            message: "",
+            redirect: "/",
+          },
+        };
+      } else {
+        return {
+          props: {
+            user: uid,
+            cart: getCartResult.isSuccess ? getCartResult.result : null,
+            isError: false,
+            message: "",
+            redirect: "/",
+          },
+        };
+      }
     } else {
       if (cookies.cart) {
         return {
