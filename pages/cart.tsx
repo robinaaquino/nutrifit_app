@@ -94,8 +94,18 @@ export default function Cart(props: any) {
   async function fetchCarts() {
     if (props.cart) {
       //if cart exists in cookies
-      setCartContents(props.cart);
-      setCartProducts(props.cart.products);
+      if (props.cart.products.length == 0) {
+        if (cart.products.length != 0) {
+          setCartContents(cart);
+          setCartProducts(cart.products);
+        } else {
+          setCartContents(props.cart);
+          setCartProducts(props.cart.products);
+        }
+      } else {
+        setCartContents(props.cart);
+        setCartProducts(props.cart.products);
+      }
     }
   }
 
