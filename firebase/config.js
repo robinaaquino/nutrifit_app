@@ -8,12 +8,12 @@ import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAGlfwYF9K7qjXjt8HbZJBlhhJ7rMJ49cw",
-  authDomain: "nutrifit-app-e1e60.firebaseapp.com",
-  projectId: "nutrifit-app-e1e60",
-  storageBucket: "nutrifit-app-e1e60.appspot.com",
-  messagingSenderId: "843616849605",
-  appId: "1:843616849605:web:5bbb1e6c7a36bb8199eaac",
+  apiKey: process.env.NEXT_PUBLIC_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_APP_ID,
 };
 
 // Initialize Firebase
